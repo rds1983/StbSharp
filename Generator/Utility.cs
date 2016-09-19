@@ -1,55 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using ClangSharp;
+using SealangSharp;
 
 namespace Generator
 {
 	public static class Utility
 	{
-		private static readonly string[] _binaryOperators = {
-			"<<=",
-			">>=",
-			"^=",
-			"&=",
-			"|=",
-			"*=",
-			"/=",
-			"+=",
-			"-=",
-			"==",
-			"!=",
-			">=",
-			"<=",
-			">",
-			"<",
-			"=",
-			"&&",
-			"||",
-			"-",
-			"+",
-			"*",
-			"/",
-			"^",
-			">>",
-			"<<",
-			"&",
-			"|",
-			","
-		};
-
-		private static readonly string[] _unaryOperators =
-		{
-			"++",
-			"--",
-			"!",
-			"-",
-			"*",
-			"&",
-			"~"
-		};
+		private static Func<CXCursor, CXChildVisitResult> _visitorAction;
 
 		public static bool IsInSystemHeader(this CXCursor cursor)
 		{
@@ -131,34 +91,37 @@ namespace Generator
 			return type;
 		}
 
-		private static void ProcessPointerType(CXType type, TextWriter writer)
+		private static string ProcessPointerType(this CXType type)
 		{
 			type = type.Desugar();
 
 			if (type.kind == CXTypeKind.CXType_Void)
 			{
-				writer.Write("IntPtr");
-				return;
+				return "object";
 			}
+
+			var sb = new StringBuilder();
+			if (type.kind != CXTypeKind.CXType_Record)
+			{
+				sb.Append("Pointer<");
+			}
+
+			sb.Append(ToCSharpTypeString(type));
 
 			if (type.kind != CXTypeKind.CXType_Record)
 			{
-				writer.Write("Pointer<");
+				sb.Append(">");
 			}
 
-			CommonTypeHandling(type, writer);
-
-			if (type.kind != CXTypeKind.CXType_Record)
-			{
-				writer.Write(">");
-			}
+			return sb.ToString();
 		}
 
-		public static void CommonTypeHandling(CXType type, TextWriter writer)
+		public static string ToCSharpTypeString(this CXType type)
 		{
-			bool isConstQualifiedType = clang.isConstQualifiedType(type) != 0;
+			var isConstQualifiedType = clang.isConstQualifiedType(type) != 0;
 			var spelling = string.Empty;
 
+			var sb = new StringBuilder();
 			type = type.Desugar();
 			switch (type.kind)
 			{
@@ -167,19 +130,21 @@ namespace Generator
 					spelling = clang.getTypeSpelling(type).ToString();
 					break;
 				case CXTypeKind.CXType_IncompleteArray:
-					CommonTypeHandling(clang.getArrayElementType(type), writer);
+					sb.Append(clang.getArrayElementType(type).ToCSharpTypeString());
 					spelling = "[]";
 					break;
 				case CXTypeKind.CXType_Unexposed: // Often these are enums and canonical type gets you the enum spelling
 					var canonical = clang.getCanonicalType(type);
 					// unexposed decl which turns into a function proto seems to be an un-typedef'd fn pointer
-					spelling = canonical.kind == CXTypeKind.CXType_FunctionProto ? "IntPtr" : clang.getTypeSpelling(canonical).ToString();
+					spelling = canonical.kind == CXTypeKind.CXType_FunctionProto
+						? "IntPtr"
+						: clang.getTypeSpelling(canonical).ToString();
 					break;
 				case CXTypeKind.CXType_ConstantArray:
-					ProcessPointerType(clang.getArrayElementType(type), writer);
+					sb.Append(ProcessPointerType(clang.getArrayElementType(type)));
 					break;
 				case CXTypeKind.CXType_Pointer:
-					ProcessPointerType(clang.getPointeeType(type), writer);
+					sb.Append(ProcessPointerType(clang.getPointeeType(type)));
 					break;
 				default:
 					spelling = clang.getCanonicalType(type).ToPlainTypeString();
@@ -191,34 +156,69 @@ namespace Generator
 				spelling = spelling.Replace("const ", string.Empty); // ugh
 			}
 
-			writer.Write(spelling);
+			sb.Append(spelling);
+			return sb.ToString();
 		}
+
+		public static bool IsRecord(this CXType type)
+		{
+			type = type.Desugar();
+
+			switch (type.kind)
+			{
+				case CXTypeKind.CXType_Record:
+					return true;
+
+				case CXTypeKind.CXType_IncompleteArray:
+				case CXTypeKind.CXType_ConstantArray:
+					return clang.getArrayElementType(type).IsRecord();
+				case CXTypeKind.CXType_Pointer:
+					return clang.getPointeeType(type).IsRecord();
+			}
+
+			return false;
+		}
+
+
 
 		public static string FixSpecialWords(this string name)
 		{
-			return name.Replace("out", "output");
-		}
-
-		private static CXCursorKind _hasChildKind;
-		private static CXCursor? _findChildResult;
-
-		private static CXChildVisitResult HasChildrenChecker(CXCursor cursor, CXCursor parent, IntPtr data)
-		{
-			if (clang.getCursorKind(cursor) == _hasChildKind)
+			if (name == "out")
 			{
-				_findChildResult = cursor;
-				return CXChildVisitResult.CXChildVisit_Break;
+				name = "output";
 			}
 
-			return CXChildVisitResult.CXChildVisit_Recurse;
+			return name;
+		}
+
+		private static CXChildVisitResult ActionVisitor(CXCursor cursor, CXCursor parent, IntPtr data)
+		{
+			return _visitorAction(cursor);
+		}
+
+		public static void VisitWithAction(this CXCursor cursor, Func<CXCursor, CXChildVisitResult> func)
+		{
+			if (func == null)
+			{
+				throw new ArgumentNullException("func");
+			}
+
+			_visitorAction = func;
+
+			clang.visitChildren(cursor, ActionVisitor, new CXClientData(IntPtr.Zero));
 		}
 
 		public static CXCursor? FindChild(this CXCursor cursor, CXCursorKind kind)
 		{
-			_hasChildKind = kind;
-			_findChildResult = null;
+			CXCursor? _findChildResult = null;
 
-			clang.visitChildren(cursor, HasChildrenChecker, new CXClientData(IntPtr.Zero));
+			VisitWithAction(cursor, c =>
+			{
+				if (clang.getCursorKind(c) != kind) return CXChildVisitResult.CXChildVisit_Recurse;
+
+				_findChildResult = c;
+				return CXChildVisitResult.CXChildVisit_Break;
+			});
 
 			return _findChildResult;
 		}
@@ -234,8 +234,8 @@ namespace Generator
 			var tokens = new CXToken[numTokens];
 			for (uint i = 0; i < numTokens; ++i)
 			{
-				tokens[i] = (CXToken)Marshal.PtrToStructure(nativeTokens, typeof(CXToken));
-				nativeTokens += Marshal.SizeOf(typeof(CXToken));
+				tokens[i] = (CXToken) Marshal.PtrToStructure(nativeTokens, typeof (CXToken));
+				nativeTokens += Marshal.SizeOf(typeof (CXToken));
 
 				var name = clang.getTokenSpelling(translationUnit, tokens[i]).ToString();
 				result.Add(name);
@@ -244,53 +244,11 @@ namespace Generator
 			return result.ToArray();
 		}
 
-		public static string GetBinaryOperatorType(this CXCursor cursor, CXTranslationUnit translationUnit)
-		{
-			var tokens = cursor.Tokenize(translationUnit);
-
-			if (tokens.Length == 0)
-			{
-				return string.Empty;
-			}
-
-			foreach (var t in tokens)
-			{
-				var bo = _binaryOperators.FirstOrDefault(b => b == t);
-
-				if (bo != null)
-				{
-					return bo;
-				}
-			}
-
-			throw new Exception(string.Format("Could not determine operator type for cursor {0}", clang.getCursorSpelling(cursor)));
-		}
-
-		public static string GetUnaryOperatorType(this CXCursor cursor, CXTranslationUnit translationUnit)
-		{
-			var tokens = cursor.Tokenize(translationUnit);
-
-			if (tokens.Length == 0)
-			{
-				return string.Empty;
-			}
-
-			foreach (var t in tokens)
-			{
-				var bo = _unaryOperators.FirstOrDefault(b => b == t);
-
-				if (bo != null)
-				{
-					return bo;
-				}
-			}
-
-			throw new Exception(string.Format("Could not determine operator type for cursor {0}", clang.getCursorSpelling(cursor)));
-		}
-
 		public static string EnsureStatementFinished(this string statement)
 		{
-			if (!statement.EndsWith(";"))
+			var trimmed = statement.Trim();
+
+			if (!trimmed.EndsWith(";") && !trimmed.EndsWith("}"))
 			{
 				return statement + ";";
 			}
@@ -298,5 +256,118 @@ namespace Generator
 			return statement;
 		}
 
+		public static int GetChildrenCount(this CXCursor cursor)
+		{
+			var result = 0;
+
+			cursor.VisitWithAction(c =>
+			{
+				++result;
+				return CXChildVisitResult.CXChildVisit_Continue;
+			});
+
+			return result;
+		}
+
+		public static CXCursor? GetFirstChild(this CXCursor cursor)
+		{
+			return GetChildByIndex(cursor, 0);
+		}
+
+		public static CXCursor? GetChildByIndex(this CXCursor cursor, int index)
+		{
+			CXCursor? result = null;
+
+			var curIndex = 0;
+			cursor.VisitWithAction(c =>
+			{
+				if (curIndex == index)
+				{
+					result = c;
+					return CXChildVisitResult.CXChildVisit_Break;
+				}
+
+				++curIndex;
+				return CXChildVisitResult.CXChildVisit_Continue;
+			});
+
+			return result;
+		}
+
+		public static CXCursor EnsureChildByIndex(this CXCursor cursor, int index)
+		{
+			CXCursor? result = cursor.GetChildByIndex(index);
+
+			if (result == null)
+			{
+				throw new Exception(string.Format("Cursor doesnt have {0}'s child", index));
+			}
+
+			return result.Value;
+		}
+
+		public static bool IsLogicalBinaryOperator(this BinaryOperatorKind op)
+		{
+			return op == BinaryOperatorKind.LAnd || op == BinaryOperatorKind.LOr;
+		}
+
+		internal static string GetExpression(this CursorProcessResult cursorProcessResult)
+		{
+			return cursorProcessResult != null ? cursorProcessResult.Expression : string.Empty;
+		}
+
+		public static bool IsPrimitiveNumericType(this CXTypeKind kind)
+		{
+			switch (kind)
+			{
+				case CXTypeKind.CXType_Bool:
+				case CXTypeKind.CXType_UChar:
+				case CXTypeKind.CXType_Char_U:
+				case CXTypeKind.CXType_SChar:
+				case CXTypeKind.CXType_Char_S:
+				case CXTypeKind.CXType_UShort:
+				case CXTypeKind.CXType_Short:
+				case CXTypeKind.CXType_Float:
+				case CXTypeKind.CXType_Double:
+				case CXTypeKind.CXType_Int:
+				case CXTypeKind.CXType_UInt:
+				case CXTypeKind.CXType_Long:
+				case CXTypeKind.CXType_ULong:
+				case CXTypeKind.CXType_LongLong:
+				case CXTypeKind.CXType_ULongLong:
+					return true;
+			}
+
+			return false;
+		}
+
+		public static bool IsPointer(this CXTypeKind kind)
+		{
+			return kind == CXTypeKind.CXType_Pointer || kind == CXTypeKind.CXType_ConstantArray;
+		}
+
+		public static bool IsPointer(this CXType type)
+		{
+			return type.kind.IsPointer() &&
+			       (clang.getPointeeType(type).kind != CXTypeKind.CXType_Void);
+		}
+
+		public static bool IsUnaryOperatorPre(this UnaryOperatorKind type)
+		{
+			switch (type)
+			{
+				case UnaryOperatorKind.PreInc:
+				case UnaryOperatorKind.PreDec:
+				case UnaryOperatorKind.Plus:
+				case UnaryOperatorKind.Minus:
+				case UnaryOperatorKind.Not:
+				case UnaryOperatorKind.LNot:
+				case UnaryOperatorKind.AddrOf:
+				case UnaryOperatorKind.Deref:
+					return true;
+			}
+
+			return false;
+		}
 	}
 }

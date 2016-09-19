@@ -2,77 +2,111 @@
 {
 	internal struct Pointer<T> where T: struct
 	{
-		public T[] Data;
-		public int Position;
+		private T[] _data;
+		private int _position;
 
 		public int Size
 		{
-			get { return Data != null?Data.Length:0; }
+			get { return _data.Length; }
 		}
 
 		public bool IsNull
 		{
-			get { return Data == null; }
+			get { return _data.Length == 0; }
 		}
 
 		public T this[int index]
 		{
-			get { return Data[Position + index]; }
+			get { return _data[_position + index]; }
+			set { _data[_position + index] = value; }
+		}
 
-			set { Data[Position + index] = value; }
+		public T CurrentValue
+		{
+			get { return _data[_position]; }
+			set { _data[_position] = value; }
 		}
 
 		public Pointer(int size)
 		{
-			Data = new T[size];
-			Position = 0;
+			_data = new T[size];
+			_position = 0;
+		}
+
+		public T GetAndMove()
+		{
+			var result = CurrentValue;
+			_position++;
+
+			return result;
 		}
 
 		public void Reset()
 		{
-			Data = null;
-			Position = 0;
+			_data = null;
+			_position = 0;
 		}
 
-		public T GetNext()
+		public static bool operator ==(Pointer<T> a, object b)
 		{
-			var result = Data[Position];
-			Position++;
-			return result;
+			if (b == null)
+			{
+				return a.IsNull;
+			}
+
+			if (!b.GetType().IsValueType)
+			{
+				return false;
+			}
+
+			var asp = (Pointer<T>) b;
+
+			return a._data == asp._data &&
+			       a._position == asp._position;
+		}
+
+		public static bool operator !=(Pointer<T> a, object b)
+		{
+			return !(a == b);
 		}
 
 		public static Pointer<T> operator +(Pointer<T> a, int length)
 		{
 			return new Pointer<T>
 			{
-				Data = a.Data,
-				Position = a.Position + length
+				_data = a._data,
+				_position = a._position + length
 			};
+		}
+
+		public static Pointer<T> operator +(Pointer<T> a, long length)
+		{
+			return a + (int) length;
 		}
 
 		public static int operator -(Pointer<T> a, Pointer<T> b)
 		{
-			return a.Position - b.Position;
+			return a._position - b._position;
 		}
 
 		public static bool operator <(Pointer<T> a, Pointer<T> b)
 		{
-			return a.Position < b.Position;
+			return a._position < b._position;
 		}
 
 		public static bool operator >(Pointer<T> a, Pointer<T> b)
 		{
-			return a.Position > b.Position;
+			return a._position > b._position;
 		}
 
 		public static bool operator <=(Pointer<T> a, Pointer<T> b)
 		{
-			return a.Position <= b.Position;
+			return a._position <= b._position;
 		}
 
 		public static bool operator >=(Pointer<T> a, Pointer<T> b)
 		{
-			return a.Position >= b.Position;
+			return a._position >= b._position;
 		}
 	}
 }

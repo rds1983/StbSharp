@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using ClangSharp;
+using SealangSharp;
 
 namespace Generator
 {
@@ -21,12 +22,7 @@ namespace Generator
 			_writer = writer;
 		}
 
-		public void Run()
-		{
-			clang.visitChildren(clang.getTranslationUnitCursor(_translationUnit), InternalVisit, new CXClientData(IntPtr.Zero));
-		}
-
-		protected abstract CXChildVisitResult InternalVisit(CXCursor cursor, CXCursor parent, IntPtr data);
+		public abstract void Run();
 
 		protected void WriteIndent()
 		{
@@ -52,8 +48,39 @@ namespace Generator
 		{
 			var cursorKind = clang.getCursorKind(cursor);
 
-			IndentedWriteLine(string.Format("// {0}- {1}", clang.getCursorKindSpelling(cursorKind),
-				clang.getCursorSpelling(cursor)));
+			var line = string.Format("// {0}- {1} - {2}", clang.getCursorKindSpelling(cursorKind),
+				clang.getCursorSpelling(cursor),
+				clang.getTypeSpelling(clang.getCursorType(cursor)));
+
+			var addition = string.Empty;
+
+			switch (cursorKind)
+			{
+				case CXCursorKind.CXCursor_UnaryOperator:
+					addition = string.Format("Unary Operator: {0} ({1})",
+						sealang.cursor_getUnaryOpcode(cursor),
+						sealang.cursor_getOperatorString(cursor));
+					break;
+				case CXCursorKind.CXCursor_BinaryOperator:
+					addition = string.Format("Binary Operator: {0} ({1})",
+						sealang.cursor_getBinaryOpcode(cursor),
+						sealang.cursor_getOperatorString(cursor));
+					break;
+				case CXCursorKind.CXCursor_IntegerLiteral:
+				case CXCursorKind.CXCursor_FloatingLiteral:
+				case CXCursorKind.CXCursor_CharacterLiteral:
+				case CXCursorKind.CXCursor_StringLiteral:
+					addition = string.Format("Literal: {0}",
+						sealang.cursor_getLiteralString(cursor));
+					break;
+			}
+
+			if (!string.IsNullOrEmpty(addition))
+			{
+				line += " [" + addition + "]";
+			}
+
+			IndentedWriteLine(line);
 
 			_indentLevel++;
 			clang.visitChildren(cursor, DumpCursor, new CXClientData(IntPtr.Zero));

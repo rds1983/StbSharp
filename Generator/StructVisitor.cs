@@ -6,7 +6,7 @@ using ClangSharp;
 
 namespace Generator
 {
-	public class StructVisitor: BaseVisitor
+	public class StructVisitor : BaseVisitor
 	{
 		private static readonly string[] _skipStructs =
 		{
@@ -25,7 +25,7 @@ namespace Generator
 		{
 		}
 
-		protected override CXChildVisitResult InternalVisit(CXCursor cursor, CXCursor parent, IntPtr data)
+		private CXChildVisitResult Visit(CXCursor cursor, CXCursor parent, IntPtr data)
 		{
 			if (cursor.IsInSystemHeader())
 			{
@@ -58,7 +58,7 @@ namespace Generator
 					IndentedWriteLine("{");
 
 					_indentLevel++;
-					clang.visitChildren(cursor, InternalVisit, new CXClientData(IntPtr.Zero));
+					clang.visitChildren(cursor, Visit, new CXClientData(IntPtr.Zero));
 					_indentLevel--;
 
 					IndentedWriteLine("}");
@@ -83,8 +83,7 @@ namespace Generator
 				IndentedWrite("public ");
 
 				var canonical = clang.getCanonicalType(clang.getCursorType(cursor));
-				Utility.CommonTypeHandling(canonical, _writer);
-
+				_writer.Write(canonical.ToCSharpTypeString());
 				_writer.Write(" ");
 
 				fieldName = fieldName.FixSpecialWords();
@@ -96,6 +95,11 @@ namespace Generator
 			}
 
 			return CXChildVisitResult.CXChildVisit_Recurse;
+		}
+
+		public override void Run()
+		{
+			clang.visitChildren(clang.getTranslationUnitCursor(_translationUnit), Visit, new CXClientData(IntPtr.Zero));
 		}
 	}
 }

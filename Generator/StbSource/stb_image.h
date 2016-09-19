@@ -577,7 +577,7 @@ STBIDEF int   stbi_zlib_decode_noheader_buffer(char *obuffer, int olen, const ch
 
 #ifndef STBI_ASSERT
 #include <assert.h>
-#define STBI_ASSERT(x) assert(x)
+#define STBI_ASSERT(x) // assert(x)
 #endif
 
 

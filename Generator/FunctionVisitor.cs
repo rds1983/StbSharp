@@ -4,32 +4,33 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using ClangSharp;
+using SealangSharp;
 
 namespace Generator
 {
 	public class FunctionVisitor : BaseVisitor
 	{
-		private static readonly string[] _toSkip = {
+		private static readonly string[] _toSkip =
+		{
 			"stbi__malloc",
-			"stbi_image_free"
+			"stbi_image_free",
+			"stbi_failure_reason",
+			"stbi__err",
+			"stbi_is_hdr_from_memory",
+			"stbi_is_hdr_from_callbacks"
 		};
 
 		private CXCursor _functionStatement;
-		private readonly Stack<Stack<string>> _expressionStacks = new Stack<Stack<string>>();
-		private int _level;
+		private string _returnType;
 		private string _functionName;
 
-		private Stack<string> TopExpressionStack
-		{
-			get { return _expressionStacks.Peek(); }
-		}
 
 		public FunctionVisitor(CXTranslationUnit translationUnit, TextWriter writer)
 			: base(translationUnit, writer)
 		{
 		}
 
-		protected override CXChildVisitResult InternalVisit(CXCursor cursor, CXCursor parent, IntPtr data)
+		private CXChildVisitResult Visit(CXCursor cursor, CXCursor parent, IntPtr data)
 		{
 			if (cursor.IsInSystemHeader())
 			{
@@ -49,7 +50,7 @@ namespace Generator
 				}
 
 				_functionStatement = body.Value;
-				
+
 				_functionName = clang.getCursorSpelling(cursor).ToString();
 
 				if (_toSkip.Contains(_functionName))
@@ -65,364 +66,455 @@ namespace Generator
 			return CXChildVisitResult.CXChildVisit_Recurse;
 		}
 
-		private CXChildVisitResult VisitFunctionBody(CXCursor cursor, CXCursor parent, IntPtr data)
+		private CursorProcessResult ProcessChildByIndex(CXCursor cursor, int index)
 		{
-			var cursorKind = clang.getCursorKind(cursor);
+			return Process(cursor.EnsureChildByIndex(index));
+		}
 
-			// Process children
-			_level++;
-
-			// Create new expression stack
-			var childStack = new Stack<string>();
-			_expressionStacks.Push(childStack);
-
-			clang.visitChildren(cursor, VisitFunctionBody, new CXClientData(IntPtr.Zero));
-			_level--;
-
-			_expressionStacks.Pop();
-
-			var spelling = clang.getCursorSpelling(cursor).ToString();
-			var expressionStack = TopExpressionStack;
-
-			switch (cursorKind)
+		private CursorProcessResult ProcessPossibleChildByIndex(CXCursor cursor, int index)
+		{
+			var childCursor = cursor.GetChildByIndex(index);
+			if (childCursor == null)
 			{
-				case CXCursorKind.CXCursor_UnexposedExpr:
-				{
-					var tokens = cursor.Tokenize(_translationUnit);
+				return null;
+			}
 
-					var expr = string.Empty;
-					if (childStack.Count == 0)
-					{
-						expr = string.Join(" ", tokens);
-					}
-					else
-					{
-						expr = childStack.Pop();
-					}
-/*					if (tokens.Contains("sizeof") && !expr.EndsWith(".Size"))
-					{
-						expr = expr + ".Size";
-					}*/
-					expressionStack.Push(expr);
+			return Process(childCursor.Value);
+		}
+
+		internal void AppendGZ(CursorProcessResult crp)
+		{
+			var info = crp.Info;
+			if (info.Kind == CXCursorKind.CXCursor_BinaryOperator)
+			{
+				return;
+			}
+
+			if (info.Kind == CXCursorKind.CXCursor_UnaryOperator)
+			{
+				bool left;
+				var type = sealang.cursor_getUnaryOpcode(info.Cursor);
+
+				if (type == UnaryOperatorKind.Not)
+				{
+					var sub = ProcessChildByIndex(crp.Info.Cursor, 0);
+					crp.Expression = sub.Expression + "== 0";
+
+					return;
 				}
-					break;
-				case CXCursorKind.CXCursor_DeclRefExpr:
-					if (!string.IsNullOrEmpty(spelling))
+			}
+
+			if (info.Type.kind.IsPrimitiveNumericType())
+			{
+				crp.Expression = "(" + crp.Expression + ") != 0";
+			}
+
+			if (info.Type.IsPointer())
+			{
+				crp.Expression = "(" + crp.Expression + ") != null";
+			}
+		}
+
+		private string InternalProcess(CursorInfo info)
+		{
+			switch (info.Kind)
+			{
+				case CXCursorKind.CXCursor_UnaryExpr:
+				{
+					var expr = ProcessPossibleChildByIndex(info.Cursor, 0);
+
+					if (expr != null)
 					{
-						expressionStack.Push(spelling);
+						if (info.Type.kind == CXTypeKind.CXType_ULongLong)
+						{
+							return expr.Expression + ".Size";
+						}
+
+						return expr.Expression;
 					}
-					break;
+
+					var tokens = info.Cursor.Tokenize(_translationUnit);
+					return string.Join(" ", tokens);
+				}
+				case CXCursorKind.CXCursor_DeclRefExpr:
+					return info.Spelling;
 				case CXCursorKind.CXCursor_CompoundAssignOperator:
 				case CXCursorKind.CXCursor_BinaryOperator:
-				{
-					var a = childStack.Pop();
-					var b = childStack.Pop();
-					var type = cursor.GetBinaryOperatorType(_translationUnit);
-
-					expressionStack.Push(b + " " + type + " " + a);
-				}
-					break;
-				case CXCursorKind.CXCursor_UnaryOperator:
-				{
-					var a = childStack.Pop();
-					var type = cursor.GetUnaryOperatorType(_translationUnit);
-
-					if (type == "*" || type == "&")
 					{
-						// Skip all pointer staff
-						type = string.Empty;
+					var a = ProcessChildByIndex(info.Cursor, 0);
+					var b = ProcessChildByIndex(info.Cursor, 1);
+					var type = sealang.cursor_getBinaryOpcode(info.Cursor);
+
+					if (type.IsLogicalBinaryOperator())
+					{
+						AppendGZ(a);
+						AppendGZ(b);
 					}
 
-					expressionStack.Push(type + a);
+					if (type == BinaryOperatorKind.Assign)
+					{
+						// Explicity cast right to left
+						if (!info.Type.IsPointer())
+						{
+
+							b.Expression = "(" + info.CsType + ") (" + b.Expression + ")";
+						}
+					}
+
+					var str = sealang.cursor_getOperatorString(info.Cursor);
+					return a.Expression + " " + str + " " + b.Expression;
 				}
-					break;
+				case CXCursorKind.CXCursor_UnaryOperator:
+				{
+					var a = ProcessChildByIndex(info.Cursor, 0);
+
+					var type = sealang.cursor_getUnaryOpcode(info.Cursor);
+
+					if (type == UnaryOperatorKind.Deref && a.Info.Kind == CXCursorKind.CXCursor_UnaryOperator)
+					{
+						// Handle "*ptr++" case
+						var aa = ProcessChildByIndex(a.Info.Cursor, 0);
+						return aa.Expression + ".GetAndMove()";
+					}
+
+					if (type == UnaryOperatorKind.Deref && a.Info.IsPointer && !a.Info.IsRecord)
+					{
+						a.Expression = a.Expression + ".CurrentValue";
+					}
+
+/*					if (type == "*" || type == "&")
+					{
+						type = string.Empty;
+					}*/
+
+					var str = sealang.cursor_getOperatorString(info.Cursor).ToString();
+					var left = type.IsUnaryOperatorPre();
+
+					switch (type)
+					{
+						case UnaryOperatorKind.AddrOf:
+						case UnaryOperatorKind.Deref:
+							str = string.Empty;
+							break;
+					}
+
+					if (left)
+					{
+						return str + a.Expression;
+					}
+
+					return a.Expression + str;
+				}
+
 				case CXCursorKind.CXCursor_CallExpr:
 				{
-					var sb = new StringBuilder();
+					var size = info.Cursor.GetChildrenCount();
+
+					var functionExpr = ProcessChildByIndex(info.Cursor, 0);
+					var functionName = functionExpr.Expression;
 
 					// Retrieve arguments
 					var args = new List<string>();
-					while (childStack.Count > 1)
+					for (var i = 1; i < size; ++i)
 					{
-						args.Add(childStack.Pop());
+						var argExpr = ProcessChildByIndex(info.Cursor, i);
+
+						args.Add(argExpr.Expression);
 					}
-					args.Reverse();
 
-					// Pop function name from the stack
-					var functionName = childStack.Pop();
+					functionName = functionName.Replace("(", string.Empty).Replace(")", string.Empty);
 
-					sb.Clear();
+					var sb = new StringBuilder();
 					sb.Append(functionName + "(");
 					sb.Append(string.Join(", ", args));
 					sb.Append(")");
 
-					expressionStack.Push(sb.ToString());
+					return sb.ToString();
 				}
-					break;
 				case CXCursorKind.CXCursor_ReturnStmt:
 				{
-					var ret = string.Empty;
-					if (childStack.Count > 0)
+					var child = ProcessPossibleChildByIndex(info.Cursor, 0);
+					var ret = child.GetExpression();
+
+					if (_returnType != "void" && !_returnType.StartsWith("Pointer"))
 					{
-						ret = childStack.Pop();
+						ret = "(" + _returnType + ")(" + ret + ")";
 					}
 
 					var exp = string.IsNullOrEmpty(ret) ? "return" : "return " + ret;
-					expressionStack.Push(exp);
+
+					return exp;
 				}
-					break;
 				case CXCursorKind.CXCursor_IfStmt:
 				{
-					var elseBlock = string.Empty;
-					if (childStack.Count > 2)
+					var conditionExpr = ProcessChildByIndex(info.Cursor, 0);
+					AppendGZ(conditionExpr);
+
+					var executionExpr = ProcessChildByIndex(info.Cursor, 1);
+					var elseExpr = ProcessPossibleChildByIndex(info.Cursor, 2);
+
+					var expr = "if (" + conditionExpr.Expression + ") " + executionExpr.Expression;
+
+					if (elseExpr != null)
 					{
-						elseBlock = childStack.Pop();
+						expr += " else " + elseExpr.Expression;
 					}
 
-					var executionBlock = childStack.Pop();
-
-					if (childStack.Count == 0)
-					{
-						var k = 5;
-					}
-
-					var condition = childStack.Pop();
-
-					var expr = "if (" + condition + ") " + executionBlock;
-
-					if (!string.IsNullOrEmpty(elseBlock))
-					{
-						expr += " else " + elseBlock;
-					}
-
-					expressionStack.Push(expr);
+					return expr;
 				}
-					break;
 				case CXCursorKind.CXCursor_ForStmt:
 				{
-					var execution = childStack.Pop();
+					var size = info.Cursor.GetChildrenCount();
 
-					var start = string.Empty;
-					var condition = string.Empty;
-					var it = string.Empty;
-
-					switch (childStack.Count)
+					CursorProcessResult execution = null, start = null, condition = null, it = null;
+					switch (size)
 					{
-						case 3:
-							it = childStack.Pop();
-							condition = childStack.Pop();
-							start = childStack.Pop();
+						case 1:
+							execution = ProcessChildByIndex(info.Cursor, 0);
 							break;
 						case 2:
-							it = childStack.Pop();
-							start = childStack.Pop();
+							start = ProcessChildByIndex(info.Cursor, 0);
+							execution = ProcessChildByIndex(info.Cursor, 1);
 							break;
-						case 1:
-							start = childStack.Pop();
+						case 3:
+							start = ProcessChildByIndex(info.Cursor, 0);
+							it = ProcessChildByIndex(info.Cursor, 1);
+							execution = ProcessChildByIndex(info.Cursor, 2);
+							break;
+						case 4:
+							start = ProcessChildByIndex(info.Cursor, 0);
+							condition = ProcessChildByIndex(info.Cursor, 1);
+							it = ProcessChildByIndex(info.Cursor, 2);
+							execution = ProcessChildByIndex(info.Cursor, 3);
 							break;
 					}
-				
-					var exp = "for (" + start + "; " + condition + "; " + it + ")" + execution;
-					expressionStack.Push(exp);
+					return "for (" + start.GetExpression() + "; " + condition.GetExpression() + "; " + it.GetExpression() + ")" + execution.GetExpression();
 				}
-					break;
+
+				case CXCursorKind.CXCursor_CaseStmt:
+				{
+					var expr = ProcessChildByIndex(info.Cursor, 0);
+					var execution = ProcessChildByIndex(info.Cursor, 1);
+					return "case " + expr.Expression + ":" + execution.Expression;
+				}
+
+				case CXCursorKind.CXCursor_SwitchStmt:
+				{
+					var expr = ProcessChildByIndex(info.Cursor, 0);
+					var execution = ProcessChildByIndex(info.Cursor, 1);
+					return "switch (" + expr.Expression + ")" + execution.Expression;
+				}
 
 				case CXCursorKind.CXCursor_LabelRef:
-					expressionStack.Push(spelling);
-					break;
+					return info.Spelling;
 				case CXCursorKind.CXCursor_GotoStmt:
 				{
-					var label = childStack.Pop();
+					var label = ProcessChildByIndex(info.Cursor, 0);
 
-					var exp = "goto " + label;
-					expressionStack.Push(exp);
+					return "goto " + label.Expression;
 				}
-					break;
 
 				case CXCursorKind.CXCursor_LabelStmt:
 				{
 					var sb = new StringBuilder();
 
-					sb.Append(spelling);
+					sb.Append(info.Spelling);
 					sb.Append(":;\n");
 
-					childStack = new Stack<string>(childStack);
-					while (childStack.Count > 0)
+					var size = info.Cursor.GetChildrenCount();
+					for (var i = 0; i < size; ++i)
 					{
-						sb.Append(childStack.Pop());
+						var child = ProcessChildByIndex(info.Cursor, i);
+						sb.Append(child.Expression);
 					}
 
-					expressionStack.Push(sb.ToString());
+					return sb.ToString();
 				}
-					break;
 
 				case CXCursorKind.CXCursor_ConditionalOperator:
 				{
-					var a = childStack.Pop();
-					var b = childStack.Pop();
-					var condition = childStack.Pop();
+					var condition = ProcessChildByIndex(info.Cursor, 0);
+					var a = ProcessChildByIndex(info.Cursor, 1);
+					var b = ProcessChildByIndex(info.Cursor, 2);
 
-					var expr = condition + "?" + a + ":" + b;
+					if (condition.Info.IsPrimitiveNumericType)
+					{
+						condition.Expression = condition.Expression + " > 0";
+					}
 
-					expressionStack.Push(expr);
+					return condition.Expression + "?" + a.Expression + ":" + b.Expression;
 				}
-					break;
 				case CXCursorKind.CXCursor_MemberRefExpr:
 				{
-					var a = childStack.Pop();
-					expressionStack.Push(a + "." + spelling);
+					var a = ProcessChildByIndex(info.Cursor, 0);
+					return a.Expression + "." + info.Spelling;
 				}
-					break;
 				case CXCursorKind.CXCursor_IntegerLiteral:
 				case CXCursorKind.CXCursor_FloatingLiteral:
 				{
-					var tokens = cursor.Tokenize(_translationUnit);
-					var t = string.Empty;
-					if (tokens.Length > 0)
-					{
-						t = tokens[0];
-					}
-
-					if (string.IsNullOrEmpty(t))
-					{
-						t = "null";
-					}
-					expressionStack.Push(t);
-					break;
+					return sealang.cursor_getLiteralString(info.Cursor).ToString();
 				}
 				case CXCursorKind.CXCursor_CharacterLiteral:
+					return info.Spelling;
 				case CXCursorKind.CXCursor_StringLiteral:
-					expressionStack.Push(spelling);
-					break;
+					return info.Spelling.StartsWith("L") ? info.Spelling.Substring(1) : info.Spelling;
 				case CXCursorKind.CXCursor_VarDecl:
 				{
-					var rvalue = string.Empty;
-
-					if (childStack.Count > 0)
+					CursorProcessResult rvalue = null;
+					var size = info.Cursor.GetChildrenCount();
+					if (size > 0)
 					{
-						rvalue = childStack.Pop();
+						rvalue = ProcessPossibleChildByIndex(info.Cursor, size - 1);
 					}
 
-					string expr = !string.IsNullOrEmpty(rvalue) ? expr = "var " + spelling + " = " + rvalue : spelling;
+					var expr = info.CsType + " " + info.Spelling;
 
-					expressionStack.Push(expr);
+					if (rvalue != null && !string.IsNullOrEmpty(rvalue.Expression))
+					{
+						if (!info.IsPointer)
+						{
+							expr += " = (" + info.CsType + ")(" + rvalue.Expression + ")";
+						}
+						else
+						{
+							expr += " = " + rvalue.Expression;
+						}
+					}
+					else if (info.IsRecord)
+					{
+						expr += " = new " + info.CsType + "()";
+					}
+
+					return expr;
 				}
-					break;
 				case CXCursorKind.CXCursor_DeclStmt:
 				{
-					var tokens = cursor.Tokenize(_translationUnit);
-
 					var sb = new StringBuilder();
-					while (childStack.Count > 0)
+					var size = info.Cursor.GetChildrenCount();
+					for (var i = 0; i < size; ++i)
 					{
-						var exp = childStack.Pop();
-
-						if (!exp.StartsWith("var"))
-						{
-							// Determine type from tokens
-							exp = tokens[0] + " " + exp;
-						}
-
-						exp = exp.EnsureStatementFinished() + "\n";
-						sb.Append(exp);
+						var exp = ProcessChildByIndex(info.Cursor, i);
+						exp.Expression = exp.Expression.EnsureStatementFinished();
+						sb.Append(exp.Expression);
 					}
 
-					expressionStack.Push(sb.ToString());
+					return sb.ToString();
 				}
-					break;
 				case CXCursorKind.CXCursor_CompoundStmt:
 				{
 					var sb = new StringBuilder();
 					sb.Append("{\n");
 
-					// Reverse stack
-					childStack = new Stack<string>(childStack);
-
-					// Proces it
-					while (childStack.Count > 0)
+					var size = info.Cursor.GetChildrenCount();
+					for (var i = 0; i < size; ++i)
 					{
-						var exp = childStack.Pop();
-						sb.Append(exp.EnsureStatementFinished());
+						var exp = ProcessChildByIndex(info.Cursor, i);
+						exp.Expression = exp.Expression.EnsureStatementFinished();
+						sb.Append(exp.Expression);
 					}
 
 					sb.Append("}\n");
 
 					var fullExp = sb.ToString();
-					expressionStack.Push(fullExp);
+
+					return fullExp;
 				}
-					break;
 
 				case CXCursorKind.CXCursor_ArraySubscriptExpr:
 				{
-					var expr = childStack.Pop();
-					var var = childStack.Pop();
+					var var = ProcessChildByIndex(info.Cursor, 0);
+					var expr = ProcessChildByIndex(info.Cursor, 1);
 
-					var exp = var + "[" + expr + "]";
-					expressionStack.Push(exp);
+					return var.Expression + "[" + expr.Expression + "]";
 				}
-					break;
 
 				case CXCursorKind.CXCursor_InitListExpr:
 				{
 					var sb = new StringBuilder();
 
 					sb.Append("{ ");
-					while (childStack.Count > 0)
+					var size = info.Cursor.GetChildrenCount();
+					for (var i = 0; i < size; ++i)
 					{
-						sb.Append(childStack.Pop());
+						var exp = ProcessChildByIndex(info.Cursor, i);
+						sb.Append(exp.Expression);
 
-						if (childStack.Count > 0)
+						if (i < size - 1)
 						{
 							sb.Append(", ");
 						}
 					}
 
 					sb.Append(" }");
-					expressionStack.Push(sb.ToString());
+					return sb.ToString();
 				}
-
-					break;
 
 				case CXCursorKind.CXCursor_ParenExpr:
 				{
-					var expr = string.Empty;
-					if (childStack.Count > 1)
-					{
-						expr = childStack.Pop();
-					}
+					var expr = ProcessPossibleChildByIndex(info.Cursor, 0);
 
-					expr = "(" + expr + ")";
-					expressionStack.Push(expr);
+					return "(" + expr.GetExpression() + ")";
 				}
-					break;
 
 				case CXCursorKind.CXCursor_BreakStmt:
-					expressionStack.Push("break");
-					break;
+					return "break";
+
+				case CXCursorKind.CXCursor_CStyleCastExpr:
+				{
+					var size = info.Cursor.GetChildrenCount();
+					var child = ProcessChildByIndex(info.Cursor, size - 1);
+
+					var expr = child.Expression;
+					if (!info.IsCPointer || !child.Info.IsPrimitiveNumericType) return expr;
+
+					if (info.IsRecord)
+					{
+						expr = "new " + info.CsType + "(" + expr + ")";
+					}
+					else
+					{
+						expr = "null /*" + expr + "*/";
+					}
+
+					return expr;
+				}
 
 				default:
 				{
-					if (childStack.Count > 0)
+					// Return last child
+					var size = info.Cursor.GetChildrenCount();
+
+					if (size == 0)
 					{
-						var expr = childStack.Pop();
-						expressionStack.Push(expr);
+						return string.Empty;
 					}
-				}
 
-					break;
+					var expr = ProcessPossibleChildByIndex(info.Cursor, size - 1);
+
+					return expr.GetExpression();
+				}
 			}
+		}
 
-			if (_level == 0 && expressionStack.Count > 0)
+		private CursorProcessResult Process(CXCursor cursor)
+		{
+			var info = new CursorInfo(cursor);
+
+			var expr = InternalProcess(info);
+
+			return new CursorProcessResult(info)
 			{
-				// Dump expressions on stack
-				var reverted = expressionStack.Reverse();
+				Expression = expr
+			};
+		}
 
-				foreach (var r in reverted)
-				{
-					IndentedWriteLine(r + ";");
-				}
+		private CXChildVisitResult VisitFunctionBody(CXCursor cursor, CXCursor parent, IntPtr data)
+		{
+			var res = Process(cursor);
 
-				expressionStack.Clear();
+			if (!string.IsNullOrEmpty(res.Expression))
+			{
+				IndentedWriteLine(res.Expression.EnsureStatementFinished());
 			}
 
 			return CXChildVisitResult.CXChildVisit_Continue;
@@ -434,10 +526,9 @@ namespace Generator
 
 			_indentLevel++;
 
-			var expressionStack = new Stack<string>();
-			_expressionStacks.Push(expressionStack);
 			clang.visitChildren(_functionStatement, VisitFunctionBody, new CXClientData(IntPtr.Zero));
-			_expressionStacks.Pop();
+
+			// DumpCursor(cursor);
 
 			_indentLevel--;
 
@@ -449,11 +540,10 @@ namespace Generator
 		{
 			var functionType = clang.getCursorType(cursor);
 			var functionName = clang.getCursorSpelling(cursor).ToString();
-			var resultType = clang.getCursorResultType(cursor);
+			var returnType = clang.getCursorResultType(cursor);
 
-			IndentedWrite("private static ");
-
-			Utility.CommonTypeHandling(resultType, _writer);
+			_returnType = returnType.ToCSharpTypeString();
+			IndentedWrite("private static " + _returnType);
 
 			_writer.Write(" " + functionName + "(");
 
@@ -474,17 +564,24 @@ namespace Generator
 
 			var spelling = clang.getCursorSpelling(paramCursor).ToString();
 
-			Utility.CommonTypeHandling(type, _writer);
+			var name = spelling.FixSpecialWords();
+			var typeName = type.ToCSharpTypeString();
 
+
+			_writer.Write(typeName);
 			_writer.Write(" ");
 
-			spelling = spelling.FixSpecialWords();
-			_writer.Write(spelling);
+			_writer.Write(name);
 
 			if (index != numArgTypes - 1)
 			{
 				_writer.Write(", ");
 			}
+		}
+
+		public override void Run()
+		{
+			clang.visitChildren(clang.getTranslationUnitCursor(_translationUnit), Visit, new CXClientData(IntPtr.Zero));
 		}
 	}
 }

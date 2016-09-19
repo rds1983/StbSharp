@@ -61,7 +61,7 @@ namespace Generator
 			var executableLocation = System.Reflection.Assembly.GetEntryAssembly().Location;
 			var executableFolder = Path.GetDirectoryName(executableLocation);
 
-			var outputPath = Path.Combine(executableFolder, @"..\..\..\..\StbSharp\Image.Generated.cs");
+			var outputPath = Path.Combine(executableFolder, @"..\..\..\StbSharp\Image.Generated.cs");
 
 			using (_writer = new StreamWriter(outputPath))
 			{
