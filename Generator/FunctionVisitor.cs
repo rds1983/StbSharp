@@ -10,7 +10,13 @@ namespace Generator
 {
 	public class FunctionVisitor : BaseVisitor
 	{
-		private static readonly string[] _toSkip =
+		private static readonly string[] _globalVariablesToSkip =
+		{
+			"stbi__g_failure_reason",
+			"stbi__vertically_flip_on_load"
+		};
+
+		private static readonly string[] _functionsToSkip =
 		{
 			"stbi__malloc",
 			"stbi_image_free",
@@ -21,16 +27,81 @@ namespace Generator
 		};
 
 		private CXCursor _functionStatement;
-		private string _returnType;
+		private CXType _returnType;
 		private string _functionName;
-
 
 		public FunctionVisitor(CXTranslationUnit translationUnit, TextWriter writer)
 			: base(translationUnit, writer)
 		{
 		}
 
-		private CXChildVisitResult Visit(CXCursor cursor, CXCursor parent, IntPtr data)
+		private CXChildVisitResult VisitEnums(CXCursor cursor, CXCursor parent, IntPtr data)
+		{
+			if (cursor.IsInSystemHeader())
+			{
+				return CXChildVisitResult.CXChildVisit_Continue;
+			}
+
+			var curKind = clang.getCursorKind(cursor);
+
+			if (curKind == CXCursorKind.CXCursor_EnumDecl)
+			{
+				var i = 0;
+
+				var count = cursor.GetChildrenCount();
+				cursor.VisitWithAction(c =>
+				{
+					var name = clang.getCursorSpelling(c).ToString();
+
+					var child = ProcessPossibleChildByIndex(c, 0);
+					var value = child != null ? int.Parse(child.Expression) : i;
+
+					var expr = "private const int " + name + " = " + value + ";";
+					IndentedWriteLine(expr);
+
+					i = value + 1;
+
+					return CXChildVisitResult.CXChildVisit_Continue;
+				});
+			}
+
+			return CXChildVisitResult.CXChildVisit_Continue;
+		}
+
+		private CXChildVisitResult VisitGlobalVariables(CXCursor cursor, CXCursor parent, IntPtr data)
+		{
+			if (cursor.IsInSystemHeader())
+			{
+				return CXChildVisitResult.CXChildVisit_Continue;
+			}
+
+			var curKind = clang.getCursorKind(cursor);
+			var spelling = clang.getCursorSpelling(cursor).ToString();
+
+			// look only at function decls
+			if (curKind == CXCursorKind.CXCursor_VarDecl)
+			{
+				if (_globalVariablesToSkip.Contains(spelling))
+				{
+					return CXChildVisitResult.CXChildVisit_Continue;
+				}
+
+				var res = Process(cursor);
+
+				res.Expression = "static " + res.Expression + ";";
+
+				if (!string.IsNullOrEmpty(res.Expression))
+				{
+					IndentedWriteLine(res.Expression);
+				}
+
+				Logger.Info("Processing global variable {0}", spelling);
+			}
+
+			return CXChildVisitResult.CXChildVisit_Continue;
+		}
+
+		private CXChildVisitResult VisitFunctions(CXCursor cursor, CXCursor parent, IntPtr data)
 		{
 			if (cursor.IsInSystemHeader())
 			{
@@ -53,7 +124,7 @@ namespace Generator
 
 				_functionName = clang.getCursorSpelling(cursor).ToString();
 
-				if (_toSkip.Contains(_functionName))
+				if (_functionsToSkip.Contains(_functionName))
 				{
 					return CXChildVisitResult.CXChildVisit_Continue;
 				}
@@ -92,10 +163,9 @@ namespace Generator
 
 			if (info.Kind == CXCursorKind.CXCursor_UnaryOperator)
 			{
-				bool left;
 				var type = sealang.cursor_getUnaryOpcode(info.Cursor);
 
-				if (type == UnaryOperatorKind.Not)
+				if (type == UnaryOperatorKind.LNot)
 				{
 					var sub = ProcessChildByIndex(crp.Info.Cursor, 0);
 					crp.Expression = sub.Expression + "== 0";
@@ -119,6 +189,13 @@ namespace Generator
 		{
 			switch (info.Kind)
 			{
+				case CXCursorKind.CXCursor_EnumConstantDecl:
+				{
+					var expr = ProcessPossibleChildByIndex(info.Cursor, 0);
+
+					return info.Spelling + " = " + expr.Expression;
+				}
+
 				case CXCursorKind.CXCursor_UnaryExpr:
 				{
 					var expr = ProcessPossibleChildByIndex(info.Cursor, 0);
@@ -137,10 +214,10 @@ namespace Generator
 					return string.Join(" ", tokens);
 				}
 				case CXCursorKind.CXCursor_DeclRefExpr:
-					return info.Spelling;
+					return info.Spelling.FixSpecialWords();
 				case CXCursorKind.CXCursor_CompoundAssignOperator:
 				case CXCursorKind.CXCursor_BinaryOperator:
-					{
+				{
 					var a = ProcessChildByIndex(info.Cursor, 0);
 					var b = ProcessChildByIndex(info.Cursor, 1);
 					var type = sealang.cursor_getBinaryOpcode(info.Cursor);
@@ -156,8 +233,17 @@ namespace Generator
 						// Explicity cast right to left
 						if (!info.Type.IsPointer())
 						{
+							if (b.Info.Kind == CXCursorKind.CXCursor_BinaryOperator &&
+							    sealang.cursor_getBinaryOpcode(b.Info.Cursor).IsBooleanOperator())
+							{
+								b.Expression = "(" + b.Expression + "?1:0)";
+							}
+							else
+							{
+								b.Expression = "(" + b.Expression + ")";
+							}
 
-							b.Expression = "(" + info.CsType + ") (" + b.Expression + ")";
+							b.Expression = "(" + info.CsType + ")" + b.Expression;
 						}
 					}
 
@@ -234,11 +320,23 @@ namespace Generator
 				case CXCursorKind.CXCursor_ReturnStmt:
 				{
 					var child = ProcessPossibleChildByIndex(info.Cursor, 0);
+
 					var ret = child.GetExpression();
 
-					if (_returnType != "void" && !_returnType.StartsWith("Pointer"))
+					if (_returnType.kind != CXTypeKind.CXType_Void && !_returnType.IsPointer())
 					{
-						ret = "(" + _returnType + ")(" + ret + ")";
+						if (child != null &&
+						    child.Info.Kind == CXCursorKind.CXCursor_BinaryOperator &&
+						    sealang.cursor_getBinaryOpcode(child.Info.Cursor).IsBooleanOperator())
+						{
+							ret = "(" + ret + "?1:0)";
+						}
+						else
+						{
+							ret = "(" + ret + ")";
+						}
+
+						ret = "(" + _returnType.ToCSharpTypeString() + ")" + ret;
 					}
 
 					var exp = string.IsNullOrEmpty(ret) ? "return" : "return " + ret;
@@ -288,7 +386,8 @@ namespace Generator
 							execution = ProcessChildByIndex(info.Cursor, 3);
 							break;
 					}
-					return "for (" + start.GetExpression() + "; " + condition.GetExpression() + "; " + it.GetExpression() + ")" + execution.GetExpression();
+					return "for (" + start.GetExpression() + "; " + condition.GetExpression() + "; " + it.GetExpression() + ")" +
+					       execution.GetExpression();
 				}
 
 				case CXCursorKind.CXCursor_CaseStmt:
@@ -303,6 +402,14 @@ namespace Generator
 					var expr = ProcessChildByIndex(info.Cursor, 0);
 					var execution = ProcessChildByIndex(info.Cursor, 1);
 					return "switch (" + expr.Expression + ")" + execution.Expression;
+				}
+
+				case CXCursorKind.CXCursor_DoStmt:
+				{
+					var execution = ProcessChildByIndex(info.Cursor, 0);
+					var expr = ProcessChildByIndex(info.Cursor, 1);
+
+					return "do { " + execution.Expression + " } while (" + expr.Expression + ")";
 				}
 
 				case CXCursorKind.CXCursor_LabelRef:
@@ -362,9 +469,18 @@ namespace Generator
 				{
 					CursorProcessResult rvalue = null;
 					var size = info.Cursor.GetChildrenCount();
+
 					if (size > 0)
 					{
 						rvalue = ProcessPossibleChildByIndex(info.Cursor, size - 1);
+
+						if (info.Type.IsArray() &&
+						    (rvalue.Info.Kind == CXCursorKind.CXCursor_TypeRef ||
+						     rvalue.Info.Kind == CXCursorKind.CXCursor_IntegerLiteral))
+						{
+							//
+							rvalue.Expression = "new " + info.CsType + "(" + info.Type.GetArraySize() + ")";
+						}
 					}
 
 					var expr = info.CsType + " " + info.Spelling;
@@ -377,6 +493,11 @@ namespace Generator
 						}
 						else
 						{
+							if (rvalue.Info.Kind == CXCursorKind.CXCursor_InitListExpr)
+							{
+								rvalue.Expression = "new " + info.CsType + "( new " + info.Type.GetPointeeType().ToCSharpTypeString() + "[] " + rvalue.Expression + ")";
+							}
+
 							expr += " = " + rvalue.Expression;
 						}
 					}
@@ -540,10 +661,9 @@ namespace Generator
 		{
 			var functionType = clang.getCursorType(cursor);
 			var functionName = clang.getCursorSpelling(cursor).ToString();
-			var returnType = clang.getCursorResultType(cursor);
+			_returnType = clang.getCursorResultType(cursor).Desugar();
 
-			_returnType = returnType.ToCSharpTypeString();
-			IndentedWrite("private static " + _returnType);
+			IndentedWrite("private static " + _returnType.ToCSharpTypeString());
 
 			_writer.Write(" " + functionName + "(");
 
@@ -581,7 +701,9 @@ namespace Generator
 
 		public override void Run()
 		{
-			clang.visitChildren(clang.getTranslationUnitCursor(_translationUnit), Visit, new CXClientData(IntPtr.Zero));
+			clang.visitChildren(clang.getTranslationUnitCursor(_translationUnit), VisitEnums, new CXClientData(IntPtr.Zero));
+			clang.visitChildren(clang.getTranslationUnitCursor(_translationUnit), VisitGlobalVariables, new CXClientData(IntPtr.Zero));
+			clang.visitChildren(clang.getTranslationUnitCursor(_translationUnit), VisitFunctions, new CXClientData(IntPtr.Zero));
 		}
 	}
 }

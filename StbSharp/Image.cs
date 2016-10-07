@@ -27,17 +27,6 @@ namespace StbSharp
 		private static string stbi__g_failure_reason;
 		private static int stbi__vertically_flip_on_load;
 
-		private static float stbi__h2l_gamma_i = 1.0f/2.2f, stbi__h2l_scale_i = 1.0f;
-
-		private enum STBI
-		{
-			STBI_default = 0,
-			STBI_grey = 1,
-			STBI_grey_alpha = 2,
-			STBI_rgb = 3,
-			STBI_rgb_alpha = 4
-		};
-
 		private class stbi_io_callbacks
 		{
 			public ReadCallback read;

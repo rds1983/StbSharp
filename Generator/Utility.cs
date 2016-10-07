@@ -9,7 +9,7 @@ namespace Generator
 {
 	public static class Utility
 	{
-		private static Func<CXCursor, CXChildVisitResult> _visitorAction;
+		private static Stack<Func<CXCursor, CXChildVisitResult>> _visitorActionStack = new Stack<Func<CXCursor, CXChildVisitResult>>();
 
 		public static bool IsInSystemHeader(this CXCursor cursor)
 		{
@@ -179,13 +179,37 @@ namespace Generator
 			return false;
 		}
 
+		public static CXType GetPointeeType(this CXType type)
+		{
+			while (true)
+			{
+				type = type.Desugar();
 
+				switch (type.kind)
+				{
+					case CXTypeKind.CXType_IncompleteArray:
+					case CXTypeKind.CXType_ConstantArray:
+						type = clang.getArrayElementType(type);
+						continue;
+					case CXTypeKind.CXType_Pointer:
+						type = clang.getPointeeType(type);
+						continue;
+				}
+
+				return type;
+			}
+		}
 
 		public static string FixSpecialWords(this string name)
 		{
 			if (name == "out")
 			{
-				name = "output";
+				name = "_out_";
+			}
+
+			if (name == "in")
+			{
+				name = "_in_";
 			}
 
 			return name;
@@ -193,7 +217,7 @@ namespace Generator
 
 		private static CXChildVisitResult ActionVisitor(CXCursor cursor, CXCursor parent, IntPtr data)
 		{
-			return _visitorAction(cursor);
+			return _visitorActionStack.Peek()(cursor);
 		}
 
 		public static void VisitWithAction(this CXCursor cursor, Func<CXCursor, CXChildVisitResult> func)
@@ -203,9 +227,9 @@ namespace Generator
 				throw new ArgumentNullException("func");
 			}
 
-			_visitorAction = func;
-
+			_visitorActionStack.Push(func);
 			clang.visitChildren(cursor, ActionVisitor, new CXClientData(IntPtr.Zero));
+			_visitorActionStack.Pop();
 		}
 
 		public static CXCursor? FindChild(this CXCursor cursor, CXCursorKind kind)
@@ -311,6 +335,14 @@ namespace Generator
 			return op == BinaryOperatorKind.LAnd || op == BinaryOperatorKind.LOr;
 		}
 
+		public static bool IsBooleanOperator(this BinaryOperatorKind op)
+		{
+			return op == BinaryOperatorKind.LAnd || op == BinaryOperatorKind.LOr ||
+				op == BinaryOperatorKind.EQ || op == BinaryOperatorKind.GE ||
+				op == BinaryOperatorKind.GT || op == BinaryOperatorKind.LT ||
+				op == BinaryOperatorKind.And || op == BinaryOperatorKind.Or;
+		}
+
 		internal static string GetExpression(this CursorProcessResult cursorProcessResult)
 		{
 			return cursorProcessResult != null ? cursorProcessResult.Expression : string.Empty;
@@ -350,6 +382,18 @@ namespace Generator
 		{
 			return type.kind.IsPointer() &&
 			       (clang.getPointeeType(type).kind != CXTypeKind.CXType_Void);
+		}
+
+		public static bool IsArray(this CXType type)
+		{
+			return type.kind == CXTypeKind.CXType_ConstantArray ||
+			       type.kind == CXTypeKind.CXType_DependentSizedArray ||
+			       type.kind == CXTypeKind.CXType_VariableArray;
+		}
+
+		public static long GetArraySize(this CXType type)
+		{
+			return clang.getArraySize(type);
 		}
 
 		public static bool IsUnaryOperatorPre(this UnaryOperatorKind type)

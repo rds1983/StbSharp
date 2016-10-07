@@ -33,6 +33,12 @@
 			_position = 0;
 		}
 
+		public Pointer(T[] data)
+		{
+			_data = data;
+			_position = 0;
+		}
+
 		public T GetAndMove()
 		{
 			var result = CurrentValue;

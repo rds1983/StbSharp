@@ -46,6 +46,14 @@ namespace Generator
 
 		private CXChildVisitResult DumpCursor(CXCursor cursor, CXCursor parent, IntPtr data)
 		{
+			DumpCursor(cursor);
+
+
+			return CXChildVisitResult.CXChildVisit_Continue;
+		}
+
+		protected void DumpCursor(CXCursor cursor)
+		{
 			var cursorKind = clang.getCursorKind(cursor);
 
 			var line = string.Format("// {0}- {1} - {2}", clang.getCursorKindSpelling(cursorKind),
@@ -85,13 +93,6 @@ namespace Generator
 			_indentLevel++;
 			clang.visitChildren(cursor, DumpCursor, new CXClientData(IntPtr.Zero));
 			_indentLevel--;
-
-			return CXChildVisitResult.CXChildVisit_Continue;
-		}
-
-		protected void DumpCursor(CXCursor cursor)
-		{
-			clang.visitChildren(cursor, DumpCursor, new CXClientData(IntPtr.Zero));
 		}
 	}
 }
