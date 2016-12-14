@@ -5,7 +5,9 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StbSharp", "StbSharp\StbSharp.csproj", "{5A331DAD-B629-41E7-9131-70E538CF0B42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generator", "Generator\Generator.csproj", "{2F372A46-2B31-49ED-BEAA-B7D6E72CD983}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sichem", "Sichem\Sichem\Sichem.csproj", "{71352218-91C4-490E-A650-AB17C48D0300}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StbSharp.Generator", "StbSharp.Generator\StbSharp.Generator.csproj", "{2F372A46-2B31-49ED-BEAA-B7D6E72CD983}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,6 +18,10 @@ Global
 		{5A331DAD-B629-41E7-9131-70E538CF0B42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5A331DAD-B629-41E7-9131-70E538CF0B42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A331DAD-B629-41E7-9131-70E538CF0B42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71352218-91C4-490E-A650-AB17C48D0300}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71352218-91C4-490E-A650-AB17C48D0300}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71352218-91C4-490E-A650-AB17C48D0300}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71352218-91C4-490E-A650-AB17C48D0300}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2F372A46-2B31-49ED-BEAA-B7D6E72CD983}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2F372A46-2B31-49ED-BEAA-B7D6E72CD983}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F372A46-2B31-49ED-BEAA-B7D6E72CD983}.Release|Any CPU.ActiveCfg = Release|Any CPU
