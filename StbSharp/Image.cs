@@ -1,40 +1,39 @@
 ﻿using System;
+using Sichem;
 
 namespace StbSharp
 {
 	partial class Image
 	{
-		private const int FAST_BITS = 9;
-		private const int STBI__ZFAST_BITS = 9;
+		public static string LastError;
 
-		private delegate int ReadCallback(object user, Pointer<byte> data, long size);
+		public const int STBI__ZFAST_BITS = 9;
 
-		private delegate int SkipCallback(object user, int n);
+		public delegate int ReadCallback(object user, Pointer<sbyte> data, long size);
 
-		private delegate int EofCallback(object user);
+		public delegate int SkipCallback(object user, int n);
 
-		private delegate void idct_block_kernel(Pointer<byte> output, int out_stride, short[] data);
+		public delegate int EofCallback(object user);
 
-		private delegate void YCbCr_to_RGB_kernel(
+		public delegate void idct_block_kernel(Pointer<byte> output, int out_stride, Pointer<short> data);
+
+		public delegate void YCbCr_to_RGB_kernel(
 			Pointer<byte> output, Pointer<byte> y, Pointer<byte> pcb, Pointer<byte> pcr, int count, int step);
 
-		private delegate Pointer<byte> resample_row_hv_2_kernel(
-			Pointer<byte> output, Pointer<byte> in_near, Pointer<byte> in_far, int w, int hs);
-
-		private delegate Pointer<byte> Resampler(Pointer<byte> a, Pointer<byte> b, Pointer<byte> c, int d, int e);
+		public delegate Pointer<byte> Resampler(Pointer<byte> a, Pointer<byte> b, Pointer<byte> c, int d, int e);
 
 
-		private static string stbi__g_failure_reason;
-		private static int stbi__vertically_flip_on_load;
+		public static string stbi__g_failure_reason;
+		public static int stbi__vertically_flip_on_load;
 
-		private class stbi_io_callbacks
+		public class stbi_io_callbacks
 		{
 			public ReadCallback read;
 			public SkipCallback skip;
 			public EofCallback eof;
 		}
 
-		private class img_comp
+		public class img_comp
 		{
 			public int id;
 			public int h, v;
@@ -44,21 +43,21 @@ namespace StbSharp
 
 			public int x, y, w2, h2;
 			public Pointer<byte> data;
-			public object raw_data;
-			private object raw_coeff;
+			public Pointer<byte> raw_data;
+			public Pointer<byte> raw_coeff;
 			public Pointer<byte> linebuf;
 			public Pointer<short> coeff; // progressive only
 			public int coeff_w, coeff_h; // number of 8x8 coefficient blocks
 		}
 
-		private class stbi__jpeg
+		public class stbi__jpeg
 		{
 			public stbi__context s;
 			public readonly stbi__huffman[] huff_dc = new stbi__huffman[4];
 			public readonly stbi__huffman[] huff_ac = new stbi__huffman[4];
-			public readonly byte[,] dequant = new byte[4, 64];
+			public readonly Pointer<byte>[] dequant;
 
-			public readonly ushort[,] fast_ac = new ushort[4, 1 << FAST_BITS];
+			public readonly Pointer<short>[] fast_ac;
 
 // sizes for components, interleaved MCUs
 			public int img_h_max, img_v_max;
@@ -88,18 +87,36 @@ namespace StbSharp
 // kernels
 			public idct_block_kernel idct_block_kernel;
 			public YCbCr_to_RGB_kernel YCbCr_to_RGB_kernel;
-			public resample_row_hv_2_kernel resample_row_hv_2_kernel;
+			public Resampler resample_row_hv_2_kernel;
 
 			public stbi__jpeg()
 			{
+				for (var i = 0; i < 4; ++i)
+				{
+					huff_ac[i] = new stbi__huffman();
+					huff_dc[i] = new stbi__huffman();
+				}
+
 				for (var i = 0; i < img_comp.Length; ++i)
 				{
 					img_comp[i] = new img_comp();
 				}
+
+				fast_ac = new Pointer<short>[4];
+				for (var i = 0; i < fast_ac.Length; ++i)
+				{
+					fast_ac[i] = new Pointer<short>(1 << STBI__ZFAST_BITS);
+				}
+
+				dequant = new Pointer<byte>[4];
+				for (var i = 0; i < dequant.Length; ++i)
+				{
+					dequant[i] = new Pointer<byte>(64);
+				}
 			}
 		};
 
-		private class stbi__resample
+		public class stbi__resample
 		{
 			public Resampler resample;
 			public Pointer<byte> line0;
@@ -116,19 +133,45 @@ namespace StbSharp
 			return new Pointer<byte>(size);
 		}
 
-		private static Pointer<byte> stbi__malloc(long size)
+		private static Pointer<byte> stbi__malloc(ulong size)
 		{
 			return stbi__malloc((int) size);
 		}
 
+		private static Pointer<byte> stbi__malloc(long size)
+		{
+			return stbi__malloc((int)size);
+		}
+
+		private static Pointer<byte> malloc(ulong size)
+		{
+			return stbi__malloc(size);
+		}
+
 		private static int stbi__err(string str)
 		{
-			throw new Exception(str);
+			LastError = str;
 			return 0;
 		}
 
 		private static void stbi_image_free(Pointer<byte> retval_from_stbi_load)
 		{
+		}
+
+		private static void memcpy(Pointer<byte> a, Pointer<byte> b, ulong size)
+		{
+			for (ulong i = 0; i < size; ++i)
+			{
+				a[i] = b[i];
+			}
+		}
+
+		private static void memcpy(Pointer<sbyte> a, Pointer<byte> b, ulong size)
+		{
+			for (ulong i = 0; i < size; ++i)
+			{
+				a[i] = (sbyte)b[i];
+			}
 		}
 
 		private static void memcpy(Pointer<byte> a, Pointer<byte> b, int size)
@@ -139,16 +182,56 @@ namespace StbSharp
 			}
 		}
 
-		private static void free(Pointer<byte> a)
+		private static void free<T>(Pointer<T> a)
 		{
 			a.Reset();
 		}
 
-		private static void memset(Pointer<byte> ptr, byte value, int size)
+		private static void memset(Pointer<int> ptr, short value, int size)
 		{
 			for (var i = 0; i < size; ++i)
 			{
 				ptr[i] = value;
+			}
+		}
+
+		private static void memset(Pointer<int> ptr, int value, ulong size)
+		{
+			for (ulong i = 0; i < size; ++i)
+			{
+				ptr[i] = value;
+			}
+		}
+
+		private static void memset(Pointer<ushort> ptr, ushort value, int size)
+		{
+			for (var i = 0; i < size; ++i)
+			{
+				ptr[i] = value;
+			}
+		}
+
+		private static void memset(Pointer<ushort> ptr, ushort value, ulong size)
+		{
+			for (ulong i = 0; i < size; ++i)
+			{
+				ptr[i] = value;
+			}
+		}
+
+		private static void memset(Pointer<byte> ptr, byte value, ulong size)
+		{
+			for (ulong i = 0; i < size; ++i)
+			{
+				ptr[i] = value;
+			}
+		}
+
+		private static void memset(Pointer<byte> ptr, int value, ulong size)
+		{
+			for (ulong i = 0; i < size; ++i)
+			{
+				ptr[i] = (byte)value;
 			}
 		}
 
@@ -158,6 +241,38 @@ namespace StbSharp
 			{
 				ptr[i] = value;
 			}
+		}
+
+		private static void memset(Pointer<short> ptr, short value, ulong size)
+		{
+			for (ulong i = 0; i < size; ++i)
+			{
+				ptr[i] = value;
+			}
+		}
+
+		private static uint _lrotl(uint x , int y)
+		{
+			return (x << y) | (x >> (32 - y));
+		}
+
+		private static Pointer<T> realloc<T>(Pointer<T> buf, int newSize)
+		{
+			buf.Realloc(newSize);
+
+			return buf;
+		}
+
+		private static Pointer<T> realloc<T>(Pointer<T> buf, ulong newSize)
+		{
+			buf.Realloc((long)newSize);
+
+			return buf;
+		}
+
+		private static int abs(int v)
+		{
+			return Math.Abs(v);
 		}
 
 		private static void assert(bool expr)
