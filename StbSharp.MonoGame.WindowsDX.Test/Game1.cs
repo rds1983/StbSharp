@@ -11,8 +11,6 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 	/// </summary>
 	public class Game1 : Game
 	{
-		private const string ResourcePath = "StbSharp.MonoGame.WindowsDX.Test.Resources.image.jpg";
-
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 
@@ -46,37 +44,6 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 
 			base.Initialize();
 		}
-
-		private static byte ApplyAlpha(byte color, byte alpha)
-		{
-			var fc = color / 255.0f;
-			var fa = alpha / 255.0f;
-
-			var fr = (int)(255.0f * fc * fa);
-
-			if (fr < 0)
-			{
-				fr = 0;
-			}
-
-			if (fr > 255)
-			{
-				fr = 255;
-			}
-
-			return (byte)fr;
-		}
-
-		public static void PremultiplyAlpha(Color[] data)
-		{
-			for (var i = 0; i < data.Length; ++i)
-			{
-				data[i].R = ApplyAlpha(data[i].R, data[i].A);
-				data[i].G = ApplyAlpha(data[i].G, data[i].A);
-				data[i].B = ApplyAlpha(data[i].B, data[i].A);
-			}
-		}
-
 		/// <summary>
 		/// LoadContent will be called once per game and is the place to load
 		/// all of your content.
@@ -87,26 +54,21 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			// TODO: use this.Content to load your game content here
-			var assembly = typeof (Game1).Assembly;
+			// Load image data into memory
+			var path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+			path = Path.Combine(path, "image.jpg");
+			var buffer = File.ReadAllBytes(path);
 
-			var stream = assembly.GetManifestResourceStream(ResourcePath);
-
-			// MG
+			// Loading through Texture2D.FromStream
 			var now = DateTime.Now;
-			texLoadedByMG = Texture2D.FromStream(GraphicsDevice, stream);
-
+			using (var ms = new MemoryStream(buffer))
+			{
+				texLoadedByMG = Texture2D.FromStream(GraphicsDevice, ms);
+			}
 			mgLoadTime = (DateTime.Now - now).TotalMilliseconds;
 
-			// STB
+			// Loading through StbSharp
 			now = DateTime.Now;
-
-			stream = assembly.GetManifestResourceStream(ResourcePath);
-			byte[] buffer;
-			using (MemoryStream ms = new MemoryStream())
-			{
-				stream.CopyTo(ms);
-				buffer = ms.ToArray();
-			}
 
 			int x, y, comp;
 			var data = Image.stbi_load_from_memory(buffer, out x, out y, out comp, Image.STBI_rgb_alpha);
@@ -119,8 +81,6 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 				colors[i].B = data[i*4 + 2];
 				colors[i].A = data[i*4 + 3];
 			}
-
-			PremultiplyAlpha(colors);
 
 			texLoadedBySTB = new Texture2D(GraphicsDevice, x, y, false, SurfaceFormat.Color);
 			texLoadedBySTB.SetData(colors);

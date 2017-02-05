@@ -33,6 +33,7 @@
 			this.labelStatus = new System.Windows.Forms.Label();
 			this.labelOrdinary = new System.Windows.Forms.Label();
 			this.labelStbSharp = new System.Windows.Forms.Label();
+			this.labelWrongCount = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -87,11 +88,21 @@
 			this.labelStbSharp.TabIndex = 4;
 			this.labelStbSharp.Text = "label1";
 			// 
+			// labelWrongCount
+			// 
+			this.labelWrongCount.AutoSize = true;
+			this.labelWrongCount.Location = new System.Drawing.Point(559, 522);
+			this.labelWrongCount.Name = "labelWrongCount";
+			this.labelWrongCount.Size = new System.Drawing.Size(35, 13);
+			this.labelWrongCount.TabIndex = 5;
+			this.labelWrongCount.Text = "label1";
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(731, 545);
+			this.Controls.Add(this.labelWrongCount);
 			this.Controls.Add(this.labelStbSharp);
 			this.Controls.Add(this.labelOrdinary);
 			this.Controls.Add(this.labelStatus);
@@ -112,6 +123,7 @@
 		private System.Windows.Forms.Label labelStatus;
 		private System.Windows.Forms.Label labelOrdinary;
 		private System.Windows.Forms.Label labelStbSharp;
+		private System.Windows.Forms.Label labelWrongCount;
 	}
 }
 

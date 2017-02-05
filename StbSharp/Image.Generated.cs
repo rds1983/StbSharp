@@ -667,7 +667,7 @@ namespace StbSharp
 			if ((j.code_bits) < (16)) stbi__grow_buffer_unsafe(j);
 			t = (int) (stbi__jpeg_huff_decode(j, hdc));
 			if ((t) < (0)) return (int) (stbi__err("bad huffman code"));
-			memset(data, (short) 0, (long) 64 * sizeof(short));
+			memset(data, (short) 0, (long) 64*sizeof (short));
 			diff = (int) ((t) > 0 ? stbi__extend_receive(j, (int) (t)) : 0);
 			dc = (int) (j.img_comp[b].dc_pred + diff);
 			j.img_comp[b].dc_pred = (int) (dc);
@@ -724,7 +724,7 @@ namespace StbSharp
 			if ((j.code_bits) < (16)) stbi__grow_buffer_unsafe(j);
 			if ((j.succ_high) == (0))
 			{
-				memset(data, (short) 0, (long) 64);
+				memset(data, (short) 0, (long) 64*sizeof (short));
 				t = (int) (stbi__jpeg_huff_decode(j, hdc));
 				diff = (int) ((t) > 0 ? stbi__extend_receive(j, (int) (t)) : 0);
 				dc = (int) (j.img_comp[b].dc_pred + diff);
@@ -882,7 +882,7 @@ namespace StbSharp
 
 		public unsafe static byte stbi__clamp(int x)
 		{
-			if ((x) > (255))
+			if ((uint) (x) > (255))
 			{
 				if ((x) < (0)) return (byte) (0);
 				if ((x) > (255)) return (byte) (255);
@@ -1497,14 +1497,14 @@ namespace StbSharp
 						}
 						return (int) (stbi__err("outofmem"));
 					}
-					z.img_comp[i].data = (byte*) (z.img_comp[i].raw_data);
+					z.img_comp[i].data = (byte*) (((long) z.img_comp[i].raw_data + 15) & ~15);
 					z.img_comp[i].linebuf = ((byte*) ((void*) (0)));
 					if ((z.progressive) != 0)
 					{
 						z.img_comp[i].coeff_w = (int) ((z.img_comp[i].w2 + 7) >> 3);
 						z.img_comp[i].coeff_h = (int) ((z.img_comp[i].h2 + 7) >> 3);
 						z.img_comp[i].raw_coeff = malloc((ulong) (z.img_comp[i].coeff_w*z.img_comp[i].coeff_h*64*sizeof (short) + +15));
-						z.img_comp[i].coeff = (short*) (z.img_comp[i].raw_coeff);
+						z.img_comp[i].coeff = (short*) (((long) z.img_comp[i].raw_coeff + 15) & ~15);
 					}
 					else
 					{
@@ -1645,7 +1645,7 @@ namespace StbSharp
 			}
 
 			t1 = (int) (3*in_near[0] + in_far[0]);
-			_out_[0] = (byte) ((byte) (((t1 + 2) >> 2)));
+			_out_[0] = (byte) ((((t1 + 2) >> 2)));
 			for (i = (int) (1); (i) < (w); ++i)
 			{
 				{
@@ -1656,6 +1656,7 @@ namespace StbSharp
 				}
 			}
 			_out_[w*2 - 1] = (byte) ((byte) (((t1 + 2) >> 2)));
+
 			return _out_;
 		}
 
@@ -1694,17 +1695,17 @@ namespace StbSharp
 					r >>= 20;
 					g >>= 20;
 					b >>= 20;
-					if ((r) > (255))
+					if ((uint) (r) > (255))
 					{
 						if ((r) < (0)) r = (int) (0);
 						else r = (int) (255);
 					}
-					if ((g) > (255))
+					if ((uint) (g) > (255))
 					{
 						if ((g) < (0)) g = (int) (0);
 						else g = (int) (255);
 					}
-					if ((b) > (255))
+					if ((uint) (b) > (255))
 					{
 						if ((b) < (0)) b = (int) (0);
 						else b = (int) (255);
@@ -1775,6 +1776,7 @@ namespace StbSharp
 				byte* output;
 				byte*[] coutput = new byte*[4];
 				stbi__resample[] res_comp = new stbi__resample[4];
+
 				for (k = 0; k < 4; ++k)
 				{
 					res_comp[k] = new stbi__resample();
@@ -1951,8 +1953,8 @@ namespace StbSharp
 			int code;
 			int* next_code = ArrayPointer.Allocateint(16);
 			int* sizes = ArrayPointer.Allocateint(17);
-			memset(((void*) sizes), (int) (0), 17 * sizeof(int));
-			memset(((void*) z.fast), (int) (0), (1 << STBI__ZFAST_BITS) * sizeof(ushort));
+			memset(((void*) sizes), (int) (0), 17*sizeof (int));
+			memset(((void*) z.fast), (int) (0), (1 << STBI__ZFAST_BITS)*sizeof (ushort));
 			for (i = (int) (0); (i) < (num); ++i)
 			{
 				++sizes[sizelist[i]];
@@ -3212,7 +3214,7 @@ namespace StbSharp
 							z.expanded =
 								(byte*)
 									(stbi_zlib_decode_malloc_guesssize_headerflag((sbyte*) (z.idata), (int) (ioff), (int) (raw_len),
-										(int*)(&raw_len), is_iphone != 0 ? 0 : 1));
+										(int*) (&raw_len), is_iphone != 0 ? 0 : 1));
 							if ((z.expanded) == (((byte*) ((void*) (0))))) return (int) (0);
 							free(z.idata);
 							z.idata = ((byte*) ((void*) (0)));

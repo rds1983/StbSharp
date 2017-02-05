@@ -143,11 +143,6 @@ namespace StbSharp
 			return stbi__malloc((int) size);
 		}
 
-		private static unsafe void* stbi__malloc(long size)
-		{
-			return stbi__malloc((int)size);
-		}
-
 		private static unsafe void* malloc(ulong size)
 		{
 			return stbi__malloc(size);

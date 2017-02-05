@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using StbNative;
 
 namespace StbSharp.WinForms.Test
 {
@@ -75,31 +76,42 @@ namespace StbSharp.WinForms.Test
 					pictureBox1.Image = bmp;
 				});
 
-				int x = 0, y = 0, comp = 0;
+				int x, y, comp;
 				
-				var data =  Image.stbi_load_from_memory(bytes, out x, out y, out comp, Image.STBI_rgb_alpha);
-				
+				var data2 = Loader.load_from_memory(bytes, out x, out y, out comp, Image.STBI_rgb_alpha);
+				var data = Image.stbi_load_from_memory(bytes, out x, out y, out comp, Image.STBI_rgb_alpha);
+
+				var wrongCount = 0;
+				for (var i = 0; i < data.Length; ++i)
+				{
+					if (data[i] != data2[i])
+					{
+						++wrongCount;
+
+						var xc = i/4%x;
+						var yc = i/4/x;
+					}
+				}
+
 				// Convert rgba to bgra
 				DoInvoke(() =>
 				{
 					labelStatus.Text = string.Format("Converting to bgra", _fileName);
 				});
 
-/*				for (var i = 0; i < data.Length; ++i)
+				for (var i = 0; i < x * y; ++i)
 				{
-					var r = bptr[0];
-					var g = bptr[1];
-					var b = bptr[2];
-					var a = bptr[3];
+					var r = data[i*4];
+					var g = data[i*4 + 1];
+					var b = data[i*4 + 2];
+					var a = data[i*4 + 3];
 
 
-					bptr[0] = b;
-					bptr[1] = g;
-					bptr[2] = r;
-					bptr[3] = a;
-
-					bptr += 4;
-				}*/
+					data[i*4] = b;
+					data[i*4 + 1] = g;
+					data[i*4 + 2] = r;
+					data[i*4 + 3] = a;
+				}
 
 				// Convert to Bitmap
 				var pixelFormat = PixelFormat.Format32bppArgb;
@@ -113,8 +125,9 @@ namespace StbSharp.WinForms.Test
 
 				DoInvoke(() =>
 				{
-					// pictureBox1.Image = bmp;
+					pictureBox1.Image = bmp;
 					labelStbSharp.Text = string.Format("{0:0.00} ms", passed.TotalMilliseconds);
+					labelWrongCount.Text = wrongCount.ToString();
 					labelStatus.Text = "Success";
 				});
 

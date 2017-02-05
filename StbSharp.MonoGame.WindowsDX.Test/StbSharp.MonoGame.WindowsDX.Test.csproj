@@ -52,12 +52,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icon.ico" />
-    <EmbeddedResource Include="Resources\image.jpg" />
+    <Content Include="image.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Stb.Native\Stb.Native.vcxproj">
+      <Project>{ea7b8121-942a-437d-85d5-e4d55b94e88a}</Project>
+      <Name>Stb.Native</Name>
+    </ProjectReference>
     <ProjectReference Include="..\StbSharp\StbSharp.csproj">
       <Project>{5a331dad-b629-41e7-9131-70e538cf0b42}</Project>
       <Name>StbSharp</Name>
