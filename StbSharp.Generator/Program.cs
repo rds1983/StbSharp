@@ -62,11 +62,23 @@ namespace Generator
 				// Post processing
 				Logger.Info("Post processing...");
 
-				data = data.Replace("s.io.read = Pointer<IntPtr>.Null;",
+				data = data.Replace("s.io.read = ((void *)(0));",
 					"s.io.read = null;");
-				data = data.Replace("memset(data, (int)(0), (ulong)(64 * (short)(data[0]).Size));", "memset(data, 0, 64);");
-				data = data.Replace("Pointer<stbi__jpeg> j = stbi__malloc((ulong)(.Size));", "Pointer<stbi__jpeg> j = new NormalPointer<stbi__jpeg>(new stbi__jpeg());");
-				data = data.Replace("Pointer<stbi__jpeg> j = (stbi__malloc((ulong)(.Size)));", "Pointer<stbi__jpeg> j = new NormalPointer<stbi__jpeg>(new stbi__jpeg());");
+				data = data.Replace("s.buflen = (int)((s.buffer_start).Size);",
+					"s.buflen = 128;");
+				data = data.Replace("memset(((void *)data), (int)(0), (ulong)(64 * (short)(data[0]).Size));", 
+					"memset(data, (short)0, (long)64);");
+				data = data.Replace("stbi__jpeg j = (stbi__jpeg)(stbi__malloc((ulong)(.Size)));", 
+					"stbi__jpeg j = new stbi__jpeg();");
+				data = data.Replace("stbi__jpeg j = (stbi__jpeg)((stbi__malloc((ulong)(.Size))));",
+					"stbi__jpeg j = new stbi__jpeg();");
+				data = data.Replace("z.img_comp[i].data = (byte*)(((z.img_comp[i].raw_data + 15) & ~15));",
+					"z.img_comp[i].data = (byte*)(z.img_comp[i].raw_data);");
+				data = data.Replace("z.img_comp[i].coeff = (short*)(((z.img_comp[i].raw_coeff + 15) & ~15));",
+					"z.img_comp[i].coeff = (short*)(z.img_comp[i].raw_coeff);");
+				data = data.Replace("(int) (!is_iphone)",
+					"is_iphone!=0?0:1");
+
 
 				File.WriteAllText(@"..\..\..\StbSharp\Image.Generated.cs", data);
 			}

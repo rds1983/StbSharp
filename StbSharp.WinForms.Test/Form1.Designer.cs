@@ -31,6 +31,8 @@
 			this.button1 = new System.Windows.Forms.Button();
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
 			this.labelStatus = new System.Windows.Forms.Label();
+			this.labelOrdinary = new System.Windows.Forms.Label();
+			this.labelStbSharp = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -51,7 +53,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.pictureBox1.Location = new System.Drawing.Point(12, 42);
 			this.pictureBox1.Name = "pictureBox1";
-			this.pictureBox1.Size = new System.Drawing.Size(707, 478);
+			this.pictureBox1.Size = new System.Drawing.Size(707, 458);
 			this.pictureBox1.TabIndex = 1;
 			this.pictureBox1.TabStop = false;
 			// 
@@ -59,17 +61,39 @@
 			// 
 			this.labelStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.labelStatus.AutoSize = true;
-			this.labelStatus.Location = new System.Drawing.Point(12, 523);
+			this.labelStatus.Location = new System.Drawing.Point(12, 503);
 			this.labelStatus.Name = "labelStatus";
 			this.labelStatus.Size = new System.Drawing.Size(37, 13);
 			this.labelStatus.TabIndex = 2;
 			this.labelStatus.Text = "Status";
+			// 
+			// labelOrdinary
+			// 
+			this.labelOrdinary.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.labelOrdinary.AutoSize = true;
+			this.labelOrdinary.Location = new System.Drawing.Point(12, 523);
+			this.labelOrdinary.Name = "labelOrdinary";
+			this.labelOrdinary.Size = new System.Drawing.Size(35, 13);
+			this.labelOrdinary.TabIndex = 3;
+			this.labelOrdinary.Text = "label1";
+			// 
+			// labelStbSharp
+			// 
+			this.labelStbSharp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.labelStbSharp.AutoSize = true;
+			this.labelStbSharp.Location = new System.Drawing.Point(378, 523);
+			this.labelStbSharp.Name = "labelStbSharp";
+			this.labelStbSharp.Size = new System.Drawing.Size(35, 13);
+			this.labelStbSharp.TabIndex = 4;
+			this.labelStbSharp.Text = "label1";
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(731, 545);
+			this.Controls.Add(this.labelStbSharp);
+			this.Controls.Add(this.labelOrdinary);
 			this.Controls.Add(this.labelStatus);
 			this.Controls.Add(this.pictureBox1);
 			this.Controls.Add(this.button1);
@@ -86,6 +110,8 @@
 		private System.Windows.Forms.Button button1;
 		private System.Windows.Forms.PictureBox pictureBox1;
 		private System.Windows.Forms.Label labelStatus;
+		private System.Windows.Forms.Label labelOrdinary;
+		private System.Windows.Forms.Label labelStbSharp;
 	}
 }
 
