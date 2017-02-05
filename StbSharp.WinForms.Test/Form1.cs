@@ -5,7 +5,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using Sichem;
 
 namespace StbSharp.WinForms.Test
 {
@@ -45,7 +44,7 @@ namespace StbSharp.WinForms.Test
 			Invoke(new MethodInvoker(action));
 		}
 
-		public unsafe void LoadProc(object state)
+		public void LoadProc(object state)
 		{
 			try
 			{
@@ -78,29 +77,15 @@ namespace StbSharp.WinForms.Test
 
 				int x = 0, y = 0, comp = 0;
 				
-				byte* result;
-				fixed (byte *b = &bytes[0])
-				{
-					result = Image.stbi_load_from_memory(b, bytes.Length, &x, &y, &comp, Image.STBI_rgb_alpha);
-				}
-
-				if (result == null)
-				{
-					throw new Exception(Image.LastError);
-				}
-
-				var data = new byte[x*y*4];
-				byte* bptr;
+				var data =  Image.stbi_load_from_memory(bytes, out x, out y, out comp, Image.STBI_rgb_alpha);
 				
-
 				// Convert rgba to bgra
 				DoInvoke(() =>
 				{
 					labelStatus.Text = string.Format("Converting to bgra", _fileName);
 				});
 
-				bptr = result;
-				for (var i = 0; i < x * y; ++i)
+/*				for (var i = 0; i < data.Length; ++i)
 				{
 					var r = bptr[0];
 					var g = bptr[1];
@@ -114,17 +99,11 @@ namespace StbSharp.WinForms.Test
 					bptr[3] = a;
 
 					bptr += 4;
-				}
-
-				// Convert to array
-				bptr = result;
-				for (var i = 0; i < data.Length; ++i)
-				{
-					data[i] = bptr[i];
-				}
+				}*/
 
 				// Convert to Bitmap
-				bmp = new Bitmap(x, y, PixelFormat.Format32bppArgb);
+				var pixelFormat = PixelFormat.Format32bppArgb;
+				bmp = new Bitmap(x, y, pixelFormat);
 				var bmpData = bmp.LockBits(new Rectangle(0, 0, x, y), ImageLockMode.WriteOnly,bmp.PixelFormat);
 
 				Marshal.Copy(data, 0, bmpData.Scan0, bmpData.Stride*bmp.Height);
@@ -155,6 +134,5 @@ namespace StbSharp.WinForms.Test
 				});
 			}
 		}
-
 	}
 }

@@ -169,12 +169,9 @@ namespace StbSharp
 			memcpy(a, b, (long)size);
 		}
 
-		private static unsafe void free(byte *a)
-		{
-		}
-
 		private static unsafe void free(void* a)
 		{
+			ArrayPointer.Free(a);
 		}
 
 		private static unsafe void memset(void* ptr, int value, long size)
@@ -190,22 +187,6 @@ namespace StbSharp
 		private static unsafe void memset(void* ptr, int value, ulong size)
 		{
 			memset(ptr, value, (long)size);
-		}
-
-		private static unsafe void memset(byte *ptr, byte value, ulong size)
-		{
-			for (ulong i = 0; i < size; ++i)
-			{
-				ptr[i] = value;
-			}
-		}
-
-		private static unsafe void memset(byte *ptr, int value, ulong size)
-		{
-			for (ulong i = 0; i < size; ++i)
-			{
-				ptr[i] = (byte)value;
-			}
 		}
 
 		private static uint _lrotl(uint x , int y)
@@ -228,8 +209,33 @@ namespace StbSharp
 			return Math.Abs(v);
 		}
 
-		private static void assert(bool expr)
+		public static unsafe byte[] stbi_load_from_memory(byte[] bytes, out int x, out int y, out int comp, int req_comp)
 		{
+			byte* result;
+			int xx, yy, ccomp;
+			fixed (byte* b = &bytes[0])
+			{
+				result = stbi_load_from_memory(b, bytes.Length, &xx, &yy, &ccomp, req_comp);
+			}
+
+			x = xx;
+			y = yy;
+			comp = ccomp;
+
+			if (result == null)
+			{
+				throw new Exception(LastError);
+			}
+
+			// Convert to array
+			var bptr = result;
+			var data = new byte[x*y*req_comp];
+			for (var i = 0; i < x * y * req_comp; ++i)
+			{
+				data[i] = *bptr++;
+			}
+
+			return data;
 		}
 	}
 }
