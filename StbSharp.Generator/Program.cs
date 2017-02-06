@@ -64,21 +64,36 @@ namespace Generator
 
 				data = data.Replace("s.io.read = ((void *)(0));",
 					"s.io.read = null;");
-				data = data.Replace("s.buflen = (int)((s.buffer_start).Size);",
+				data = data.Replace("s.buflen = (int)(Operations.SizeOf((s.buffer_start)));",
 					"s.buflen = 128;");
-				data = data.Replace("memset(((void *)data), (int)(0), (ulong)(64 * (short)(data[0]).Size));", 
-					"memset(data, (short)0, (long)64);");
-				data = data.Replace("stbi__jpeg j = (stbi__jpeg)(stbi__malloc((ulong)(.Size)));", 
+				data = data.Replace("memset(data, (int)(0), (ulong)(64 * (short)(data[0]).Size));", 
+					"memset(data, 0, 64 * sizeof(short));");
+				data = data.Replace("short* d = ((short*)data.Pointer);",
+					"short* d = data;");
+				data = data.Replace("ArrayPointer<byte*> coutput = new ArrayPointer<byte>(4);",
+					"var coutput = new byte *[4];");
+				data = data.Replace("ArrayPointer<stbi__resample> res_comp = new ArrayPointer<stbi__resample>(4);",
+					"var res_comp = new stbi__resample[4]; for (var kkk = 0; kkk < res_comp.Length; ++kkk) res_comp[kkk] = new stbi__resample();");
+				data = data.Replace("((byte**)coutput.Pointer)",
+					"coutput");
+				data = data.Replace("stbi__jpeg j = (stbi__jpeg)(stbi__malloc((ulong)(.Size)));",
+					"stbi__jpeg j = new stbi__jpeg();");
+				data = data.Replace("stbi__jpeg j = (stbi__jpeg)((stbi__malloc((ulong)(Operations.SizeOf()))));",
 					"stbi__jpeg j = new stbi__jpeg();");
 				data = data.Replace("stbi__jpeg j = (stbi__jpeg)((stbi__malloc((ulong)(.Size))));",
 					"stbi__jpeg j = new stbi__jpeg();");
+				data = data.Replace("free(j);",
+					string.Empty);
 				data = data.Replace("z.img_comp[i].data = (byte*)(((z.img_comp[i].raw_data + 15) & ~15));",
-					"z.img_comp[i].data = (byte*)(z.img_comp[i].raw_data);");
+					"z.img_comp[i].data = (byte*)((((long)z.img_comp[i].raw_data + 15) & ~15));");
 				data = data.Replace("z.img_comp[i].coeff = (short*)(((z.img_comp[i].raw_coeff + 15) & ~15));",
-					"z.img_comp[i].coeff = (short*)(z.img_comp[i].raw_coeff);");
-				data = data.Replace("(int) (!is_iphone)",
+					"z.img_comp[i].coeff = (short*)((((long)z.img_comp[i].raw_coeff + 15) & ~15));");
+				data = data.Replace("(int)(!is_iphone)",
 					"is_iphone!=0?0:1");
-
+				data = data.Replace("ArrayPointer<sbyte> invalid_chunk = \"XXXX PNG chunk not known\";",
+					"var invalid_chunk = \"XXXX PNG chunk not known\";");
+				data = data.Replace("return (int)(stbi__err(((sbyte*)invalid_chunk.Pointer)));",
+					"return (int)(stbi__err(invalid_chunk));");
 
 				File.WriteAllText(@"..\..\..\StbSharp\Image.Generated.cs", data);
 			}

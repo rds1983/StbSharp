@@ -66,7 +66,6 @@ namespace StbSharp.WinForms.Test
 				}
 
 				var passed = DateTime.Now - stamp;
-				stamp = DateTime.Now;
 
 				var passed1 = passed;
 				DoInvoke(() =>
@@ -79,6 +78,8 @@ namespace StbSharp.WinForms.Test
 				int x, y, comp;
 				
 				var data2 = Loader.load_from_memory(bytes, out x, out y, out comp, Image.STBI_rgb_alpha);
+
+				stamp = DateTime.Now;
 				var data = Image.stbi_load_from_memory(bytes, out x, out y, out comp, Image.STBI_rgb_alpha);
 
 				var wrongCount = 0;

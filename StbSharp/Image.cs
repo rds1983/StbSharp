@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using Sichem;
 
 namespace StbSharp
 {
 	partial class Image
 	{
-		private static readonly List<ArrayPointerImpl<byte>> _mallocs = new List<ArrayPointerImpl<byte>>();
-
 		public static string LastError;
 
 		public const int STBI__ZFAST_BITS = 9;
@@ -52,14 +49,14 @@ namespace StbSharp
 			public int coeff_w, coeff_h; // number of 8x8 coefficient blocks
 		}
 
-		public unsafe class stbi__jpeg
+		public class stbi__jpeg
 		{
 			public stbi__context s;
 			public readonly stbi__huffman[] huff_dc = new stbi__huffman[4];
 			public readonly stbi__huffman[] huff_ac = new stbi__huffman[4];
-			public readonly byte*[] dequant;
+			public readonly ArrayPointer<byte>[] dequant;
 
-			public readonly short*[] fast_ac;
+			public readonly ArrayPointer<short>[] fast_ac;
 
 // sizes for components, interleaved MCUs
 			public int img_h_max, img_v_max;
@@ -83,7 +80,7 @@ namespace StbSharp
 			public int rgb;
 
 			public int scan_n;
-			public readonly ArrayPointerImpl<int> order = new ArrayPointerImpl<int>(4);
+			public ArrayPointer<int> order = new ArrayPointer<int>(4);
 			public int restart_interval, todo;
 
 // kernels
@@ -104,16 +101,16 @@ namespace StbSharp
 					img_comp[i] = new img_comp();
 				}
 
-				fast_ac = new short *[4];
+				fast_ac = new ArrayPointer<short>[4];
 				for (var i = 0; i < fast_ac.Length; ++i)
 				{
-					fast_ac[i] = ArrayPointer.Allocateshort(1 << STBI__ZFAST_BITS);
+					fast_ac[i] = new ArrayPointer<short>(1 << STBI__ZFAST_BITS);
 				}
 
-				dequant = new byte*[4];
+				dequant = new ArrayPointer<byte>[4];
 				for (var i = 0; i < dequant.Length; ++i)
 				{
-					dequant[i] = ArrayPointer.Allocatebyte(64);
+					dequant[i] = new ArrayPointer<byte>(64);
 				}
 			}
 		};
@@ -132,10 +129,7 @@ namespace StbSharp
 
 		private static unsafe void* stbi__malloc(int size)
 		{
-			var array = new ArrayPointerImpl<byte>(size);
-			_mallocs.Add(array);
-
-			return array.Pointer;
+			return Operations.Malloc(size);
 		}
 
 		private static unsafe void* stbi__malloc(ulong size)
@@ -156,7 +150,7 @@ namespace StbSharp
 
 		private static unsafe void memcpy(void *a, void *b, long size)
 		{
-			ArrayPointer.Memcpy(a, b, size);
+			Operations.Memcpy(a, b, size);
 		}
 
 		private static unsafe void memcpy(void* a, void* b, ulong size)
@@ -166,7 +160,7 @@ namespace StbSharp
 
 		private static unsafe void free(void* a)
 		{
-			ArrayPointer.Free(a);
+			Operations.Free(a);
 		}
 
 		private static unsafe void memset(void* ptr, int value, long size)
@@ -191,7 +185,7 @@ namespace StbSharp
 
 		private static unsafe void* realloc(void *ptr, long newSize)
 		{
-			return ArrayPointer.Realloc(ptr, newSize);
+			return Operations.Realloc(ptr, newSize);
 		}
 
 		private static unsafe void* realloc(void* ptr, ulong newSize)
@@ -229,6 +223,8 @@ namespace StbSharp
 			{
 				data[i] = *bptr++;
 			}
+
+			Operations.Free(result);
 
 			return data;
 		}

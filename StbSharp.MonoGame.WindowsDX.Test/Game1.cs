@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Net.NetworkInformation;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Sichem;
 
 namespace StbSharp.MonoGame.WindowsDX.Test
 {
@@ -88,6 +90,7 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			stbLoadTime = (DateTime.Now - now).TotalMilliseconds;
 
 			spriteFont = Content.Load<SpriteFont>("DefaultFont");
+			GC.Collect();
 		}
 
 		/// <summary>
@@ -134,6 +137,9 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			spriteBatch.Draw(texLoadedBySTB, new Vector2(x, 0));
 			spriteBatch.DrawString(spriteFont, string.Format("{0}", (int) stbLoadTime),
 				new Vector2(x, texLoadedBySTB.Height + 10), Color.White);
+
+			spriteBatch.DrawString(spriteFont, string.Format("Sichem Allocated: {0}", Operations.AllocatedTotal),
+				new Vector2(0, texLoadedByMG.Height + 30), Color.White);
 
 			spriteBatch.End();
 
