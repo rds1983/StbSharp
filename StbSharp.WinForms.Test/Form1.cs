@@ -24,7 +24,8 @@ namespace StbSharp.WinForms.Test
 			{
 				using (var dlg = new OpenFileDialog())
 				{
-					dlg.Filter = "PNG Files (*.png)|*.png|JPEG Files (*.jpg)|*.jpg";
+					dlg.Filter =
+						"PNG Files (*.png)|*.png|JPEG Files (*.jpg)|*.jpg|BMP Files (*.bmp)|*.bmp|PSD Files (*.psd)|*.psd|PIC Files (*.pic)|*.pic|TGA Files (*.tga)|*.tga|All Files (*.*)|*.*";
 					if (dlg.ShowDialog() != DialogResult.OK)
 					{
 						return;
@@ -52,34 +53,16 @@ namespace StbSharp.WinForms.Test
 				DoInvoke(() =>
 				{
 					button1.Enabled = false;
-					labelStatus.Text = string.Format("Trying to load ordinary way '{0}'", _fileName);
+					labelStatus.Text = string.Format("Trying to load through StbSharp '{0}'", _fileName);
 				});
-
-				var stamp = DateTime.Now;
 
 				var bytes = File.ReadAllBytes(_fileName);
 
-				Bitmap bmp;
-				using (var stream = new MemoryStream(bytes))
-				{
-					bmp = (Bitmap)Bitmap.FromStream(stream);
-				}
-
-				var passed = DateTime.Now - stamp;
-
-				var passed1 = passed;
-				DoInvoke(() =>
-				{
-					labelOrdinary.Text = string.Format("{0:0.00} ms", passed1.TotalMilliseconds);
-					labelStatus.Text = string.Format("Trying to load through StbSharp '{0}'", _fileName);
-					pictureBox1.Image = bmp;
-				});
-
 				int x, y, comp;
-				
+
 				var data2 = Loader.load_from_memory(bytes, out x, out y, out comp, Image.STBI_rgb_alpha);
 
-				stamp = DateTime.Now;
+				var stamp = DateTime.Now;
 				var data = Image.stbi_load_from_memory(bytes, out x, out y, out comp, Image.STBI_rgb_alpha);
 
 				var wrongCount = 0;
@@ -100,7 +83,7 @@ namespace StbSharp.WinForms.Test
 					labelStatus.Text = string.Format("Converting to bgra", _fileName);
 				});
 
-				for (var i = 0; i < x * y; ++i)
+				for (var i = 0; i < x*y; ++i)
 				{
 					var r = data[i*4];
 					var g = data[i*4 + 1];
@@ -116,13 +99,13 @@ namespace StbSharp.WinForms.Test
 
 				// Convert to Bitmap
 				var pixelFormat = PixelFormat.Format32bppArgb;
-				bmp = new Bitmap(x, y, pixelFormat);
-				var bmpData = bmp.LockBits(new Rectangle(0, 0, x, y), ImageLockMode.WriteOnly,bmp.PixelFormat);
+				var bmp = new Bitmap(x, y, pixelFormat);
+				var bmpData = bmp.LockBits(new Rectangle(0, 0, x, y), ImageLockMode.WriteOnly, bmp.PixelFormat);
 
 				Marshal.Copy(data, 0, bmpData.Scan0, bmpData.Stride*bmp.Height);
 				bmp.UnlockBits(bmpData);
 
-				passed = DateTime.Now - stamp;
+				var passed = DateTime.Now - stamp;
 
 				DoInvoke(() =>
 				{
