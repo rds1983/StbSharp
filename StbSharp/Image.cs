@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Sichem;
 
 namespace StbSharp
@@ -127,6 +128,57 @@ namespace StbSharp
 			public int ypos;
 		}
 
+		[StructLayout(LayoutKind.Sequential)]
+		public struct stbi__gif_lzw
+		{
+			public short prefix;
+			public byte first;
+			public byte suffix;
+		}
+
+		public unsafe class stbi__gif
+		{
+			public int w;
+			public int h;
+			public byte* _out_;
+			public byte* old_out;
+			public int flags;
+			public int bgindex;
+			public int ratio;
+			public int transparent;
+			public int eflags;
+			public int delay;
+			public ArrayPointer<byte>[] pal;
+			public ArrayPointer<byte>[] lpal;
+			public stbi__gif_lzw[] codes = new stbi__gif_lzw[4096];
+			public byte* color_table;
+			public int parse;
+			public int step;
+			public int lflags;
+			public int start_x;
+			public int start_y;
+			public int max_x;
+			public int max_y;
+			public int cur_x;
+			public int cur_y;
+			public int line_size;
+
+			public stbi__gif()
+			{
+				pal = new ArrayPointer<byte>[256];
+				for (var i = 0; i < pal.Length; ++i)
+				{
+					pal[i] = new ArrayPointer<byte>(4);
+				}
+
+				lpal = new ArrayPointer<byte>[256];
+				for (var i = 0; i < lpal.Length; ++i)
+				{
+					lpal[i] = new ArrayPointer<byte>(4);
+				}
+			}
+		}
+
 		private static unsafe void* stbi__malloc(int size)
 		{
 			return Operations.Malloc(size);
@@ -196,6 +248,36 @@ namespace StbSharp
 		private static int abs(int v)
 		{
 			return Math.Abs(v);
+		}
+
+		public static int stbi__pnm_isspace(sbyte c)
+		{
+			return (c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r') ? 1 : 0;
+		}
+
+		public static unsafe void stbi__pnm_skip_whitespace(stbi__context s, sbyte* c)
+		{
+			for (;;)
+			{
+				while (stbi__at_eof(s) == 0 && stbi__pnm_isspace(*c) != 0)
+					*c = (sbyte) stbi__get8(s);
+
+				if (stbi__at_eof(s) != 0 || *c != '#')
+					break;
+
+				while (stbi__at_eof(s) == 0 && *c != '\n' && *c != '\r')
+					*c = (sbyte) stbi__get8(s);
+			}
+		}
+
+		public static int stbi__pic_is4(stbi__context s, string str)
+		{
+			int i;
+			for (i = 0; (i) < (4); ++i)
+			{
+				if (stbi__get8(s) != str[i]) return 0;
+			}
+			return 1;
 		}
 
 		public static unsafe byte[] stbi_load_from_memory(byte[] bytes, out int x, out int y, out int comp, int req_comp)

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>StbSharp</id>
+		<version>0.1.5.0</version>
+		<title>StbSharp</title>
+		<authors>StbSharp Team</authors>
+		<owners>StbSharp Team</owners>
+		<licenseUrl>https://en.wikipedia.org/wiki/MIT_License</licenseUrl>
+		<projectUrl>https://github.com/rds1983/StbSharp</projectUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>C# port of famous C framework: https://github.com/nothings/stb</description>
+		<copyright>Copyright 2017</copyright>
+		<tags>imaging</tags>
+	</metadata>
+	<files>
+		<file src="bin\Release\Sichem.Framework.dll" target="lib\net45\Sichem.Framework.dll"/>
+		<file src="bin\Release\StbSharp.dll" target="lib\net45\StbSharp.dll"/>
+	</files>
+</package>
