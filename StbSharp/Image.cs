@@ -299,13 +299,8 @@ namespace StbSharp
 			}
 
 			// Convert to array
-			var bptr = result;
 			var data = new byte[x*y*req_comp];
-			for (var i = 0; i < x * y * req_comp; ++i)
-			{
-				data[i] = *bptr++;
-			}
-
+			Marshal.Copy(new IntPtr(result), data, 0, data.Length);
 			Operations.Free(result);
 
 			return data;
