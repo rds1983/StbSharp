@@ -10,7 +10,6 @@ namespace Generator
 		{
 			using (var output = new StringWriter())
 			{
-
 				var parameters = new ConversionParameters
 				{
 					InputPath = @"D:\Projects\StbSharp\StbSharp.Generator\StbSource\stb_image.h",
@@ -23,7 +22,7 @@ namespace Generator
 						"STBI_NO_STDIO",
 						"STB_IMAGE_IMPLEMENTATION",
 						"STBI_NO_GIF",
-						"STBI_NO_PNM",
+						"STBI_NO_PNM"
 					},
 					Namespace = "StbSharp",
 					Class = "Image",
@@ -52,6 +51,15 @@ namespace Generator
 						"stbi__pnm_isspace",
 						"stbi__pnm_skip_whitespace",
 						"stbi__pic_is4"
+					},
+					Structs = new[]
+					{
+						"img_comp",
+						"stbi__gif_lzw",
+						"stbi__result_info",
+						"stbi__pngchunk",
+						"stbi__bmp_data",
+						"stbi__pic_packet"
 					}
 				};
 

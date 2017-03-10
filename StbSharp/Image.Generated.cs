@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using Sichem;
 
 namespace StbSharp
@@ -56,7 +57,8 @@ namespace StbSharp
 			public stbi__zhuffman z_distance = new stbi__zhuffman();
 		}
 
-		public unsafe class stbi__pngchunk
+		[StructLayout(LayoutKind.Sequential)]
+		public unsafe struct stbi__pngchunk
 		{
 			public uint length;
 			public uint type;
@@ -71,7 +73,8 @@ namespace StbSharp
 			public int depth;
 		}
 
-		public unsafe class stbi__bmp_data
+		[StructLayout(LayoutKind.Sequential)]
+		public unsafe struct stbi__bmp_data
 		{
 			public int bpp;
 			public int offset;
@@ -83,7 +86,8 @@ namespace StbSharp
 			public uint all_a;
 		}
 
-		public unsafe class stbi__pic_packet
+		[StructLayout(LayoutKind.Sequential)]
+		public unsafe struct stbi__pic_packet
 		{
 			public byte size;
 			public byte type;
@@ -3466,7 +3470,7 @@ namespace StbSharp
 			return (int) (result);
 		}
 
-		public unsafe static void* stbi__bmp_parse_header(stbi__context s, stbi__bmp_data info)
+		public unsafe static void* stbi__bmp_parse_header(stbi__context s, stbi__bmp_data* info)
 		{
 			int hsz;
 			if ((stbi__get8(s) != 'B') || (stbi__get8(s) != 'M'))
@@ -3474,9 +3478,9 @@ namespace StbSharp
 			stbi__get32le(s);
 			stbi__get16le(s);
 			stbi__get16le(s);
-			info.offset = (int) (stbi__get32le(s));
-			info.hsz = (int) (hsz = (int) (stbi__get32le(s)));
-			info.mr = (uint) (info.mg = (uint) (info.mb = (uint) (info.ma = (uint) (0))));
+			info->offset = (int) (stbi__get32le(s));
+			info->hsz = (int) (hsz = (int) (stbi__get32le(s)));
+			info->mr = (uint) (info->mg = (uint) (info->mb = (uint) (info->ma = (uint) (0))));
 			if (((((hsz != 12) && (hsz != 40)) && (hsz != 56)) && (hsz != 108)) && (hsz != 124))
 				return ((byte*) ((ulong) ((stbi__err("unknown BMP")) != 0 ? ((void*) (0)) : ((void*) (0)))));
 			if ((hsz) == (12))
@@ -3491,8 +3495,8 @@ namespace StbSharp
 			}
 
 			if (stbi__get16le(s) != 1) return ((byte*) ((ulong) ((stbi__err("bad BMP")) != 0 ? ((void*) (0)) : ((void*) (0)))));
-			info.bpp = (int) (stbi__get16le(s));
-			if ((info.bpp) == (1)) return ((byte*) ((ulong) ((stbi__err("monochrome")) != 0 ? ((void*) (0)) : ((void*) (0)))));
+			info->bpp = (int) (stbi__get16le(s));
+			if ((info->bpp) == (1)) return ((byte*) ((ulong) ((stbi__err("monochrome")) != 0 ? ((void*) (0)) : ((void*) (0)))));
 			if (hsz != 12)
 			{
 				int compress = (int) (stbi__get32le(s));
@@ -3512,31 +3516,31 @@ namespace StbSharp
 						stbi__get32le(s);
 						stbi__get32le(s);
 					}
-					if (((info.bpp) == (16)) || ((info.bpp) == (32)))
+					if (((info->bpp) == (16)) || ((info->bpp) == (32)))
 					{
 						if ((compress) == (0))
 						{
-							if ((info.bpp) == (32))
+							if ((info->bpp) == (32))
 							{
-								info.mr = (uint) (0xffu << 16);
-								info.mg = (uint) (0xffu << 8);
-								info.mb = (uint) (0xffu << 0);
-								info.ma = (uint) (0xffu << 24);
-								info.all_a = (uint) (0);
+								info->mr = (uint) (0xffu << 16);
+								info->mg = (uint) (0xffu << 8);
+								info->mb = (uint) (0xffu << 0);
+								info->ma = (uint) (0xffu << 24);
+								info->all_a = (uint) (0);
 							}
 							else
 							{
-								info.mr = (uint) (31u << 10);
-								info.mg = (uint) (31u << 5);
-								info.mb = (uint) (31u << 0);
+								info->mr = (uint) (31u << 10);
+								info->mg = (uint) (31u << 5);
+								info->mb = (uint) (31u << 0);
 							}
 						}
 						else if ((compress) == (3))
 						{
-							info.mr = (uint) (stbi__get32le(s));
-							info.mg = (uint) (stbi__get32le(s));
-							info.mb = (uint) (stbi__get32le(s));
-							if (((info.mr) == (info.mg)) && ((info.mg) == (info.mb)))
+							info->mr = (uint) (stbi__get32le(s));
+							info->mg = (uint) (stbi__get32le(s));
+							info->mb = (uint) (stbi__get32le(s));
+							if (((info->mr) == (info->mg)) && ((info->mg) == (info->mb)))
 							{
 								return ((byte*) ((ulong) ((stbi__err("bad BMP")) != 0 ? ((void*) (0)) : ((void*) (0)))));
 							}
@@ -3549,10 +3553,10 @@ namespace StbSharp
 					int i;
 					if ((hsz != 108) && (hsz != 124))
 						return ((byte*) ((ulong) ((stbi__err("bad BMP")) != 0 ? ((void*) (0)) : ((void*) (0)))));
-					info.mr = (uint) (stbi__get32le(s));
-					info.mg = (uint) (stbi__get32le(s));
-					info.mb = (uint) (stbi__get32le(s));
-					info.ma = (uint) (stbi__get32le(s));
+					info->mr = (uint) (stbi__get32le(s));
+					info->mg = (uint) (stbi__get32le(s));
+					info->mb = (uint) (stbi__get32le(s));
+					info->ma = (uint) (stbi__get32le(s));
 					stbi__get32le(s);
 					for (i = (int) (0); (i) < (12); ++i)
 					{
@@ -3590,7 +3594,7 @@ namespace StbSharp
 			int target;
 			stbi__bmp_data info = new stbi__bmp_data();
 			info.all_a = (uint) (255);
-			if ((stbi__bmp_parse_header(s, info)) == ((void*) (0))) return (byte*) ((void*) (0));
+			if ((stbi__bmp_parse_header(s, &info)) == ((void*) (0))) return (byte*) ((void*) (0));
 			flip_vertically = (int) (((int) (s.img_y)) > (0) ? 1 : 0);
 			s.img_y = (uint) (abs((int) (s.img_y)));
 			mr = (uint) (info.mr);
@@ -3797,7 +3801,7 @@ namespace StbSharp
 					return (int) (STBI_grey);
 				case 16:
 				case 15:
-					if (bits_per_pixel != 16 && (is_grey) != 0) return (int) (STBI_grey_alpha);
+					if (bits_per_pixel == 16 && (is_grey) != 0) return (int) (STBI_grey_alpha);
 					if ((is_rgb16) != null) *is_rgb16 = (int) (1);
 					return (int) (STBI_rgb);
 				case 24:
@@ -3981,7 +3985,7 @@ namespace StbSharp
 
 			tga_inverted = (int) (1 - ((tga_inverted >> 5) & 1));
 			if ((tga_indexed) != 0) tga_comp = (int) (stbi__tga_get_comp((int) (tga_palette_bits), (int) (0), &tga_rgb16));
-			else tga_comp = (int) (stbi__tga_get_comp((int) (tga_bits_per_pixel), ((tga_image_type) == (3))?1:0, &tga_rgb16));
+			else tga_comp = (int) (stbi__tga_get_comp((int) (tga_bits_per_pixel), (int) ((tga_image_type) == (3)?1:0), &tga_rgb16));
 			if (tga_comp == 0) return ((byte*) ((ulong) ((stbi__err("bad format")) != 0 ? ((void*) (0)) : ((void*) (0)))));
 			*x = (int) (tga_width);
 			*y = (int) (tga_height);
@@ -4360,18 +4364,18 @@ namespace StbSharp
 			do
 			{
 				{
-					stbi__pic_packet packet;
+					stbi__pic_packet* packet;
 					if ((num_packets) == (packets.Size))
 						return ((byte*) ((ulong) ((stbi__err("bad format")) != 0 ? ((void*) (0)) : ((void*) (0)))));
-					packet = packets[num_packets++];
+					packet = (stbi__pic_packet*)packets.GetAddress(num_packets++);
 					chained = (int) (stbi__get8(s));
-					packet.size = (byte) (stbi__get8(s));
-					packet.type = (byte) (stbi__get8(s));
-					packet.channel = (byte) (stbi__get8(s));
-					act_comp |= (int) (packet.channel);
+					packet->size = (byte) (stbi__get8(s));
+					packet->type = (byte) (stbi__get8(s));
+					packet->channel = (byte) (stbi__get8(s));
+					act_comp |= (int) (packet->channel);
 					if ((stbi__at_eof(s)) != 0)
 						return ((byte*) ((ulong) ((stbi__err("bad file")) != 0 ? ((void*) (0)) : ((void*) (0)))));
-					if (packet.size != 8) return ((byte*) ((ulong) ((stbi__err("bad format")) != 0 ? ((void*) (0)) : ((void*) (0)))));
+					if (packet->size != 8) return ((byte*) ((ulong) ((stbi__err("bad format")) != 0 ? ((void*) (0)) : ((void*) (0)))));
 				}
 			} while ((chained) != 0);
 			*comp = (int) ((act_comp & 0x10) != 0 ? 4 : 3);
@@ -4382,9 +4386,9 @@ namespace StbSharp
 					for (packet_idx = (int) (0); (packet_idx) < (num_packets); ++packet_idx)
 					{
 						{
-							stbi__pic_packet packet = packets[packet_idx];
+							stbi__pic_packet* packet = (stbi__pic_packet*)packets.GetAddress(packet_idx);
 							byte* dest = result + y*width*4;
-							switch (packet.type)
+							switch (packet->type)
 							{
 								default:
 									return ((byte*) ((ulong) ((stbi__err("bad format")) != 0 ? ((void*) (0)) : ((void*) (0)))));
@@ -4393,7 +4397,7 @@ namespace StbSharp
 									int x;
 									for (x = (int) (0); (x) < (width); ++x , dest += 4)
 									{
-										if (stbi__readval(s, (int) (packet.channel), dest) == null) return (byte*) (0);
+										if (stbi__readval(s, (int) (packet->channel), dest) == null) return (byte*) (0);
 									}
 									break;
 								}
@@ -4410,10 +4414,10 @@ namespace StbSharp
 											if ((stbi__at_eof(s)) != 0)
 												return ((byte*) ((ulong) ((stbi__err("bad file")) != 0 ? ((void*) (0)) : ((void*) (0)))));
 											if ((count) > (left)) count = (byte) ((byte) (left));
-											if (stbi__readval(s, (int) (packet.channel), ((byte*) value.Pointer)) == null) return (byte*) (0);
+											if (stbi__readval(s, (int) (packet->channel), ((byte*) value.Pointer)) == null) return (byte*) (0);
 											for (i = (int) (0); (i) < (count); ++i , dest += 4)
 											{
-												stbi__copyval((int) (packet.channel), dest, ((byte*) value.Pointer));
+												stbi__copyval((int) (packet->channel), dest, ((byte*) value.Pointer));
 											}
 											left -= (int) (count);
 										}
@@ -4437,10 +4441,10 @@ namespace StbSharp
 												else count -= (int) (127);
 												if ((count) > (left))
 													return ((byte*) ((ulong) ((stbi__err("bad file")) != 0 ? ((void*) (0)) : ((void*) (0)))));
-												if (stbi__readval(s, (int) (packet.channel), ((byte*) value.Pointer)) == null) return (byte*) (0);
+												if (stbi__readval(s, (int) (packet->channel), ((byte*) value.Pointer)) == null) return (byte*) (0);
 												for (i = (int) (0); (i) < (count); ++i , dest += 4)
 												{
-													stbi__copyval((int) (packet.channel), dest, ((byte*) value.Pointer));
+													stbi__copyval((int) (packet->channel), dest, ((byte*) value.Pointer));
 												}
 											}
 											else
@@ -4450,7 +4454,7 @@ namespace StbSharp
 													return ((byte*) ((ulong) ((stbi__err("bad file")) != 0 ? ((void*) (0)) : ((void*) (0)))));
 												for (i = (int) (0); (i) < (count); ++i , dest += 4)
 												{
-													if (stbi__readval(s, (int) (packet.channel), dest) == null) return (byte*) (0);
+													if (stbi__readval(s, (int) (packet->channel), dest) == null) return (byte*) (0);
 												}
 											}
 											left -= (int) (count);
@@ -4511,7 +4515,7 @@ namespace StbSharp
 			void* p;
 			stbi__bmp_data info = new stbi__bmp_data();
 			info.all_a = (uint) (255);
-			p = stbi__bmp_parse_header(s, info);
+			p = stbi__bmp_parse_header(s, &info);
 			stbi__rewind(s);
 			if ((p) == ((void*) (0))) return (int) (0);
 			*x = (int) (s.img_x);
@@ -4592,20 +4596,20 @@ namespace StbSharp
 			do
 			{
 				{
-					stbi__pic_packet packet;
+					stbi__pic_packet* packet;
 					if ((num_packets) == (packets.Size)) return (int) (0);
-					packet = packets[num_packets++];
+					packet = (stbi__pic_packet*)packets.GetAddress(num_packets++);
 					chained = (int) (stbi__get8(s));
-					packet.size = (byte) (stbi__get8(s));
-					packet.type = (byte) (stbi__get8(s));
-					packet.channel = (byte) (stbi__get8(s));
-					act_comp |= (int) (packet.channel);
+					packet->size = (byte) (stbi__get8(s));
+					packet->type = (byte) (stbi__get8(s));
+					packet->channel = (byte) (stbi__get8(s));
+					act_comp |= (int) (packet->channel);
 					if ((stbi__at_eof(s)) != 0)
 					{
 						stbi__rewind(s);
 						return (int) (0);
 					}
-					if (packet.size != 8)
+					if (packet->size != 8)
 					{
 						stbi__rewind(s);
 						return (int) (0);
@@ -4640,5 +4644,6 @@ namespace StbSharp
 			stbi__start_callbacks(s, c, user);
 			return (int) (stbi__info_main(s, x, y, comp));
 		}
+
 	}
 }

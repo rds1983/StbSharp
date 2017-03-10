@@ -10,18 +10,18 @@ namespace StbSharp
 
 		public const int STBI__ZFAST_BITS = 9;
 
-		public unsafe delegate int ReadCallback(void* user, sbyte *data, long size);
+		public unsafe delegate int ReadCallback(void* user, sbyte* data, long size);
 
 		public unsafe delegate int SkipCallback(void* user, int n);
 
-		public unsafe delegate int EofCallback(void *user);
+		public unsafe delegate int EofCallback(void* user);
 
-		public unsafe delegate void idct_block_kernel(byte *output, int out_stride, short *data);
+		public unsafe delegate void idct_block_kernel(byte* output, int out_stride, short* data);
 
 		public unsafe delegate void YCbCr_to_RGB_kernel(
-			byte *output, byte *y, byte *pcb, byte *pcr, int count, int step);
+			byte* output, byte* y, byte* pcb, byte* pcr, int count, int step);
 
-		public unsafe delegate byte *Resampler(byte *a, byte *b, byte *c, int d, int e);
+		public unsafe delegate byte* Resampler(byte* a, byte* b, byte* c, int d, int e);
 
 		public static string stbi__g_failure_reason;
 		public static int stbi__vertically_flip_on_load;
@@ -33,7 +33,8 @@ namespace StbSharp
 			public EofCallback eof;
 		}
 
-		public unsafe class img_comp
+		[StructLayout(LayoutKind.Sequential)]
+		public unsafe struct img_comp
 		{
 			public int id;
 			public int h, v;
@@ -42,11 +43,11 @@ namespace StbSharp
 			public int dc_pred;
 
 			public int x, y, w2, h2;
-			public byte *data;
-			public void *raw_data;
-			public void *raw_coeff;
-			public byte *linebuf;
-			public short *coeff; // progressive only
+			public byte* data;
+			public void* raw_data;
+			public void* raw_coeff;
+			public byte* linebuf;
+			public short* coeff; // progressive only
 			public int coeff_w, coeff_h; // number of 8x8 coefficient blocks
 		}
 
@@ -119,8 +120,8 @@ namespace StbSharp
 		public unsafe class stbi__resample
 		{
 			public Resampler resample;
-			public byte *line0;
-			public byte *line1;
+			public byte* line0;
+			public byte* line1;
 			public int hs;
 			public int vs;
 			public int w_lores;
@@ -150,7 +151,7 @@ namespace StbSharp
 			public int delay;
 			public ArrayPointer<byte>[] pal;
 			public ArrayPointer<byte>[] lpal;
-			public stbi__gif_lzw[] codes = new stbi__gif_lzw[4096];
+			public stbi__gif_lzw[] codes;
 			public byte* color_table;
 			public int parse;
 			public int step;
@@ -165,6 +166,7 @@ namespace StbSharp
 
 			public stbi__gif()
 			{
+				codes = new stbi__gif_lzw[4096];
 				pal = new ArrayPointer<byte>[256];
 				for (var i = 0; i < pal.Length; ++i)
 				{
@@ -200,14 +202,14 @@ namespace StbSharp
 			return 0;
 		}
 
-		private static unsafe void memcpy(void *a, void *b, long size)
+		private static unsafe void memcpy(void* a, void* b, long size)
 		{
 			Operations.Memcpy(a, b, size);
 		}
 
 		private static unsafe void memcpy(void* a, void* b, ulong size)
 		{
-			memcpy(a, b, (long)size);
+			memcpy(a, b, (long) size);
 		}
 
 		private static unsafe void free(void* a)
@@ -227,22 +229,22 @@ namespace StbSharp
 
 		private static unsafe void memset(void* ptr, int value, ulong size)
 		{
-			memset(ptr, value, (long)size);
+			memset(ptr, value, (long) size);
 		}
 
-		private static uint _lrotl(uint x , int y)
+		private static uint _lrotl(uint x, int y)
 		{
 			return (x << y) | (x >> (32 - y));
 		}
 
-		private static unsafe void* realloc(void *ptr, long newSize)
+		private static unsafe void* realloc(void* ptr, long newSize)
 		{
 			return Operations.Realloc(ptr, newSize);
 		}
 
 		private static unsafe void* realloc(void* ptr, ulong newSize)
 		{
-			return realloc(ptr, (long)newSize);
+			return realloc(ptr, (long) newSize);
 		}
 
 		private static int abs(int v)
