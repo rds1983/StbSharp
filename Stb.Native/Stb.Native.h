@@ -9,8 +9,12 @@ using namespace System::Runtime::InteropServices;
 
 #include "stb_image.h"
 
-namespace StbNative {
+#define STBI_WRITE_NO_STDIO
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 
+#include "stb_image_write.h"
+
+namespace StbNative {
 	public ref class Loader
 	{
 	public:
@@ -31,6 +35,24 @@ namespace StbNative {
 			for (int i = 0; i < result->Length; ++i)
 			{
 				result[i] = res[i];
+			}
+
+			return result;
+		}
+
+		// TODO: Add your methods for this class here.
+		static array<unsigned char> ^ save_to_memory(array<unsigned char> ^bytes, int x, int y, int comp)
+		{
+			pin_ptr<unsigned char> p = &bytes[0];
+			unsigned char *ptr = (unsigned char *)p;
+
+			int len;
+			unsigned char *png = stbi_write_png_to_mem(ptr, x * comp, x, y, comp, &len);
+
+			array<unsigned char> ^result = gcnew array<unsigned char>(len);
+			for (int i = 0; i < result->Length; ++i)
+			{
+				result[i] = png[i];
 			}
 
 			return result;

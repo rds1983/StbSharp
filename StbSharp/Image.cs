@@ -4,7 +4,7 @@ using Sichem;
 
 namespace StbSharp
 {
-	partial class Image
+	partial class Stb
 	{
 		public static string LastError;
 
@@ -212,6 +212,26 @@ namespace StbSharp
 			memcpy(a, b, (long) size);
 		}
 
+		private static unsafe void memmove(void* a, void* b, long size)
+		{
+			Operations.MemMove(a, b, size);
+		}
+
+		private static unsafe void memmove(void* a, void* b, ulong size)
+		{
+			memmove(a, b, (long)size);
+		}
+
+		private static unsafe int memcmp(void* a, void* b, long size)
+		{
+			return Operations.Memcmp(a, b, size);
+		}
+
+		private static unsafe int memcmp(void* a, void* b, ulong size)
+		{
+			return memcmp(a, b, (long) size);
+		}
+
 		private static unsafe void free(void* a)
 		{
 			Operations.Free(a);
@@ -250,6 +270,39 @@ namespace StbSharp
 		private static int abs(int v)
 		{
 			return Math.Abs(v);
+		}
+
+		public const long DBL_EXP_MASK = 0x7ff0000000000000L;
+		public const int DBL_MANT_BITS = 52;
+		public const long DBL_SGN_MASK = -1 - 0x7fffffffffffffffL;
+		public const long DBL_MANT_MASK = 0x000fffffffffffffL; 
+		public const long DBL_EXP_CLR_MASK = DBL_SGN_MASK | DBL_MANT_MASK;
+
+		private static unsafe double frexp(double number, int* exponent)
+		{
+			var bits = BitConverter.DoubleToInt64Bits(number);
+			var exp = (int)((bits & DBL_EXP_MASK) >> DBL_MANT_BITS);
+			*exponent = 0;
+
+			if (exp == 0x7ff || number == 0D)
+				number += number;
+			else
+			{
+				// Not zero and finite.
+				*exponent = exp - 1022;
+				if (exp == 0)
+				{
+					// Subnormal, scale number so that it is in [1, 2).
+					number *= BitConverter.Int64BitsToDouble(0x4350000000000000L); // 2^54
+					bits = BitConverter.DoubleToInt64Bits(number);
+					exp = (int)((bits & DBL_EXP_MASK) >> DBL_MANT_BITS);
+					*exponent = exp - 1022 - 54;
+				}
+				// Set exponent to -1 so that number is in [0.5, 1).
+				number = BitConverter.Int64BitsToDouble((bits & DBL_EXP_CLR_MASK) | 0x3fe0000000000000L);
+			}
+
+			return number;
 		}
 
 		public static int stbi__pnm_isspace(sbyte c)

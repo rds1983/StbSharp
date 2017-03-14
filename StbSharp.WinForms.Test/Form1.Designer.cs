@@ -34,6 +34,7 @@
 			this.labelOrdinary = new System.Windows.Forms.Label();
 			this.labelStbSharp = new System.Windows.Forms.Label();
 			this.labelWrongCount = new System.Windows.Forms.Label();
+			this.buttonSave = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -90,6 +91,7 @@
 			// 
 			// labelWrongCount
 			// 
+			this.labelWrongCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.labelWrongCount.AutoSize = true;
 			this.labelWrongCount.Location = new System.Drawing.Point(559, 522);
 			this.labelWrongCount.Name = "labelWrongCount";
@@ -97,11 +99,22 @@
 			this.labelWrongCount.TabIndex = 5;
 			this.labelWrongCount.Text = "label1";
 			// 
+			// buttonSave
+			// 
+			this.buttonSave.Location = new System.Drawing.Point(94, 13);
+			this.buttonSave.Name = "buttonSave";
+			this.buttonSave.Size = new System.Drawing.Size(75, 23);
+			this.buttonSave.TabIndex = 6;
+			this.buttonSave.Text = "Save...";
+			this.buttonSave.UseVisualStyleBackColor = true;
+			this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(731, 545);
+			this.Controls.Add(this.buttonSave);
 			this.Controls.Add(this.labelWrongCount);
 			this.Controls.Add(this.labelStbSharp);
 			this.Controls.Add(this.labelOrdinary);
@@ -124,6 +137,7 @@
 		private System.Windows.Forms.Label labelOrdinary;
 		private System.Windows.Forms.Label labelStbSharp;
 		private System.Windows.Forms.Label labelWrongCount;
+		private System.Windows.Forms.Button buttonSave;
 	}
 }
 

@@ -60,10 +60,10 @@ namespace StbSharp.WinForms.Test
 
 				int x, y, comp;
 
-				var data2 = Loader.load_from_memory(bytes, out x, out y, out comp, Image.STBI_rgb_alpha);
+				var data2 = Loader.load_from_memory(bytes, out x, out y, out comp, Stb.STBI_rgb_alpha);
 
 				var stamp = DateTime.Now;
-				var data = Image.stbi_load_from_memory(bytes, out x, out y, out comp, Image.STBI_rgb_alpha);
+				var data = Stb.stbi_load_from_memory(bytes, out x, out y, out comp, Stb.STBI_rgb_alpha);
 
 				var wrongCount = 0;
 				for (var i = 0; i < data.Length; ++i)
@@ -129,6 +129,71 @@ namespace StbSharp.WinForms.Test
 				{
 					button1.Enabled = true;
 				});
+			}
+		}
+
+		private void buttonSave_Click(object sender, EventArgs e)
+		{
+			try
+			{
+				string fileName;
+				using (var dlg = new SaveFileDialog())
+				{
+					dlg.Filter = "BMP Files (*.bmp)|*.bmp|TGA Files (*.tga)|*.tga|PNG Files (*.png)|*.png|HDR Files (*.hdr)|*.psd";
+					if (dlg.ShowDialog() != DialogResult.OK)
+					{
+						return;
+					}
+
+					fileName = dlg.FileName;
+				}
+
+				var type = Stb.ImageWriterType.Bmp;
+				if (fileName.EndsWith(".tga"))
+				{
+					type = Stb.ImageWriterType.Tga;
+				}
+				else if (fileName.EndsWith("png"))
+				{
+					type = Stb.ImageWriterType.Png;
+				}
+				else if (fileName.EndsWith("hdr"))
+				{
+					type = Stb.ImageWriterType.Hdr;
+				}
+
+				// Get bitmap bytes
+				var bmp = (Bitmap) pictureBox1.Image;
+				var x = bmp.Width;
+				var y = bmp.Height;
+				var bmpData = bmp.LockBits(new Rectangle(0, 0, x, y), ImageLockMode.ReadOnly, bmp.PixelFormat);
+
+				var data = new byte[y*bmpData.Stride];
+				Marshal.Copy(bmpData.Scan0, data, 0, bmpData.Stride*bmp.Height);
+				bmp.UnlockBits(bmpData);
+
+				// Convert bgra to rgba
+				for (var i = 0; i < x * y; ++i)
+				{
+					var b = data[i * 4];
+					var g = data[i * 4 + 1];
+					var r = data[i * 4 + 2];
+					var a = data[i * 4 + 3];
+
+					data[i * 4] = r;
+					data[i * 4 + 1] = g;
+					data[i * 4 + 2] = b;
+					data[i * 4 + 3] = a;
+				}
+
+				// Call StbSharp
+				var result = Stb.stbi_write_to_memory(data, x, y, 4, type);
+
+				File.WriteAllBytes(fileName, result);
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("Error", ex.Message);
 			}
 		}
 	}
