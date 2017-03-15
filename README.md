@@ -58,7 +58,7 @@ bmp.UnlockBits(bmpData);
 ```
 
 ### Saving Image
-StbSharp can save images in rgba format.
+StbSharp can save images in RGBA format.
 Sample code:
 ```c#
 using (var stream = File.OpenWrite(fileName))
