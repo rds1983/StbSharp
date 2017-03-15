@@ -4369,8 +4369,7 @@ namespace StbSharp
 					if ((num_packets) == (packets.Size))
 						return ((byte*) ((ulong) ((stbi__err("bad format")) != 0 ? ((void*) (0)) : ((void*) (0)))));
 
-					packet = ((stbi__pic_packet*)packets.Pointer) + num_packets;
-					num_packets++;
+					packet = (stbi__pic_packet*)packets.GetAddress(num_packets++);
 					chained = (int) (stbi__get8(s));
 					packet->size = (byte) (stbi__get8(s));
 					packet->type = (byte) (stbi__get8(s));
@@ -4389,7 +4388,7 @@ namespace StbSharp
 					for (packet_idx = (int) (0); (packet_idx) < (num_packets); ++packet_idx)
 					{
 						{
-							var packet = ((stbi__pic_packet*)packets.Pointer) + packet_idx;
+							var packet = (stbi__pic_packet*)packets.GetAddress(packet_idx);
 							byte* dest = result + y*width*4;
 							switch (packet->type)
 							{
@@ -4560,7 +4559,7 @@ namespace StbSharp
 			g.transparent = (int) (-1);
 			if (comp != (int*) (0)) *comp = (int) (4);
 			if ((is_info) != 0) return (int) (1);
-			if ((g.flags & 0x80) != 0) stbi__gif_parse_colortable(s, g.pal, (int) (2 << (g.flags & 7)), (int) (-1));
+			if ((g.flags & 0x80) != 0) stbi__gif_parse_colortable(s, (byte *)g.pal.Pointer, (int) (2 << (g.flags & 7)), (int) (-1));
 			return (int) (1);
 		}
 
@@ -4637,9 +4636,9 @@ namespace StbSharp
 			for (init_code = (int) (0); (init_code) < (clear); init_code++)
 			{
 				{
-					g.codes[init_code].prefix = (short) (-1);
-					g.codes[init_code].first = (byte) ((byte) (init_code));
-					g.codes[init_code].suffix = (byte) ((byte) (init_code));
+					g.codes.Data[init_code].prefix = (short) (-1);
+					g.codes.Data[init_code].first = (byte)((byte)(init_code));
+					g.codes.Data[init_code].suffix = (byte)((byte)(init_code));
 				}
 			}
 			avail = (int) (clear + 2);
@@ -4686,7 +4685,7 @@ namespace StbSharp
 							if ((first) != 0) return ((byte*) ((ulong) ((stbi__err("no clear code")) != 0 ? ((void*) (0)) : ((void*) (0)))));
 							if ((oldcode) >= (0))
 							{
-								p = &g.codes[avail++];
+								p = (stbi__gif_lzw *)g.codes.GetAddress(avail++);
 								if ((avail) > (4096))
 									return ((byte*) ((ulong) ((stbi__err("too many codes")) != 0 ? ((void*) (0)) : ((void*) (0)))));
 								p->prefix = (short) ((short) (oldcode));
@@ -4716,7 +4715,7 @@ namespace StbSharp
 		{
 			int x;
 			int y;
-			byte* c = (&g.pal[g.bgindex * 4]);
+			byte* c = (byte *)g.pal.GetAddress(g.bgindex * 4);
 			for (y = (int) (y0); (y) < (y1); y += (int) (4*g.w))
 			{
 				{
@@ -4806,18 +4805,18 @@ namespace StbSharp
 							}
 							if ((g.lflags & 0x80) != 0)
 							{
-								stbi__gif_parse_colortable(s, g.lpal, (int) (2 << (g.lflags & 7)),
+								stbi__gif_parse_colortable(s, (byte *)g.lpal.Pointer, (int) (2 << (g.lflags & 7)),
 									(int) ((g.eflags & 0x01) != 0 ? g.transparent : -1));
-								g.color_table = (byte*) (g.lpal);
+								g.color_table = (byte*) (g.lpal.Pointer);
 							}
 							else if ((g.flags & 0x80) != 0)
 							{
 								if (((g.transparent) >= (0)) && ((g.eflags & 0x01) != 0))
 								{
-									prev_trans = (int) (&g.pal[g.transparent * 4 + 3]);
+									prev_trans = (int) (g.pal.GetAddress(g.transparent * 4 + 3));
 									g.pal[g.transparent * 4 + 3] = (byte) (0);
 								}
-								g.color_table = (byte*) (g.pal);
+								g.color_table = (byte*) (g.pal.Pointer);
 							}
 							else return ((byte*) ((ulong) ((stbi__err("missing color table")) != 0 ? ((void*) (0)) : ((void*) (0)))));
 							o = stbi__process_gif_raster(s, g);
@@ -4969,8 +4968,7 @@ namespace StbSharp
 				{
 					stbi__pic_packet* packet;
 					if ((num_packets) == (packets.Size)) return (int) (0);
-					packet = ((stbi__pic_packet*) packets.Pointer) + num_packets;
-					num_packets++;
+					packet = (stbi__pic_packet*) packets.GetAddress(num_packets++);
 					chained = (int) (stbi__get8(s));
 					packet->size = (byte) (stbi__get8(s));
 					packet->type = (byte) (stbi__get8(s));
