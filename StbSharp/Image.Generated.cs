@@ -231,6 +231,7 @@ namespace StbSharp
 			if ((stbi__jpeg_test(s)) != 0) return stbi__jpeg_load(s, x, y, comp, (int) (req_comp));
 			if ((stbi__png_test(s)) != 0) return stbi__png_load(s, x, y, comp, (int) (req_comp));
 			if ((stbi__bmp_test(s)) != 0) return stbi__bmp_load(s, x, y, comp, (int) (req_comp));
+			if ((stbi__gif_test(s)) != 0) return stbi__gif_load(s, x, y, comp, (int) (req_comp));
 			if ((stbi__psd_test(s)) != 0) return stbi__psd_load(s, x, y, comp, (int) (req_comp));
 			if ((stbi__pic_test(s)) != 0) return stbi__pic_load(s, x, y, comp, (int) (req_comp));
 			if ((stbi__tga_test(s)) != 0) return stbi__tga_load(s, x, y, comp, (int) (req_comp));
@@ -3801,7 +3802,7 @@ namespace StbSharp
 					return (int) (STBI_grey);
 				case 16:
 				case 15:
-					if (bits_per_pixel == 16 && (is_grey) != 0) return (int) (STBI_grey_alpha);
+					if (bits_per_pixel == 16 && (is_grey) != 0) return (int)(STBI_grey_alpha);
 					if ((is_rgb16) != null) *is_rgb16 = (int) (1);
 					return (int) (STBI_rgb);
 				case 24:
@@ -3985,7 +3986,7 @@ namespace StbSharp
 
 			tga_inverted = (int) (1 - ((tga_inverted >> 5) & 1));
 			if ((tga_indexed) != 0) tga_comp = (int) (stbi__tga_get_comp((int) (tga_palette_bits), (int) (0), &tga_rgb16));
-			else tga_comp = (int) (stbi__tga_get_comp((int) (tga_bits_per_pixel), (int) ((tga_image_type) == (3)?1:0), &tga_rgb16));
+			else tga_comp = (int) (stbi__tga_get_comp((int) (tga_bits_per_pixel), ((tga_image_type) == (3)?1:0), &tga_rgb16));
 			if (tga_comp == 0) return ((byte*) ((ulong) ((stbi__err("bad format")) != 0 ? ((void*) (0)) : ((void*) (0)))));
 			*x = (int) (tga_width);
 			*y = (int) (tga_height);
@@ -4367,7 +4368,9 @@ namespace StbSharp
 					stbi__pic_packet* packet;
 					if ((num_packets) == (packets.Size))
 						return ((byte*) ((ulong) ((stbi__err("bad format")) != 0 ? ((void*) (0)) : ((void*) (0)))));
-					packet = (stbi__pic_packet*)packets.GetAddress(num_packets++);
+
+					packet = ((stbi__pic_packet*)packets.Pointer) + num_packets;
+					num_packets++;
 					chained = (int) (stbi__get8(s));
 					packet->size = (byte) (stbi__get8(s));
 					packet->type = (byte) (stbi__get8(s));
@@ -4386,7 +4389,7 @@ namespace StbSharp
 					for (packet_idx = (int) (0); (packet_idx) < (num_packets); ++packet_idx)
 					{
 						{
-							stbi__pic_packet* packet = (stbi__pic_packet*)packets.GetAddress(packet_idx);
+							var packet = ((stbi__pic_packet*)packets.Pointer) + packet_idx;
 							byte* dest = result + y*width*4;
 							switch (packet->type)
 							{
@@ -4510,6 +4513,374 @@ namespace StbSharp
 			return (int) (r);
 		}
 
+		public unsafe static int stbi__gif_test_raw(stbi__context s)
+		{
+			int sz;
+			if ((((stbi__get8(s) != 'G') || (stbi__get8(s) != 'I')) || (stbi__get8(s) != 'F')) || (stbi__get8(s) != '8'))
+				return (int) (0);
+			sz = (int) (stbi__get8(s));
+			if ((sz != '9') && (sz != '7')) return (int) (0);
+			if (stbi__get8(s) != 'a') return (int) (0);
+			return (int) (1);
+		}
+
+		public unsafe static int stbi__gif_test(stbi__context s)
+		{
+			int r = (int) (stbi__gif_test_raw(s));
+			stbi__rewind(s);
+			return (int) (r);
+		}
+
+		public unsafe static void stbi__gif_parse_colortable(stbi__context s, byte* pal, int num_entries, int transp)
+		{
+			int i;
+			for (i = (int) (0); (i) < (num_entries); ++i)
+			{
+				pal[i*4 + 2] = (byte) (stbi__get8(s));
+				pal[i*4 + 1] = (byte) (stbi__get8(s));
+				pal[i*4] = (byte) (stbi__get8(s));
+				pal[i*4 + 3] = (byte) ((transp) == (i) ? 0 : 255);
+			}
+		}
+
+		public unsafe static int stbi__gif_header(stbi__context s, stbi__gif g, int* comp, int is_info)
+		{
+			byte version;
+			if ((((stbi__get8(s) != 'G') || (stbi__get8(s) != 'I')) || (stbi__get8(s) != 'F')) || (stbi__get8(s) != '8'))
+				return (int) (stbi__err("not GIF"));
+			version = (byte) (stbi__get8(s));
+			if ((version != '7') && (version != '9')) return (int) (stbi__err("not GIF"));
+			if (stbi__get8(s) != 'a') return (int) (stbi__err("not GIF"));
+			stbi__g_failure_reason = "";
+			g.w = (int) (stbi__get16le(s));
+			g.h = (int) (stbi__get16le(s));
+			g.flags = (int) (stbi__get8(s));
+			g.bgindex = (int) (stbi__get8(s));
+			g.ratio = (int) (stbi__get8(s));
+			g.transparent = (int) (-1);
+			if (comp != (int*) (0)) *comp = (int) (4);
+			if ((is_info) != 0) return (int) (1);
+			if ((g.flags & 0x80) != 0) stbi__gif_parse_colortable(s, g.pal, (int) (2 << (g.flags & 7)), (int) (-1));
+			return (int) (1);
+		}
+
+		public unsafe static int stbi__gif_info_raw(stbi__context s, int* x, int* y, int* comp)
+		{
+			stbi__gif g = new stbi__gif();
+			if (stbi__gif_header(s, g, comp, (int) (1)) == 0)
+			{
+				stbi__rewind(s);
+				return (int) (0);
+			}
+
+			if ((x) != null) *x = (int) (g.w);
+			if ((y) != null) *y = (int) (g.h);
+
+			return (int) (1);
+		}
+
+		public unsafe static void stbi__out_gif_code(stbi__gif g, ushort code)
+		{
+			byte* p;
+			byte* c;
+			if ((g.codes[code].prefix) >= (0)) stbi__out_gif_code(g, (ushort) (g.codes[code].prefix));
+			if ((g.cur_y) >= (g.max_y)) return;
+			p = &g._out_[g.cur_x + g.cur_y];
+			c = &g.color_table[g.codes[code].suffix*4];
+			if ((c[3]) >= (128))
+			{
+				p[0] = (byte) (c[2]);
+				p[1] = (byte) (c[1]);
+				p[2] = (byte) (c[0]);
+				p[3] = (byte) (c[3]);
+			}
+
+			g.cur_x += (int) (4);
+			if ((g.cur_x) >= (g.max_x))
+			{
+				g.cur_x = (int) (g.start_x);
+				g.cur_y += (int) (g.step);
+				while (((g.cur_y) >= (g.max_y)) && ((g.parse) > (0)))
+				{
+					{
+						g.step = (int) ((1 << g.parse)*g.line_size);
+						g.cur_y = (int) (g.start_y + (g.step >> 1));
+						--g.parse;
+					}
+				}
+			}
+
+		}
+
+		public unsafe static byte* stbi__process_gif_raster(stbi__context s, stbi__gif g)
+		{
+			byte lzw_cs;
+			int len;
+			int init_code;
+			uint first;
+			int codesize;
+			int codemask;
+			int avail;
+			int oldcode;
+			int bits;
+			int valid_bits;
+			int clear;
+			stbi__gif_lzw* p;
+			lzw_cs = (byte) (stbi__get8(s));
+			if ((lzw_cs) > (12)) return (byte*) ((void*) (0));
+			clear = (int) (1 << lzw_cs);
+			first = (uint) (1);
+			codesize = (int) (lzw_cs + 1);
+			codemask = (int) ((1 << codesize) - 1);
+			bits = (int) (0);
+			valid_bits = (int) (0);
+			for (init_code = (int) (0); (init_code) < (clear); init_code++)
+			{
+				{
+					g.codes[init_code].prefix = (short) (-1);
+					g.codes[init_code].first = (byte) ((byte) (init_code));
+					g.codes[init_code].suffix = (byte) ((byte) (init_code));
+				}
+			}
+			avail = (int) (clear + 2);
+			oldcode = (int) (-1);
+			len = (int) (0);
+			for (;;)
+			{
+				{
+					if ((valid_bits) < (codesize))
+					{
+						if ((len) == (0))
+						{
+							len = (int) (stbi__get8(s));
+							if ((len) == (0)) return g._out_;
+						}
+						--len;
+						bits |= (int) ((int) (stbi__get8(s)) << valid_bits);
+						valid_bits += (int) (8);
+					}
+					else
+					{
+						int code = (int) (bits & codemask);
+						bits >>= codesize;
+						valid_bits -= (int) (codesize);
+						if ((code) == (clear))
+						{
+							codesize = (int) (lzw_cs + 1);
+							codemask = (int) ((1 << codesize) - 1);
+							avail = (int) (clear + 2);
+							oldcode = (int) (-1);
+							first = (uint) (0);
+						}
+						else if ((code) == (clear + 1))
+						{
+							stbi__skip(s, (int) (len));
+							while ((len = (int) (stbi__get8(s))) > (0))
+							{
+								stbi__skip(s, (int) (len));
+							}
+							return g._out_;
+						}
+						else if (code <= avail)
+						{
+							if ((first) != 0) return ((byte*) ((ulong) ((stbi__err("no clear code")) != 0 ? ((void*) (0)) : ((void*) (0)))));
+							if ((oldcode) >= (0))
+							{
+								p = &g.codes[avail++];
+								if ((avail) > (4096))
+									return ((byte*) ((ulong) ((stbi__err("too many codes")) != 0 ? ((void*) (0)) : ((void*) (0)))));
+								p->prefix = (short) ((short) (oldcode));
+								p->first = (byte) (g.codes[oldcode].first);
+								p->suffix = (byte) (((code) == (avail)) ? p->first : g.codes[code].first);
+							}
+							else if ((code) == (avail))
+								return ((byte*) ((ulong) ((stbi__err("illegal code in raster")) != 0 ? ((void*) (0)) : ((void*) (0)))));
+							stbi__out_gif_code(g, (ushort) (code));
+							if (((avail & codemask) == (0)) && (avail <= 0x0FFF))
+							{
+								codesize++;
+								codemask = (int) ((1 << codesize) - 1);
+							}
+							oldcode = (int) (code);
+						}
+						else
+						{
+							return ((byte*) ((ulong) ((stbi__err("illegal code in raster")) != 0 ? ((void*) (0)) : ((void*) (0)))));
+						}
+					}
+				}
+			}
+		}
+
+		public unsafe static void stbi__fill_gif_background(stbi__gif g, int x0, int y0, int x1, int y1)
+		{
+			int x;
+			int y;
+			byte* c = (&g.pal[g.bgindex * 4]);
+			for (y = (int) (y0); (y) < (y1); y += (int) (4*g.w))
+			{
+				{
+					for (x = (int) (x0); (x) < (x1); x += (int) (4))
+					{
+						{
+							byte* p = &g._out_[y + x];
+							p[0] = (byte) (c[2]);
+							p[1] = (byte) (c[1]);
+							p[2] = (byte) (c[0]);
+							p[3] = (byte) (0);
+						}
+					}
+				}
+			}
+		}
+
+		public unsafe static byte* stbi__gif_load_next(stbi__context s, stbi__gif g, int* comp, int req_comp)
+		{
+			int i;
+			byte* prev_out = (byte*) (0);
+			if (((g._out_) == ((byte*) (0))) && (stbi__gif_header(s, g, comp, (int) (0)) == 0)) return (byte*) (0);
+			prev_out = g._out_;
+			g._out_ = (byte*) (stbi__malloc((ulong) (4*g.w*g.h)));
+			if ((g._out_) == ((byte*) (0)))
+				return ((byte*) ((ulong) ((stbi__err("outofmem")) != 0 ? ((void*) (0)) : ((void*) (0)))));
+			switch ((g.eflags & 0x1C) >> 2)
+			{
+				case 0:
+					stbi__fill_gif_background(g, (int) (0), (int) (0), (int) (4*g.w), (int) (4*g.w*g.h));
+					break;
+				case 1:
+					if ((prev_out) != null) memcpy(g._out_, prev_out, (ulong) (4*g.w*g.h));
+					g.old_out = prev_out;
+					break;
+				case 2:
+					if ((prev_out) != null) memcpy(g._out_, prev_out, (ulong) (4*g.w*g.h));
+					stbi__fill_gif_background(g, (int) (g.start_x), (int) (g.start_y), (int) (g.max_x), (int) (g.max_y));
+					break;
+				case 3:
+					if ((g.old_out) != null)
+					{
+						for (i = (int) (g.start_y); (i) < (g.max_y); i += (int) (4*g.w))
+						{
+							memcpy(&g._out_[i + g.start_x], &g.old_out[i + g.start_x], (ulong) (g.max_x - g.start_x));
+						}
+					}
+					break;
+			}
+
+			for (;;)
+			{
+				{
+					switch (stbi__get8(s))
+					{
+						case 0x2C:
+						{
+							int prev_trans = (int) (-1);
+							int x;
+							int y;
+							int w;
+							int h;
+							byte* o;
+							x = (int) (stbi__get16le(s));
+							y = (int) (stbi__get16le(s));
+							w = (int) (stbi__get16le(s));
+							h = (int) (stbi__get16le(s));
+							if (((x + w) > (g.w)) || ((y + h) > (g.h)))
+								return ((byte*) ((ulong) ((stbi__err("bad Image Descriptor")) != 0 ? ((void*) (0)) : ((void*) (0)))));
+							g.line_size = (int) (g.w*4);
+							g.start_x = (int) (x*4);
+							g.start_y = (int) (y*g.line_size);
+							g.max_x = (int) (g.start_x + w*4);
+							g.max_y = (int) (g.start_y + h*g.line_size);
+							g.cur_x = (int) (g.start_x);
+							g.cur_y = (int) (g.start_y);
+							g.lflags = (int) (stbi__get8(s));
+							if ((g.lflags & 0x40) != 0)
+							{
+								g.step = (int) (8*g.line_size);
+								g.parse = (int) (3);
+							}
+							else
+							{
+								g.step = (int) (g.line_size);
+								g.parse = (int) (0);
+							}
+							if ((g.lflags & 0x80) != 0)
+							{
+								stbi__gif_parse_colortable(s, g.lpal, (int) (2 << (g.lflags & 7)),
+									(int) ((g.eflags & 0x01) != 0 ? g.transparent : -1));
+								g.color_table = (byte*) (g.lpal);
+							}
+							else if ((g.flags & 0x80) != 0)
+							{
+								if (((g.transparent) >= (0)) && ((g.eflags & 0x01) != 0))
+								{
+									prev_trans = (int) (&g.pal[g.transparent * 4 + 3]);
+									g.pal[g.transparent * 4 + 3] = (byte) (0);
+								}
+								g.color_table = (byte*) (g.pal);
+							}
+							else return ((byte*) ((ulong) ((stbi__err("missing color table")) != 0 ? ((void*) (0)) : ((void*) (0)))));
+							o = stbi__process_gif_raster(s, g);
+							if ((o) == ((byte*) ((void*) (0)))) return (byte*) ((void*) (0));
+							if (prev_trans != -1) g.pal[g.transparent * 4 + 3] = (byte) ((byte) (prev_trans));
+							return o;
+						}
+						case 0x21:
+						{
+							int len;
+							if ((stbi__get8(s)) == (0xF9))
+							{
+								len = (int) (stbi__get8(s));
+								if ((len) == (4))
+								{
+									g.eflags = (int) (stbi__get8(s));
+									g.delay = (int) (stbi__get16le(s));
+									g.transparent = (int) (stbi__get8(s));
+								}
+								else
+								{
+									stbi__skip(s, (int) (len));
+									break;
+								}
+							}
+							while ((len = (int) (stbi__get8(s))) != 0)
+							{
+								stbi__skip(s, (int) (len));
+							}
+							break;
+						}
+						case 0x3B:
+							return null;
+						default:
+							return ((byte*) ((ulong) ((stbi__err("unknown code")) != 0 ? ((void*) (0)) : ((void*) (0)))));
+					}
+				}
+			}
+		}
+
+		public unsafe static byte* stbi__gif_load(stbi__context s, int* x, int* y, int* comp, int req_comp)
+		{
+			byte* u = (byte*) (0);
+			stbi__gif g = new stbi__gif();
+			u = stbi__gif_load_next(s, g, comp, (int) (req_comp));
+			if ((u) == null) u = (byte*) (0);
+			if ((u) != null)
+			{
+				*x = (int) (g.w);
+				*y = (int) (g.h);
+				if (((req_comp) != 0) && (req_comp != 4))
+					u = stbi__convert_format(u, (int) (4), (int) (req_comp), (uint) (g.w), (uint) (g.h));
+			}
+			else if ((g._out_) != null) free(g._out_);
+
+			return u;
+		}
+
+		public unsafe static int stbi__gif_info(stbi__context s, int* x, int* y, int* comp)
+		{
+			return (int) (stbi__gif_info_raw(s, x, y, comp));
+		}
+
 		public unsafe static int stbi__bmp_info(stbi__context s, int* x, int* y, int* comp)
 		{
 			void* p;
@@ -4598,7 +4969,8 @@ namespace StbSharp
 				{
 					stbi__pic_packet* packet;
 					if ((num_packets) == (packets.Size)) return (int) (0);
-					packet = (stbi__pic_packet*)packets.GetAddress(num_packets++);
+					packet = ((stbi__pic_packet*) packets.Pointer) + num_packets;
+					num_packets++;
 					chained = (int) (stbi__get8(s));
 					packet->size = (byte) (stbi__get8(s));
 					packet->type = (byte) (stbi__get8(s));
@@ -4624,6 +4996,7 @@ namespace StbSharp
 		{
 			if ((stbi__jpeg_info(s, x, y, comp)) != 0) return (int) (1);
 			if ((stbi__png_info(s, x, y, comp)) != 0) return (int) (1);
+			if ((stbi__gif_info(s, x, y, comp)) != 0) return (int) (1);
 			if ((stbi__bmp_info(s, x, y, comp)) != 0) return (int) (1);
 			if ((stbi__psd_info(s, x, y, comp)) != 0) return (int) (1);
 			if ((stbi__pic_info(s, x, y, comp)) != 0) return (int) (1);
@@ -4644,6 +5017,5 @@ namespace StbSharp
 			stbi__start_callbacks(s, c, user);
 			return (int) (stbi__info_main(s, x, y, comp));
 		}
-
 	}
 }

@@ -21,7 +21,6 @@ namespace Generator
 						"STBI_NO_HDR",
 						"STBI_NO_STDIO",
 						"STB_IMAGE_IMPLEMENTATION",
-						"STBI_NO_GIF",
 						"STBI_NO_PNM"
 					},
 					Namespace = "StbSharp",
@@ -203,8 +202,8 @@ namespace Generator
 		{
 			try
 			{
-				// ProcessImage();
-				ProcessImageWriter();
+				ProcessImage();
+				// ProcessImageWriter();
 			}
 			catch (Exception ex)
 			{

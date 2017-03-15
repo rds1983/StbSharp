@@ -149,9 +149,9 @@ namespace StbSharp
 			public int transparent;
 			public int eflags;
 			public int delay;
-			public ArrayPointer<byte>[] pal;
-			public ArrayPointer<byte>[] lpal;
-			public stbi__gif_lzw[] codes;
+			public byte* pal;
+			public byte* lpal;
+			public stbi__gif_lzw* codes;
 			public byte* color_table;
 			public int parse;
 			public int step;
@@ -166,18 +166,9 @@ namespace StbSharp
 
 			public stbi__gif()
 			{
-				codes = new stbi__gif_lzw[4096];
-				pal = new ArrayPointer<byte>[256];
-				for (var i = 0; i < pal.Length; ++i)
-				{
-					pal[i] = new ArrayPointer<byte>(4);
-				}
-
-				lpal = new ArrayPointer<byte>[256];
-				for (var i = 0; i < lpal.Length; ++i)
-				{
-					lpal[i] = new ArrayPointer<byte>(4);
-				}
+				codes = (stbi__gif_lzw*) malloc((ulong) (4096*sizeof (stbi__gif_lzw)));
+				pal = (byte*)malloc((ulong)(256 * 4 * sizeof(byte*)));
+				lpal = (byte*)malloc((ulong)(256 * 4 * sizeof(byte*)));
 			}
 		}
 

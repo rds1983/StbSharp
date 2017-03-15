@@ -25,7 +25,7 @@ namespace StbSharp.WinForms.Test
 				using (var dlg = new OpenFileDialog())
 				{
 					dlg.Filter =
-						"PNG Files (*.png)|*.png|JPEG Files (*.jpg)|*.jpg|BMP Files (*.bmp)|*.bmp|PSD Files (*.psd)|*.psd|PIC Files (*.pic)|*.pic|TGA Files (*.tga)|*.tga|All Files (*.*)|*.*";
+						"PNG Files (*.png)|*.png|JPEG Files (*.jpg)|*.jpg|BMP Files (*.bmp)|*.bmp|PSD Files (*.psd)|*.psd|PIC Files (*.pic)|*.pic|TGA Files (*.tga)|*.tga|GIF Files (*.gif)|*.gif|All Files (*.*)|*.*";
 					if (dlg.ShowDialog() != DialogResult.OK)
 					{
 						return;
@@ -187,9 +187,10 @@ namespace StbSharp.WinForms.Test
 				}
 
 				// Call StbSharp
-				var result = Stb.stbi_write_to_memory(data, x, y, 4, type);
-
-				File.WriteAllBytes(fileName, result);
+				using (var stream = File.OpenWrite(fileName))
+				{
+					Stb.stbi_write_to(data, x, y, 4, type, stream);
+				}
 			}
 			catch (Exception ex)
 			{
