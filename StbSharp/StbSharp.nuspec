@@ -2,10 +2,10 @@
 <package >
 	<metadata>
 		<id>StbSharp</id>
-		<version>0.1.5.0</version>
+		<version>$version$</version>
 		<title>StbSharp</title>
-		<authors>StbSharp Team</authors>
-		<owners>StbSharp Team</owners>
+		<authors>StbSharpTeam</authors>
+		<owners>StbSharpTeam</owners>
 		<licenseUrl>https://en.wikipedia.org/wiki/MIT_License</licenseUrl>
 		<projectUrl>https://github.com/rds1983/StbSharp</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
