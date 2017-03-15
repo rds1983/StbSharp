@@ -10,7 +10,7 @@ build_script:
 - cmd: >-
     git submodule update --init --recursive
 
-    msbuild StbSharp.sln /p:Configuration=Release /t:rebuild
+    msbuild StbSharp\StbSharp.csproj /p:Configuration=Release /t:rebuild
 
     nuget pack StbSharp\StbSharp.nuspec -Version %APPVEYOR_BUILD_VERSION%
 
