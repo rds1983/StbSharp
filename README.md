@@ -68,4 +68,4 @@ using (var stream = File.OpenWrite(fileName))
 ```
 
 ### License
-[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+Public Domain
