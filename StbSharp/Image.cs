@@ -269,6 +269,12 @@ namespace StbSharp
 		public const long DBL_MANT_MASK = 0x000fffffffffffffL; 
 		public const long DBL_EXP_CLR_MASK = DBL_SGN_MASK | DBL_MANT_MASK;
 
+		/// <summary>
+		/// This code had been borrowed from here: https://github.com/MachineCognitis/C.math.NET
+		/// </summary>
+		/// <param name="number"></param>
+		/// <param name="exponent"></param>
+		/// <returns></returns>
 		private static unsafe double frexp(double number, int* exponent)
 		{
 			var bits = BitConverter.DoubleToInt64Bits(number);
