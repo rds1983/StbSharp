@@ -43,20 +43,20 @@ namespace StbSharp
 					{
 						var x = (int) v[vindex++];
 						var b = new ArrayPointer<byte>(2);
-						((byte*) b.Pointer)[0] = (byte) ((x) & 0xff);
-						((byte*) b.Pointer)[1] = (byte) ((x >> 8) & 0xff);
-						s.func(s.context, ((byte*) b.Pointer), 2);
+						((byte*) b)[0] = (byte) (x & 0xff);
+						((byte*) b)[1] = (byte) ((x >> 8) & 0xff);
+						s.func(s.context, ((byte*) b), 2);
 						break;
 					}
 					case '4':
 					{
 						var x = (int) v[vindex++];
 						var b = new ArrayPointer<byte>(4);
-						((byte*) b.Pointer)[0] = (byte) (x & 0xff);
-						((byte*) b.Pointer)[1] = (byte) ((x >> 8) & 0xff);
-						((byte*) b.Pointer)[2] = (byte) ((x >> 16) & 0xff);
-						((byte*) b.Pointer)[3] = (byte) ((x >> 24) & 0xff);
-						s.func(s.context, ((byte*) b.Pointer), 4);
+						((byte*) b)[0] = (byte) (x & 0xff);
+						((byte*) b)[1] = (byte) ((x >> 8) & 0xff);
+						((byte*) b)[2] = (byte) ((x >> 16) & 0xff);
+						((byte*) b)[3] = (byte) ((x >> 24) & 0xff);
+						s.func(s.context, ((byte*) b), 4);
 						break;
 					}
 				}
@@ -150,12 +150,12 @@ namespace StbSharp
 			var header = "#?RADIANCE\n# Written by stb_image_write.h\nFORMAT=32-bit_rle_rgbe\n";
 			var bytes = Encoding.UTF8.GetBytes(header);
 			var ptr = new ArrayPointer<byte>(bytes);
-			s.func(s.context, ((sbyte*) ptr.Pointer), ptr.Size);
+			s.func(s.context, ((sbyte*) ptr), ptr.Size);
 
 			var str = string.Format("EXPOSURE=          1.0000000000000\n\n-Y {0} +X {1}\n", y, x);
 			bytes = Encoding.UTF8.GetBytes(str);
 			ptr = new ArrayPointer<byte>(bytes);
-			s.func(s.context, ((sbyte*) ptr.Pointer), ptr.Size);
+			s.func(s.context, ((sbyte*) ptr), ptr.Size);
 			for (i = 0; i < y; i++)
 			{
 				stbiw__write_hdr_scanline(s, x, comp, scratch, data + comp*i*x);
@@ -206,14 +206,14 @@ namespace StbSharp
 					case ImageWriterType.Hdr:
 					{
 						var f = new ArrayPointer<float>(bytes.Length);
-						var fptr = (float*) f.Pointer;
+						var fptr = (float*) f;
 						for (var i = 0; i < bytes.Length; ++i)
 						{
 							*fptr = bytes[i]/255.0f;
 							fptr++;
 						}
 
-						stbi_write_hdr_to_func(writeFunc, null, x, y, comp, (float*) f.Pointer);
+						stbi_write_hdr_to_func(writeFunc, null, x, y, comp, (float*) f);
 					}
 						break;
 					case ImageWriterType.Png:

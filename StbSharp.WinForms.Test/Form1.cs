@@ -187,7 +187,7 @@ namespace StbSharp.WinForms.Test
 				}
 
 				// Call StbSharp
-				using (var stream = File.OpenWrite(fileName))
+				using (var stream = File.Create(fileName))
 				{
 					Stb.stbi_write_to(data, x, y, 4, type, stream);
 				}

@@ -8,18 +8,21 @@ namespace StbSharp
 	{
 		public unsafe static void stbiw__write3(stbi__write_context s, byte a, byte b, byte c)
 		{
-			ArrayPointer<byte> arr = new ArrayPointer<byte>(3);
-			((byte*) arr.Pointer)[0] = (byte) (a);
-			((byte*) arr.Pointer)[1] = (byte) (b);
-			((byte*) arr.Pointer)[2] = (byte) (c);
-			s.func(s.context, ((byte*) arr.Pointer), (int) (3));
+			byte* arr = stackalloc byte[3];
+			((byte*) (arr))[0] = (byte) (a);
+			((byte*) (arr))[1] = (byte) (b);
+			((byte*) (arr))[2] = (byte) (c);
+			s.func(s.context, ((byte*) (arr)), (int) (3));
 		}
 
 		public unsafe static void stbiw__write_pixel(stbi__write_context s, int rgb_dir, int comp, int write_alpha,
 			int expand_mono, byte* d)
 		{
-			ArrayPointer<byte> bg = new ArrayPointer<byte>(new byte[] {(byte) (255), (byte) (0), (byte) (255)});
-			ArrayPointer<byte> px = new ArrayPointer<byte>(3);
+			byte* bg = stackalloc byte[3];
+			bg[0] = (byte) (255);
+			bg[1] = (byte) (0);
+			bg[2] = (byte) (255);
+			byte* px = stackalloc byte[3];
 			int k;
 			if ((write_alpha) < (0)) s.func(s.context, &d[comp - 1], (int) (1));
 			switch (comp)
@@ -35,10 +38,10 @@ namespace StbSharp
 					{
 						for (k = (int) (0); (k) < (3); ++k)
 						{
-							((byte*) px.Pointer)[k] = (byte) (((byte*) bg.Pointer)[k] + ((d[k] - ((byte*) bg.Pointer)[k])*d[3])/255);
+							((byte*) (px))[k] = (byte) (((byte*) (bg))[k] + ((d[k] - ((byte*) (bg))[k])*d[3])/255);
 						}
-						stbiw__write3(s, (byte) (((byte*) px.Pointer)[1 - rgb_dir]), (byte) (((byte*) px.Pointer)[1]),
-							(byte) (((byte*) px.Pointer)[1 + rgb_dir]));
+						stbiw__write3(s, (byte) (((byte*) (px))[1 - rgb_dir]), (byte) (((byte*) (px))[1]),
+							(byte) (((byte*) (px))[1 + rgb_dir]));
 						break;
 					}
 					stbiw__write3(s, (byte) (d[1 - rgb_dir]), (byte) (d[1]), (byte) (d[1 + rgb_dir]));
@@ -231,13 +234,17 @@ namespace StbSharp
 		public unsafe static void stbiw__write_hdr_scanline(stbi__write_context s, int width, int ncomp, byte* scratch,
 			float* scanline)
 		{
-			ArrayPointer<byte> scanlineheader =
-				new ArrayPointer<byte>(new byte[] {(byte) (2), (byte) (2), (byte) (0), (byte) (0)});
-			ArrayPointer<byte> rgbe = new ArrayPointer<byte>(4);
-			ArrayPointer<float> linear = new ArrayPointer<float>(3);
+			byte* scanlineheader = stackalloc byte[4];
+			scanlineheader[0] = (byte) (2);
+			scanlineheader[1] = (byte) (2);
+			scanlineheader[2] = (byte) (0);
+			scanlineheader[3] = (byte) (0);
+
+			byte* rgbe = stackalloc byte[4];
+			float* linear = stackalloc float[3];
 			int x;
-			((byte*) scanlineheader.Pointer)[2] = (byte) ((width & 0xff00) >> 8);
-			((byte*) scanlineheader.Pointer)[3] = (byte) (width & 0x00ff);
+			((byte*) (scanlineheader))[2] = (byte) ((width & 0xff00) >> 8);
+			((byte*) (scanlineheader))[3] = (byte) (width & 0x00ff);
 			if (((width) < (8)) || ((width) >= (32768)))
 			{
 				for (x = (int) (0); (x) < (width); x++)
@@ -247,18 +254,17 @@ namespace StbSharp
 						{
 							case 4:
 							case 3:
-								((float*) linear.Pointer)[2] = (float) (scanline[x*ncomp + 2]);
-								((float*) linear.Pointer)[1] = (float) (scanline[x*ncomp + 1]);
-								((float*) linear.Pointer)[0] = (float) (scanline[x*ncomp + 0]);
+								((float*) (linear))[2] = (float) (scanline[x*ncomp + 2]);
+								((float*) (linear))[1] = (float) (scanline[x*ncomp + 1]);
+								((float*) (linear))[0] = (float) (scanline[x*ncomp + 0]);
 								break;
 							default:
-								((float*) linear.Pointer)[0] =
-									(float)
-										(((float*) linear.Pointer)[1] = (float) (((float*) linear.Pointer)[2] = (float) (scanline[x*ncomp + 0])));
+								((float*) (linear))[0] =
+									(float) (((float*) (linear))[1] = (float) (((float*) (linear))[2] = (float) (scanline[x*ncomp + 0])));
 								break;
 						}
-						stbiw__linear_to_rgbe(((byte*) rgbe.Pointer), ((float*) linear.Pointer));
-						s.func(s.context, ((byte*) rgbe.Pointer), (int) (4));
+						stbiw__linear_to_rgbe(((byte*) (rgbe)), ((float*) (linear)));
+						s.func(s.context, ((byte*) (rgbe)), (int) (4));
 					}
 				}
 			}
@@ -273,24 +279,23 @@ namespace StbSharp
 						{
 							case 4:
 							case 3:
-								((float*) linear.Pointer)[2] = (float) (scanline[x*ncomp + 2]);
-								((float*) linear.Pointer)[1] = (float) (scanline[x*ncomp + 1]);
-								((float*) linear.Pointer)[0] = (float) (scanline[x*ncomp + 0]);
+								((float*) (linear))[2] = (float) (scanline[x*ncomp + 2]);
+								((float*) (linear))[1] = (float) (scanline[x*ncomp + 1]);
+								((float*) (linear))[0] = (float) (scanline[x*ncomp + 0]);
 								break;
 							default:
-								((float*) linear.Pointer)[0] =
-									(float)
-										(((float*) linear.Pointer)[1] = (float) (((float*) linear.Pointer)[2] = (float) (scanline[x*ncomp + 0])));
+								((float*) (linear))[0] =
+									(float) (((float*) (linear))[1] = (float) (((float*) (linear))[2] = (float) (scanline[x*ncomp + 0])));
 								break;
 						}
-						stbiw__linear_to_rgbe(((byte*) rgbe.Pointer), ((float*) linear.Pointer));
-						scratch[x + width*0] = (byte) (((byte*) rgbe.Pointer)[0]);
-						scratch[x + width*1] = (byte) (((byte*) rgbe.Pointer)[1]);
-						scratch[x + width*2] = (byte) (((byte*) rgbe.Pointer)[2]);
-						scratch[x + width*3] = (byte) (((byte*) rgbe.Pointer)[3]);
+						stbiw__linear_to_rgbe(((byte*) (rgbe)), ((float*) (linear)));
+						scratch[x + width*0] = (byte) (((byte*) (rgbe))[0]);
+						scratch[x + width*1] = (byte) (((byte*) (rgbe))[1]);
+						scratch[x + width*2] = (byte) (((byte*) (rgbe))[2]);
+						scratch[x + width*3] = (byte) (((byte*) (rgbe))[3]);
 					}
 				}
-				s.func(s.context, ((byte*) scanlineheader.Pointer), (int) (4));
+				s.func(s.context, ((byte*) (scanlineheader)), (int) (4));
 				for (c = (int) (0); (c) < (4); c++)
 				{
 					{
@@ -344,7 +349,7 @@ namespace StbSharp
 		public unsafe static void* stbiw__sbgrowf(void** arr, int increment, int itemsize)
 		{
 			int m = (int) (*arr != null ? 2*((int*) (*arr) - 2)[0] + increment : increment + 1);
-			void* p = realloc(*arr != null ? ((int*) (*arr) - 2) : (int*) (0), (ulong) (itemsize*m + sizeof (int)*2));
+			void* p = realloc(*arr != null ? ((int*) (*arr) - 2) : ((int*) (0)), (ulong) (itemsize*m + sizeof (int)*2));
 			if ((p) != null)
 			{
 				if (*arr == null) ((int*) (p))[1] = (int) (0);
@@ -411,45 +416,139 @@ namespace StbSharp
 
 		public unsafe static byte* stbi_zlib_compress(byte* data, int data_len, int* out_len, int quality)
 		{
-			ArrayPointer<ushort> lengthc =
-				new ArrayPointer<ushort>(new ushort[]
-				{
-					(ushort) (3), (ushort) (4), (ushort) (5), (ushort) (6), (ushort) (7), (ushort) (8), (ushort) (9), (ushort) (10),
-					(ushort) (11), (ushort) (13), (ushort) (15), (ushort) (17), (ushort) (19), (ushort) (23), (ushort) (27),
-					(ushort) (31), (ushort) (35), (ushort) (43), (ushort) (51), (ushort) (59), (ushort) (67), (ushort) (83),
-					(ushort) (99), (ushort) (115), (ushort) (131), (ushort) (163), (ushort) (195), (ushort) (227), (ushort) (258),
-					(ushort) (259)
-				});
-			ArrayPointer<byte> lengtheb =
-				new ArrayPointer<byte>(new byte[]
-				{
-					(byte) (0), (byte) (0), (byte) (0), (byte) (0), (byte) (0), (byte) (0), (byte) (0), (byte) (0), (byte) (1),
-					(byte) (1), (byte) (1), (byte) (1), (byte) (2), (byte) (2), (byte) (2), (byte) (2), (byte) (3), (byte) (3),
-					(byte) (3), (byte) (3), (byte) (4), (byte) (4), (byte) (4), (byte) (4), (byte) (5), (byte) (5), (byte) (5),
-					(byte) (5), (byte) (0)
-				});
-			ArrayPointer<ushort> distc =
-				new ArrayPointer<ushort>(new ushort[]
-				{
-					(ushort) (1), (ushort) (2), (ushort) (3), (ushort) (4), (ushort) (5), (ushort) (7), (ushort) (9), (ushort) (13),
-					(ushort) (17), (ushort) (25), (ushort) (33), (ushort) (49), (ushort) (65), (ushort) (97), (ushort) (129),
-					(ushort) (193), (ushort) (257), (ushort) (385), (ushort) (513), (ushort) (769), (ushort) (1025), (ushort) (1537),
-					(ushort) (2049), (ushort) (3073), (ushort) (4097), (ushort) (6145), (ushort) (8193), (ushort) (12289),
-					(ushort) (16385), (ushort) (24577), (ushort) (32768)
-				});
-			ArrayPointer<byte> disteb =
-				new ArrayPointer<byte>(new byte[]
-				{
-					(byte) (0), (byte) (0), (byte) (0), (byte) (0), (byte) (1), (byte) (1), (byte) (2), (byte) (2), (byte) (3),
-					(byte) (3), (byte) (4), (byte) (4), (byte) (5), (byte) (5), (byte) (6), (byte) (6), (byte) (7), (byte) (7),
-					(byte) (8), (byte) (8), (byte) (9), (byte) (9), (byte) (10), (byte) (10), (byte) (11), (byte) (11), (byte) (12),
-					(byte) (12), (byte) (13), (byte) (13)
-				});
+			ushort* lengthc = stackalloc ushort[30];
+			lengthc[0] = (ushort) (3);
+			lengthc[1] = (ushort) (4);
+			lengthc[2] = (ushort) (5);
+			lengthc[3] = (ushort) (6);
+			lengthc[4] = (ushort) (7);
+			lengthc[5] = (ushort) (8);
+			lengthc[6] = (ushort) (9);
+			lengthc[7] = (ushort) (10);
+			lengthc[8] = (ushort) (11);
+			lengthc[9] = (ushort) (13);
+			lengthc[10] = (ushort) (15);
+			lengthc[11] = (ushort) (17);
+			lengthc[12] = (ushort) (19);
+			lengthc[13] = (ushort) (23);
+			lengthc[14] = (ushort) (27);
+			lengthc[15] = (ushort) (31);
+			lengthc[16] = (ushort) (35);
+			lengthc[17] = (ushort) (43);
+			lengthc[18] = (ushort) (51);
+			lengthc[19] = (ushort) (59);
+			lengthc[20] = (ushort) (67);
+			lengthc[21] = (ushort) (83);
+			lengthc[22] = (ushort) (99);
+			lengthc[23] = (ushort) (115);
+			lengthc[24] = (ushort) (131);
+			lengthc[25] = (ushort) (163);
+			lengthc[26] = (ushort) (195);
+			lengthc[27] = (ushort) (227);
+			lengthc[28] = (ushort) (258);
+			lengthc[29] = (ushort) (259);
+
+			byte* lengtheb = stackalloc byte[29];
+			lengtheb[0] = (byte) (0);
+			lengtheb[1] = (byte) (0);
+			lengtheb[2] = (byte) (0);
+			lengtheb[3] = (byte) (0);
+			lengtheb[4] = (byte) (0);
+			lengtheb[5] = (byte) (0);
+			lengtheb[6] = (byte) (0);
+			lengtheb[7] = (byte) (0);
+			lengtheb[8] = (byte) (1);
+			lengtheb[9] = (byte) (1);
+			lengtheb[10] = (byte) (1);
+			lengtheb[11] = (byte) (1);
+			lengtheb[12] = (byte) (2);
+			lengtheb[13] = (byte) (2);
+			lengtheb[14] = (byte) (2);
+			lengtheb[15] = (byte) (2);
+			lengtheb[16] = (byte) (3);
+			lengtheb[17] = (byte) (3);
+			lengtheb[18] = (byte) (3);
+			lengtheb[19] = (byte) (3);
+			lengtheb[20] = (byte) (4);
+			lengtheb[21] = (byte) (4);
+			lengtheb[22] = (byte) (4);
+			lengtheb[23] = (byte) (4);
+			lengtheb[24] = (byte) (5);
+			lengtheb[25] = (byte) (5);
+			lengtheb[26] = (byte) (5);
+			lengtheb[27] = (byte) (5);
+			lengtheb[28] = (byte) (0);
+
+			ushort* distc = stackalloc ushort[31];
+			distc[0] = (ushort) (1);
+			distc[1] = (ushort) (2);
+			distc[2] = (ushort) (3);
+			distc[3] = (ushort) (4);
+			distc[4] = (ushort) (5);
+			distc[5] = (ushort) (7);
+			distc[6] = (ushort) (9);
+			distc[7] = (ushort) (13);
+			distc[8] = (ushort) (17);
+			distc[9] = (ushort) (25);
+			distc[10] = (ushort) (33);
+			distc[11] = (ushort) (49);
+			distc[12] = (ushort) (65);
+			distc[13] = (ushort) (97);
+			distc[14] = (ushort) (129);
+			distc[15] = (ushort) (193);
+			distc[16] = (ushort) (257);
+			distc[17] = (ushort) (385);
+			distc[18] = (ushort) (513);
+			distc[19] = (ushort) (769);
+			distc[20] = (ushort) (1025);
+			distc[21] = (ushort) (1537);
+			distc[22] = (ushort) (2049);
+			distc[23] = (ushort) (3073);
+			distc[24] = (ushort) (4097);
+			distc[25] = (ushort) (6145);
+			distc[26] = (ushort) (8193);
+			distc[27] = (ushort) (12289);
+			distc[28] = (ushort) (16385);
+			distc[29] = (ushort) (24577);
+			distc[30] = (ushort) (32768);
+
+			byte* disteb = stackalloc byte[30];
+			disteb[0] = (byte) (0);
+			disteb[1] = (byte) (0);
+			disteb[2] = (byte) (0);
+			disteb[3] = (byte) (0);
+			disteb[4] = (byte) (1);
+			disteb[5] = (byte) (1);
+			disteb[6] = (byte) (2);
+			disteb[7] = (byte) (2);
+			disteb[8] = (byte) (3);
+			disteb[9] = (byte) (3);
+			disteb[10] = (byte) (4);
+			disteb[11] = (byte) (4);
+			disteb[12] = (byte) (5);
+			disteb[13] = (byte) (5);
+			disteb[14] = (byte) (6);
+			disteb[15] = (byte) (6);
+			disteb[16] = (byte) (7);
+			disteb[17] = (byte) (7);
+			disteb[18] = (byte) (8);
+			disteb[19] = (byte) (8);
+			disteb[20] = (byte) (9);
+			disteb[21] = (byte) (9);
+			disteb[22] = (byte) (10);
+			disteb[23] = (byte) (10);
+			disteb[24] = (byte) (11);
+			disteb[25] = (byte) (11);
+			disteb[26] = (byte) (12);
+			disteb[27] = (byte) (12);
+			disteb[28] = (byte) (13);
+			disteb[29] = (byte) (13);
+
 			uint bitbuf = (uint) (0);
 			int i;
 			int j;
 			int bitcount = (int) (0);
-			byte* _out_ = (byte*) ((void*) (0));
+			byte* _out_ = ((byte*) ((void*) (0)));
 			byte*** hash_table = (byte***) (malloc((ulong) (16384*sizeof (byte**))));
 			if ((quality) < (5)) quality = (int) (5);
 			if ((((_out_) == ((byte*) (0))) || ((((int*) (_out_) - 2)[1] + (1)) >= (((int*) (_out_) - 2)[0]))))
@@ -480,7 +579,7 @@ namespace StbSharp
 
 			for (i = (int) (0); (i) < (16384); ++i)
 			{
-				hash_table[i] = (byte**) ((void*) (0));
+				hash_table[i] = ((byte**) ((void*) (0)));
 			}
 			i = (int) (0);
 			while ((i) < (data_len - 3))
@@ -488,9 +587,9 @@ namespace StbSharp
 				{
 					int h = (int) (stbiw__zhash(data + i) & (16384 - 1));
 					int best = (int) (3);
-					byte* bestloc = (byte*) (0);
+					byte* bestloc = ((byte*) (0));
 					byte** hlist = hash_table[h];
-					int n = (int) (hlist != (byte**) (0) ? ((int*) (hlist) - 2)[1] : 0);
+					int n = (int) (hlist != ((byte**) (0)) ? ((int*) (hlist) - 2)[1] : 0);
 					for (j = (int) (0); (j) < (n); ++j)
 					{
 						{
@@ -522,7 +621,7 @@ namespace StbSharp
 					{
 						h = (int) (stbiw__zhash(data + i + 1) & (16384 - 1));
 						hlist = hash_table[h];
-						n = (int) (hlist != (byte**) (0) ? ((int*) (hlist) - 2)[1] : 0);
+						n = (int) (hlist != ((byte**) (0)) ? ((int*) (hlist) - 2)[1] : 0);
 						for (j = (int) (0); (j) < (n); ++j)
 						{
 							{
@@ -531,7 +630,7 @@ namespace StbSharp
 									int e = (int) (stbiw__zlib_countm(hlist[j], data + i + 1, (int) (data_len - i - 1)));
 									if ((e) > (best))
 									{
-										bestloc = (byte*) ((void*) (0));
+										bestloc = ((byte*) ((void*) (0)));
 										break;
 									}
 								}
@@ -542,7 +641,7 @@ namespace StbSharp
 					{
 						int d = (int) (data + i - bestloc);
 						;
-						for (j = (int) (0); (best) > (((ushort*) lengthc.Pointer)[j + 1] - 1); ++j)
+						for (j = (int) (0); (best) > (((ushort*) (lengthc))[j + 1] - 1); ++j)
 						{
 							;
 						}
@@ -575,15 +674,15 @@ namespace StbSharp
 							;
 						}
 						;
-						if ((((byte*) lengtheb.Pointer)[j]) != 0)
+						if ((((byte*) (lengtheb))[j]) != 0)
 						{
-							bitbuf |= (uint) ((best - ((ushort*) lengthc.Pointer)[j]) << bitcount);
-							bitcount += (int) (((byte*) lengtheb.Pointer)[j]);
+							bitbuf |= (uint) ((best - ((ushort*) (lengthc))[j]) << bitcount);
+							bitcount += (int) (((byte*) (lengtheb))[j]);
 							_out_ = stbiw__zlib_flushf(_out_, &bitbuf, &bitcount);
 							;
 						}
 						;
-						for (j = (int) (0); (d) > (((ushort*) distc.Pointer)[j + 1] - 1); ++j)
+						for (j = (int) (0); (d) > (((ushort*) (distc))[j + 1] - 1); ++j)
 						{
 							;
 						}
@@ -594,10 +693,10 @@ namespace StbSharp
 							;
 						}
 						;
-						if ((((byte*) disteb.Pointer)[j]) != 0)
+						if ((((byte*) (disteb))[j]) != 0)
 						{
-							bitbuf |= (uint) ((d - ((ushort*) distc.Pointer)[j]) << bitcount);
-							bitcount += (int) (((byte*) disteb.Pointer)[j]);
+							bitbuf |= (uint) ((d - ((ushort*) (distc))[j]) << bitcount);
+							bitcount += (int) (((byte*) (disteb))[j]);
 							_out_ = stbiw__zlib_flushf(_out_, &bitbuf, &bitcount);
 							;
 						}
@@ -807,7 +906,7 @@ namespace StbSharp
 			int i;
 			for (i = (int) (0); (i) < (len); ++i)
 			{
-				crc = (uint) ((crc >> 8) ^ ((uint*) crc_table.Pointer)[buffer[i] ^ (crc & 0xff)]);
+				crc = (uint) ((crc >> 8) ^ ((uint*) (crc_table))[buffer[i] ^ (crc & 0xff)]);
 			}
 			return (uint) (~crc);
 		}
@@ -835,10 +934,23 @@ namespace StbSharp
 
 		public unsafe static byte* stbi_write_png_to_mem(byte* pixels, int stride_bytes, int x, int y, int n, int* out_len)
 		{
-			ArrayPointer<int> ctype = new ArrayPointer<int>(new int[] {(int) (-1), (int) (0), (int) (4), (int) (2), (int) (6)});
-			ArrayPointer<byte> sig =
-				new ArrayPointer<byte>(new byte[]
-				{(byte) (137), (byte) (80), (byte) (78), (byte) (71), (byte) (13), (byte) (10), (byte) (26), (byte) (10)});
+			int* ctype = stackalloc int[5];
+			ctype[0] = (int) (-1);
+			ctype[1] = (int) (0);
+			ctype[2] = (int) (4);
+			ctype[3] = (int) (2);
+			ctype[4] = (int) (6);
+
+			byte* sig = stackalloc byte[8];
+			sig[0] = (byte) (137);
+			sig[1] = (byte) (80);
+			sig[2] = (byte) (78);
+			sig[3] = (byte) (71);
+			sig[4] = (byte) (13);
+			sig[5] = (byte) (10);
+			sig[6] = (byte) (26);
+			sig[7] = (byte) (10);
+
 			byte* _out_;
 			byte* o;
 			byte* filt;
@@ -851,21 +963,30 @@ namespace StbSharp
 			int zlen;
 			if ((stride_bytes) == (0)) stride_bytes = (int) (x*n);
 			filt = (byte*) (malloc((ulong) ((x*n + 1)*y)));
-			if (filt == null) return (byte*) (0);
+			if (filt == null) return ((byte*) (0));
 			line_buffer = (sbyte*) (malloc((ulong) (x*n)));
 			if (line_buffer == null)
 			{
 				free(filt);
-				return (byte*) (0);
+				return ((byte*) (0));
 			}
 
 			for (j = (int) (0); (j) < (y); ++j)
 			{
 				{
-					ArrayPointer<int> mapping = new ArrayPointer<int>(new int[] {(int) (0), (int) (1), (int) (2), (int) (3), (int) (4)});
-					ArrayPointer<int> firstmap =
-						new ArrayPointer<int>(new int[] {(int) (0), (int) (1), (int) (0), (int) (5), (int) (6)});
-					int* mymap = (j != 0) ? ((int*) mapping.Pointer) : ((int*) firstmap.Pointer);
+					int* mapping = stackalloc int[5];
+					mapping[0] = (int) (0);
+					mapping[1] = (int) (1);
+					mapping[2] = (int) (2);
+					mapping[3] = (int) (3);
+					mapping[4] = (int) (4);
+					int* firstmap = stackalloc int[5];
+					firstmap[0] = (int) (0);
+					firstmap[1] = (int) (1);
+					firstmap[2] = (int) (0);
+					firstmap[3] = (int) (5);
+					firstmap[4] = (int) (6);
+					int* mymap = (j != 0) ? ((int*) (mapping)) : ((int*) (firstmap));
 					int best = (int) (0);
 					int bestval = (int) (0x7fffffff);
 					for (p = (int) (0); (p) < (2); ++p)
@@ -956,12 +1077,12 @@ namespace StbSharp
 			free(line_buffer);
 			zlib = stbi_zlib_compress(filt, (int) (y*(x*n + 1)), &zlen, (int) (8));
 			free(filt);
-			if (zlib == null) return (byte*) (0);
+			if (zlib == null) return ((byte*) (0));
 			_out_ = (byte*) (malloc((ulong) (8 + 12 + 13 + 12 + zlen + 12)));
-			if (_out_ == null) return (byte*) (0);
+			if (_out_ == null) return ((byte*) (0));
 			*out_len = (int) (8 + 12 + 13 + 12 + zlen + 12);
 			o = _out_;
-			memmove(o, ((byte*) sig.Pointer), (ulong) (8));
+			memmove(o, ((byte*) (sig)), (ulong) (8));
 			o += 8;
 			(o)[0] = (byte) ((byte) (((13) >> 24) & 0xff));
 			(o)[1] = (byte) ((byte) (((13) >> 16) & 0xff));
@@ -984,7 +1105,7 @@ namespace StbSharp
 			(o)[3] = (byte) ((byte) ((y) & 0xff));
 			(o) += 4;
 			*o++ = (byte) (8);
-			*o++ = (byte) ((byte) ((((int*) ctype.Pointer)[n]) & 0xff));
+			*o++ = (byte) ((byte) ((((int*) (ctype))[n]) & 0xff));
 			*o++ = (byte) (0);
 			*o++ = (byte) (0);
 			*o++ = (byte) (0);

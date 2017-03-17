@@ -54,8 +54,8 @@ namespace StbSharp
 		public class stbi__jpeg
 		{
 			public stbi__context s;
-			public readonly stbi__huffman[] huff_dc = new stbi__huffman[4];
-			public readonly stbi__huffman[] huff_ac = new stbi__huffman[4];
+			public readonly ArrayPointer<stbi__huffman> huff_dc = new ArrayPointer<stbi__huffman>(4);
+			public readonly ArrayPointer<stbi__huffman> huff_ac = new ArrayPointer<stbi__huffman>(4);
 			public readonly ArrayPointer<byte>[] dequant;
 
 			public readonly ArrayPointer<short>[] fast_ac;

@@ -6,7 +6,6 @@
 		<title>StbSharp</title>
 		<authors>StbSharpTeam</authors>
 		<owners>StbSharpTeam</owners>
-		<licenseUrl>https://en.wikipedia.org/wiki/MIT_License</licenseUrl>
 		<projectUrl>https://github.com/rds1983/StbSharp</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>C# port of famous C framework: https://github.com/nothings/stb</description>

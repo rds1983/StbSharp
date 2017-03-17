@@ -58,7 +58,11 @@ namespace Generator
 						"stbi__result_info",
 						"stbi__pngchunk",
 						"stbi__bmp_data",
-						"stbi__pic_packet"
+						"stbi__pic_packet",
+						"stbi__huffman",
+						"stbi__zhuffman",
+						"stbi__zbuf",
+
 					}
 				};
 
@@ -76,6 +80,13 @@ namespace Generator
 					"s.buflen = 128;");
 				data = data.Replace("memset(data, (int)(0), (ulong)(64 * (data[0]).Size));",
 					"memset(data, 0, 64 * sizeof(short));");
+				data = data.Replace("memset(((int*)(sizes)), (int)(0), (ulong)((sizes).Size));",
+					"memset(((int*)(sizes)), (int)(0), (ulong)(17 * sizeof(int)));");
+				data = data.Replace("memset(((ushort*)(z->fast)), (int)(0), (ulong)((z->fast).Size));",
+					"memset(((ushort*)(z->fast)), (int)(0), (ulong)((1 << 9) * sizeof(ushort)));");
+				data = data.Replace("memset(((byte*)(codelength_sizes)), (int)(0), (ulong)((codelength_sizes).Size));",
+					"memset(((byte*)(codelength_sizes)), (int)(0), (ulong)(19 * sizeof(byte)));");
+
 				data = data.Replace("short* d = ((short*)data.Pointer);",
 					"short* d = data;");
 				data = data.Replace("ArrayPointer<byte*> coutput = new ArrayPointer<byte>(4);",
@@ -202,8 +213,8 @@ namespace Generator
 		{
 			try
 			{
-				ProcessImage();
-				// ProcessImageWriter();
+				// ProcessImage();
+				ProcessImageWriter();
 			}
 			catch (Exception ex)
 			{
