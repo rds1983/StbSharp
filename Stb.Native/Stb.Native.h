@@ -3,19 +3,24 @@
 #pragma once
 
 using namespace System;
+using namespace System::IO;
 using namespace System::Runtime::InteropServices;
 
-#define STB_IMAGE_IMPLEMENTATION
+#include <stdio.h>
+#include <vector>
 
-#include "stb_image.h"
+#define STBI_NO_STDIO
+#define STB_IMAGE_IMPLEMENTATION
+#include "../StbSharp.Generator/StbSource/stb_image.h"
 
 #define STBI_WRITE_NO_STDIO
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-
-#include "stb_image_write.h"
+#include "../StbSharp.Generator/StbSource/stb_image_write.h"
 
 namespace StbNative {
-	public ref class Loader
+	void write_func(void *context, void *data, int size);
+
+	public ref class Native
 	{
 	public:
 		// TODO: Add your methods for this class here.
@@ -40,22 +45,50 @@ namespace StbNative {
 			return result;
 		}
 
+		static Stream^ stream;
+
 		// TODO: Add your methods for this class here.
-		static array<unsigned char> ^ save_to_memory(array<unsigned char> ^bytes, int x, int y, int comp)
+		static void save_to_memory(array<unsigned char> ^bytes, int x, int y, int comp, int type, Stream ^output)
 		{
+			stream = output;
+
 			pin_ptr<unsigned char> p = &bytes[0];
 			unsigned char *ptr = (unsigned char *)p;
 
-			int len;
-			unsigned char *png = stbi_write_png_to_mem(ptr, x * comp, x, y, comp, &len);
-
-			array<unsigned char> ^result = gcnew array<unsigned char>(len);
-			for (int i = 0; i < result->Length; ++i)
+			switch (type)
 			{
-				result[i] = png[i];
-			}
+				case 0:
+					stbi_write_bmp_to_func(write_func, nullptr, x, y, comp, ptr);
+					break;
+				case 1:
+					stbi_write_tga_to_func(write_func, nullptr, x, y, comp, ptr);
+					break;
+				case 2:
+				{
+					std::vector<float> ff;
+					ff.resize(bytes->Length);
+					for (int i = 0; i < bytes->Length; ++i)
+					{
+						ff[i] = (float)(bytes[i] / 255.0f);
+					}
 
-			return result;
+					stbi_write_hdr_to_func(write_func, nullptr, x, y, comp, &ff[0]);
+					break;
+				}
+				case 3:
+					stbi_write_png_to_func(write_func, nullptr, x, y, comp, ptr, x * comp);
+					break;
+			}
 		}
 	};
+
+	void write_func(void *context, void *data, int size)
+	{
+		unsigned char *bptr = (unsigned char *)data;
+		for (int i = 0; i < size; ++i)
+		{
+			Native::stream->WriteByte(*bptr);
+			++bptr;
+		}
+	}
 }

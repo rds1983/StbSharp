@@ -60,7 +60,7 @@ namespace StbSharp.WinForms.Test
 
 				int x, y, comp;
 
-				var data2 = Loader.load_from_memory(bytes, out x, out y, out comp, Stb.STBI_rgb_alpha);
+				var data2 = Native.load_from_memory(bytes, out x, out y, out comp, Stb.STBI_rgb_alpha);
 
 				var stamp = DateTime.Now;
 				var data = Stb.stbi_load_from_memory(bytes, out x, out y, out comp, Stb.STBI_rgb_alpha);
