@@ -48,10 +48,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Sichem\Sichem.Framework\Sichem.Framework.csproj">
-      <Project>{9866e116-5e74-4b3f-a9f3-06f794a7d25a}</Project>
-      <Name>Sichem.Framework</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Stb.Native\Stb.Native.vcxproj">
       <Project>{ea7b8121-942a-437d-85d5-e4d55b94e88a}</Project>
       <Name>Stb.Native</Name>

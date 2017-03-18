@@ -95,6 +95,12 @@ namespace StbSharp.Tests
 
 					for (var k = 0; k <= 3; ++k)
 					{
+						// Skip HDR for now
+						if (k == 2)
+						{
+							continue;
+						}
+
 						Log("Saving as {0} with StbSharp", ((Stb.ImageWriterType) k).ToString());
 						byte[] save;
 						stamp = DateTime.Now;
@@ -143,7 +149,7 @@ namespace StbSharp.Tests
 					Log("Total StbSharp Loading Time: {0} ms", stbSharpLoading);
 					Log("Total Stb.Native Loading Time: {0} ms", stbNativeLoading);
 
-					GC.Collect();
+					Log(string.Format("GC Memory: {0}", GC.GetTotalMemory(true)));
 					Log(string.Format("Sichem Allocated: {0}", Operations.AllocatedTotal));
 				}
 

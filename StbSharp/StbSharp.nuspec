@@ -13,7 +13,6 @@
 		<tags>imaging</tags>
 	</metadata>
 	<files>
-		<file src="bin\Release\Sichem.Framework.dll" target="lib\net45\Sichem.Framework.dll"/>
 		<file src="bin\Release\StbSharp.dll" target="lib\net45\StbSharp.dll"/>
 	</files>
 </package>
