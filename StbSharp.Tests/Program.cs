@@ -21,14 +21,22 @@ namespace StbSharp.Tests
 		{
 			try
 			{
-				var imagesPath = "..\\..\\..\\Images";
+				var imagesPath = "..\\..\\..\\TestImages";
 
-				var files = Directory.EnumerateFiles(imagesPath).ToArray();
+				var files = Directory.EnumerateFiles(imagesPath, "*.*", SearchOption.AllDirectories).ToArray();
 				Log("Files count: {0}", files.Length);
+				int filesProcessed = 0;
 				foreach (var f in files)
 				{
+					if (!f.EndsWith(".bmp") && !f.EndsWith(".jpg") && !f.EndsWith(".png") &&
+						!f.EndsWith(".jpg") && !f.EndsWith(".psd") && !f.EndsWith(".pic") && 
+						!f.EndsWith(".tga"))
+					{
+						continue;
+					}
+
 					Log(string.Empty);
-					Log("Loading {0} into memory", f);
+					Log("#{0}: Loading {1} into memory", filesProcessed, f);
 					var data = File.ReadAllBytes(f);
 					Log("----------------------------");
 
@@ -82,6 +90,11 @@ namespace StbSharp.Tests
 
 					for (var k = 0; k <= 3; ++k)
 					{
+						if (k == 2)
+						{
+							continue;
+						}
+
 						Log("Saving as {0} with StbSharp", ((Stb.ImageWriterType) k).ToString());
 						byte[] save;
 						stamp = DateTime.Now;
@@ -124,7 +137,11 @@ namespace StbSharp.Tests
 							}
 						}
 					}
+
+					++filesProcessed;
 				}
+
+				Log("Files processed: {0}", filesProcessed);
 			}
 			catch (Exception ex)
 			{

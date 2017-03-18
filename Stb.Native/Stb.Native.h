@@ -79,6 +79,8 @@ namespace StbNative {
 					stbi_write_png_to_func(write_func, nullptr, x, y, comp, ptr, x * comp);
 					break;
 			}
+
+			stream = nullptr;
 		}
 	};
 

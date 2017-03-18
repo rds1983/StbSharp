@@ -1,3 +1,6 @@
 [submodule "Sichem"]
 	path = Sichem
 	url = https://github.com/rds1983/Sichem.git
+[submodule "TestImages"]
+	path = TestImages
+	url = https://github.com/rds1983/DigitalRune-Images.git

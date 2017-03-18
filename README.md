@@ -1,5 +1,6 @@
 ### About
-StbSharp is C# image loading library. It is port of famous C library: [https://github.com/nothings/stb/blob/master/stb_image.h](https://github.com/nothings/stb/blob/master/stb_image.h)
+StbSharp is C# image decoding/encoding library. 
+It is port of famous C library: [https://github.com/nothings/stb](https://github.com/nothings/stb)  
 Right now, it can load images in JPG, PNG, BMP, TGA, PSD, PIC and GIF formats. And write in BMP, TGA, PNG and HDR formats.
 
 ### Adding Reference to StbSharp
