@@ -6,8 +6,7 @@ namespace StbSharp
 {
 	public static unsafe partial class Stb
 	{
-		public static ArrayPointer<uint> crc_table =
-			new ArrayPointer<uint>(new uint[]
+		public static uint[] crc_table = new uint[]
 			{
 				(uint) (0x00000000), (uint) (0x77073096), (uint) (0xEE0E612C), (uint) (0x990951BA), (uint) (0x076DC419),
 				(uint) (0x706AF48F), (uint) (0xE963A535), (uint) (0x9E6495A3), (uint) (0x0eDB8832), (uint) (0x79DCB8A4),
@@ -61,7 +60,7 @@ namespace StbSharp
 				(uint) (0xCDD70693), (uint) (0x54DE5729), (uint) (0x23D967BF), (uint) (0xB3667A2E), (uint) (0xC4614AB8),
 				(uint) (0x5D681B02), (uint) (0x2A6F2B94), (uint) (0xB40BBE37), (uint) (0xC30C8EA1), (uint) (0x5A05DF1B),
 				(uint) (0x2D02EF8D)
-			});
+			};
 
 		public unsafe static void stbiw__write3(stbi__write_context s, byte a, byte b, byte c)
 		{
@@ -908,7 +907,7 @@ namespace StbSharp
 			int i;
 			for (i = (int) (0); (i) < (len); ++i)
 			{
-				crc = (uint) ((crc >> 8) ^ ((uint*) (crc_table))[buffer[i] ^ (crc & 0xff)]);
+				crc = (uint) ((crc >> 8) ^ ((crc_table))[buffer[i] ^ (crc & 0xff)]);
 			}
 			return (uint) (~crc);
 		}

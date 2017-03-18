@@ -16,7 +16,7 @@ namespace StbSharp
 			public void* io_user_data;
 			public int read_from_callbacks;
 			public int buflen;
-			public ArrayPointer<byte> buffer_start = new ArrayPointer<byte>(128);
+			public PinnedArray<byte> buffer_start = new PinnedArray<byte>(128);
 			public byte* img_buffer;
 			public byte* img_buffer_end;
 			public byte* img_buffer_original;
@@ -115,86 +115,77 @@ namespace StbSharp
 		public static float stbi__h2l_gamma_i = (float) (1.0f/2.2f);
 		public static float stbi__h2l_scale_i = (float) (1.0f);
 
-		public static ArrayPointer<uint> stbi__bmask =
-			new ArrayPointer<uint>(new uint[]
-			{
-				(uint) (0), (uint) (1), (uint) (3), (uint) (7), (uint) (15), (uint) (31), (uint) (63), (uint) (127), (uint) (255),
-				(uint) (511), (uint) (1023), (uint) (2047), (uint) (4095), (uint) (8191), (uint) (16383), (uint) (32767),
-				(uint) (65535)
-			});
+		public static uint[] stbi__bmask = new uint[]
+		{
+			(uint) (0), (uint) (1), (uint) (3), (uint) (7), (uint) (15), (uint) (31), (uint) (63), (uint) (127), (uint) (255),
+			(uint) (511), (uint) (1023), (uint) (2047), (uint) (4095), (uint) (8191), (uint) (16383), (uint) (32767),
+			(uint) (65535)
+		};
 
-		public static ArrayPointer<int> stbi__jbias =
-			new ArrayPointer<int>(new int[]
-			{
-				(int) (0), (int) (-1), (int) (-3), (int) (-7), (int) (-15), (int) (-31), (int) (-63), (int) (-127), (int) (-255),
-				(int) (-511), (int) (-1023), (int) (-2047), (int) (-4095), (int) (-8191), (int) (-16383), (int) (-32767)
-			});
+		public static int[] stbi__jbias = new int[]
+		{
+			(int) (0), (int) (-1), (int) (-3), (int) (-7), (int) (-15), (int) (-31), (int) (-63), (int) (-127), (int) (-255),
+			(int) (-511), (int) (-1023), (int) (-2047), (int) (-4095), (int) (-8191), (int) (-16383), (int) (-32767)
+		};
 
-		public static ArrayPointer<byte> stbi__jpeg_dezigzag =
-			new ArrayPointer<byte>(new byte[]
-			{
-				(byte) (0), (byte) (1), (byte) (8), (byte) (16), (byte) (9), (byte) (2), (byte) (3), (byte) (10), (byte) (17),
-				(byte) (24), (byte) (32), (byte) (25), (byte) (18), (byte) (11), (byte) (4), (byte) (5), (byte) (12), (byte) (19),
-				(byte) (26), (byte) (33), (byte) (40), (byte) (48), (byte) (41), (byte) (34), (byte) (27), (byte) (20), (byte) (13),
-				(byte) (6), (byte) (7), (byte) (14), (byte) (21), (byte) (28), (byte) (35), (byte) (42), (byte) (49), (byte) (56),
-				(byte) (57), (byte) (50), (byte) (43), (byte) (36), (byte) (29), (byte) (22), (byte) (15), (byte) (23), (byte) (30),
-				(byte) (37), (byte) (44), (byte) (51), (byte) (58), (byte) (59), (byte) (52), (byte) (45), (byte) (38), (byte) (31),
-				(byte) (39), (byte) (46), (byte) (53), (byte) (60), (byte) (61), (byte) (54), (byte) (47), (byte) (55), (byte) (62),
-				(byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63),
-				(byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63)
-			});
+		public static byte[] stbi__jpeg_dezigzag = new byte[]
+		{
+			(byte) (0), (byte) (1), (byte) (8), (byte) (16), (byte) (9), (byte) (2), (byte) (3), (byte) (10), (byte) (17),
+			(byte) (24), (byte) (32), (byte) (25), (byte) (18), (byte) (11), (byte) (4), (byte) (5), (byte) (12), (byte) (19),
+			(byte) (26), (byte) (33), (byte) (40), (byte) (48), (byte) (41), (byte) (34), (byte) (27), (byte) (20), (byte) (13),
+			(byte) (6), (byte) (7), (byte) (14), (byte) (21), (byte) (28), (byte) (35), (byte) (42), (byte) (49), (byte) (56),
+			(byte) (57), (byte) (50), (byte) (43), (byte) (36), (byte) (29), (byte) (22), (byte) (15), (byte) (23), (byte) (30),
+			(byte) (37), (byte) (44), (byte) (51), (byte) (58), (byte) (59), (byte) (52), (byte) (45), (byte) (38), (byte) (31),
+			(byte) (39), (byte) (46), (byte) (53), (byte) (60), (byte) (61), (byte) (54), (byte) (47), (byte) (55), (byte) (62),
+			(byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63),
+			(byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63), (byte) (63)
+		};
 
-		public static ArrayPointer<int> stbi__zlength_base =
-			new ArrayPointer<int>(new int[]
-			{
-				(int) (3), (int) (4), (int) (5), (int) (6), (int) (7), (int) (8), (int) (9), (int) (10), (int) (11), (int) (13),
-				(int) (15), (int) (17), (int) (19), (int) (23), (int) (27), (int) (31), (int) (35), (int) (43), (int) (51),
-				(int) (59), (int) (67), (int) (83), (int) (99), (int) (115), (int) (131), (int) (163), (int) (195), (int) (227),
-				(int) (258), (int) (0), (int) (0)
-			});
+		public static int[] stbi__zlength_base = new int[]
+		{
+			(int) (3), (int) (4), (int) (5), (int) (6), (int) (7), (int) (8), (int) (9), (int) (10), (int) (11), (int) (13),
+			(int) (15), (int) (17), (int) (19), (int) (23), (int) (27), (int) (31), (int) (35), (int) (43), (int) (51),
+			(int) (59), (int) (67), (int) (83), (int) (99), (int) (115), (int) (131), (int) (163), (int) (195), (int) (227),
+			(int) (258), (int) (0), (int) (0)
+		};
 
-		public static ArrayPointer<int> stbi__zlength_extra =
-			new ArrayPointer<int>(new int[]
-			{
-				(int) (0), (int) (0), (int) (0), (int) (0), (int) (0), (int) (0), (int) (0), (int) (0), (int) (1), (int) (1),
-				(int) (1), (int) (1), (int) (2), (int) (2), (int) (2), (int) (2), (int) (3), (int) (3), (int) (3), (int) (3),
-				(int) (4), (int) (4), (int) (4), (int) (4), (int) (5), (int) (5), (int) (5), (int) (5), (int) (0), (int) (0),
-				(int) (0)
-			});
+		public static int[] stbi__zlength_extra = new int[]
+		{
+			(int) (0), (int) (0), (int) (0), (int) (0), (int) (0), (int) (0), (int) (0), (int) (0), (int) (1), (int) (1),
+			(int) (1), (int) (1), (int) (2), (int) (2), (int) (2), (int) (2), (int) (3), (int) (3), (int) (3), (int) (3),
+			(int) (4), (int) (4), (int) (4), (int) (4), (int) (5), (int) (5), (int) (5), (int) (5), (int) (0), (int) (0),
+			(int) (0)
+		};
 
-		public static ArrayPointer<int> stbi__zdist_base =
-			new ArrayPointer<int>(new int[]
-			{
-				(int) (1), (int) (2), (int) (3), (int) (4), (int) (5), (int) (7), (int) (9), (int) (13), (int) (17), (int) (25),
-				(int) (33), (int) (49), (int) (65), (int) (97), (int) (129), (int) (193), (int) (257), (int) (385), (int) (513),
-				(int) (769), (int) (1025), (int) (1537), (int) (2049), (int) (3073), (int) (4097), (int) (6145), (int) (8193),
-				(int) (12289), (int) (16385), (int) (24577), (int) (0), (int) (0)
-			});
+		public static int[] stbi__zdist_base = new int[]
+		{
+			(int) (1), (int) (2), (int) (3), (int) (4), (int) (5), (int) (7), (int) (9), (int) (13), (int) (17), (int) (25),
+			(int) (33), (int) (49), (int) (65), (int) (97), (int) (129), (int) (193), (int) (257), (int) (385), (int) (513),
+			(int) (769), (int) (1025), (int) (1537), (int) (2049), (int) (3073), (int) (4097), (int) (6145), (int) (8193),
+			(int) (12289), (int) (16385), (int) (24577), (int) (0), (int) (0)
+		};
 
-		public static ArrayPointer<int> stbi__zdist_extra =
-			new ArrayPointer<int>(new int[]
-			{
-				(int) (0), (int) (0), (int) (0), (int) (0), (int) (1), (int) (1), (int) (2), (int) (2), (int) (3), (int) (3),
-				(int) (4), (int) (4), (int) (5), (int) (5), (int) (6), (int) (6), (int) (7), (int) (7), (int) (8), (int) (8),
-				(int) (9), (int) (9), (int) (10), (int) (10), (int) (11), (int) (11), (int) (12), (int) (12), (int) (13), (int) (13)
-			});
+		public static int[] stbi__zdist_extra = new int[]
+		{
+			(int) (0), (int) (0), (int) (0), (int) (0), (int) (1), (int) (1), (int) (2), (int) (2), (int) (3), (int) (3),
+			(int) (4), (int) (4), (int) (5), (int) (5), (int) (6), (int) (6), (int) (7), (int) (7), (int) (8), (int) (8),
+			(int) (9), (int) (9), (int) (10), (int) (10), (int) (11), (int) (11), (int) (12), (int) (12), (int) (13), (int) (13)
+		};
 
-		public static ArrayPointer<byte> stbi__zdefault_length = new ArrayPointer<byte>(288);
-		public static ArrayPointer<byte> stbi__zdefault_distance = new ArrayPointer<byte>(32);
+		public static byte[] stbi__zdefault_length = new byte[288];
+		public static byte[] stbi__zdefault_distance = new byte[32];
 
-		public static ArrayPointer<byte> first_row_filter =
-			new ArrayPointer<byte>(new byte[]
-			{
-				(byte) (STBI__F_none), (byte) (STBI__F_sub), (byte) (STBI__F_none), (byte) (STBI__F_avg_first),
-				(byte) (STBI__F_paeth_first)
-			});
+		public static byte[] first_row_filter = new byte[]
+		{
+			(byte) (STBI__F_none), (byte) (STBI__F_sub), (byte) (STBI__F_none), (byte) (STBI__F_avg_first),
+			(byte) (STBI__F_paeth_first)
+		};
 
-		public static ArrayPointer<byte> stbi__depth_scale_table =
-			new ArrayPointer<byte>(new byte[]
-			{
-				(byte) (0), (byte) (0xff), (byte) (0x55), (byte) (0), (byte) (0x11), (byte) (0), (byte) (0), (byte) (0),
-				(byte) (0x01)
-			});
+		public static byte[] stbi__depth_scale_table = new byte[]
+		{
+			(byte) (0), (byte) (0xff), (byte) (0x55), (byte) (0), (byte) (0x11), (byte) (0), (byte) (0), (byte) (0),
+			(byte) (0x01)
+		};
 
 		public static int stbi__unpremultiply_on_load = (int) (0);
 		public static int stbi__de_iphone_flag = (int) (0);
@@ -660,7 +651,7 @@ namespace StbSharp
 			}
 
 			if ((k) > (j.code_bits)) return (int) (-1);
-			c = (int) (((j.code_buffer >> (32 - k)) & ((uint*) (stbi__bmask))[k]) + ((int*) (h->delta))[k]);
+			c = (int) (((j.code_buffer >> (32 - k)) & ((stbi__bmask))[k]) + ((int*) (h->delta))[k]);
 			j.code_bits -= (int) (k);
 			j.code_buffer <<= k;
 			return (int) (((byte*) (h->values))[c]);
@@ -673,10 +664,10 @@ namespace StbSharp
 			if ((j.code_bits) < (n)) stbi__grow_buffer_unsafe(j);
 			sgn = (int) ((int) (j.code_buffer) >> 31);
 			k = (uint) (_lrotl((uint) (j.code_buffer), (int) (n)));
-			j.code_buffer = (uint) (k & ~((uint*) (stbi__bmask))[n]);
-			k &= (uint) (((uint*) (stbi__bmask))[n]);
+			j.code_buffer = (uint) (k & ~((stbi__bmask))[n]);
+			k &= (uint) (((stbi__bmask))[n]);
 			j.code_bits -= (int) (n);
-			return (int) (k + (((int*) (stbi__jbias))[n] & ~sgn));
+			return (int) (k + (((stbi__jbias))[n] & ~sgn));
 		}
 
 		public unsafe static int stbi__jpeg_get_bits(stbi__jpeg j, int n)
@@ -684,8 +675,8 @@ namespace StbSharp
 			uint k;
 			if ((j.code_bits) < (n)) stbi__grow_buffer_unsafe(j);
 			k = (uint) (_lrotl((uint) (j.code_buffer), (int) (n)));
-			j.code_buffer = (uint) (k & ~((uint*) (stbi__bmask))[n]);
-			k &= (uint) (((uint*) (stbi__bmask))[n]);
+			j.code_buffer = (uint) (k & ~((stbi__bmask))[n]);
+			k &= (uint) (((stbi__bmask))[n]);
 			j.code_bits -= (int) (n);
 			return (int) (k);
 		}
@@ -732,7 +723,7 @@ namespace StbSharp
 						s = (int) (r & 15);
 						j.code_buffer <<= s;
 						j.code_bits -= (int) (s);
-						zig = (uint) (((byte*) (stbi__jpeg_dezigzag))[k++]);
+						zig = (uint) (((stbi__jpeg_dezigzag))[k++]);
 						data[zig] = (short) ((short) ((r >> 8)*dequant[zig]));
 					}
 					else
@@ -749,7 +740,7 @@ namespace StbSharp
 						else
 						{
 							k += (int) (r);
-							zig = (uint) (((byte*) (stbi__jpeg_dezigzag))[k++]);
+							zig = (uint) (((stbi__jpeg_dezigzag))[k++]);
 							data[zig] = (short) ((short) (stbi__extend_receive(j, (int) (s))*dequant[zig]));
 						}
 					}
@@ -811,7 +802,7 @@ namespace StbSharp
 							s = (int) (r & 15);
 							j.code_buffer <<= s;
 							j.code_bits -= (int) (s);
-							zig = (uint) (((byte*) (stbi__jpeg_dezigzag))[k++]);
+							zig = (uint) (((stbi__jpeg_dezigzag))[k++]);
 							data[zig] = (short) ((short) ((r >> 8) << shift));
 						}
 						else
@@ -834,7 +825,7 @@ namespace StbSharp
 							else
 							{
 								k += (int) (r);
-								zig = (uint) (((byte*) (stbi__jpeg_dezigzag))[k++]);
+								zig = (uint) (((stbi__jpeg_dezigzag))[k++]);
 								data[zig] = (short) ((short) (stbi__extend_receive(j, (int) (s)) << shift));
 							}
 						}
@@ -850,7 +841,7 @@ namespace StbSharp
 					for (k = (int) (j.spec_start); k <= j.spec_end; ++k)
 					{
 						{
-							short* p = &data[((byte*) (stbi__jpeg_dezigzag))[k]];
+							short* p = &data[(stbi__jpeg_dezigzag)[k]];
 							if (*p != 0)
 								if ((stbi__jpeg_get_bit(j)) != 0)
 									if ((*p & bit) == (0))
@@ -894,7 +885,7 @@ namespace StbSharp
 							while (k <= j.spec_end)
 							{
 								{
-									short* p = &data[((byte*) (stbi__jpeg_dezigzag))[k++]];
+									short* p = &data[(stbi__jpeg_dezigzag)[k++]];
 									if (*p != 0)
 									{
 										if ((stbi__jpeg_get_bit(j)) != 0)
@@ -1358,7 +1349,7 @@ namespace StbSharp
 							if ((t) > (3)) return (int) (stbi__err("bad DQT table"));
 							for (i = (int) (0); (i) < (64); ++i)
 							{
-								((byte*) (z.dequant[t]))[((byte*) (stbi__jpeg_dezigzag))[i]] = (byte) (stbi__get8(z.s));
+								((byte*) (z.dequant[t]))[(stbi__jpeg_dezigzag)[i]] = (byte) (stbi__get8(z.s));
 							}
 							L -= (int) (65);
 						}
@@ -2174,14 +2165,14 @@ namespace StbSharp
 							return (int) (1);
 						}
 						z -= (int) (257);
-						len = (int) (((int*) (stbi__zlength_base))[z]);
-						if ((((int*) (stbi__zlength_extra))[z]) != 0)
-							len += (int) (stbi__zreceive(a, (int) (((int*) (stbi__zlength_extra))[z])));
+						len = (int) ((stbi__zlength_base)[z]);
+						if (((stbi__zlength_extra)[z]) != 0)
+							len += (int) (stbi__zreceive(a, (int) ((stbi__zlength_extra)[z])));
 						z = (int) (stbi__zhuffman_decode(a, &a->z_distance));
 						if ((z) < (0)) return (int) (stbi__err("bad huffman code"));
-						dist = (int) (((int*) (stbi__zdist_base))[z]);
-						if ((((int*) (stbi__zdist_extra))[z]) != 0)
-							dist += (int) (stbi__zreceive(a, (int) (((int*) (stbi__zdist_extra))[z])));
+						dist = (int) ((stbi__zdist_base)[z]);
+						if (((stbi__zdist_extra)[z]) != 0)
+							dist += (int) (stbi__zreceive(a, (int) ((stbi__zdist_extra)[z])));
 						if ((zout - a->zout_start) < (dist)) return (int) (stbi__err("bad dist"));
 						if ((zout + len) > (a->zout_end))
 						{
@@ -2239,7 +2230,7 @@ namespace StbSharp
 			length_dezigzag[18] = (byte) (15);
 
 			stbi__zhuffman z_codelength = new stbi__zhuffman();
-			byte* lencodes = new ArrayPointer<byte>(286 + 32 + 137);
+			byte* lencodes = stackalloc byte[286 + 32 + 137];
 			byte* codelength_sizes = stackalloc byte[19];
 			int i;
 			int n;
@@ -2336,23 +2327,23 @@ namespace StbSharp
 			int i;
 			for (i = (int) (0); i <= 143; ++i)
 			{
-				((byte*) (stbi__zdefault_length))[i] = (byte) (8);
+				(stbi__zdefault_length)[i] = (byte) (8);
 			}
 			for (; i <= 255; ++i)
 			{
-				((byte*) (stbi__zdefault_length))[i] = (byte) (9);
+				(stbi__zdefault_length)[i] = (byte) (9);
 			}
 			for (; i <= 279; ++i)
 			{
-				((byte*) (stbi__zdefault_length))[i] = (byte) (7);
+				(stbi__zdefault_length)[i] = (byte) (7);
 			}
 			for (; i <= 287; ++i)
 			{
-				((byte*) (stbi__zdefault_length))[i] = (byte) (8);
+				(stbi__zdefault_length)[i] = (byte) (8);
 			}
 			for (i = (int) (0); i <= 31; ++i)
 			{
-				((byte*) (stbi__zdefault_distance))[i] = (byte) (5);
+				(stbi__zdefault_distance)[i] = (byte) (5);
 			}
 		}
 
@@ -2380,9 +2371,16 @@ namespace StbSharp
 					{
 						if ((type) == (1))
 						{
-							if (((byte*) (stbi__zdefault_distance))[31] == 0) stbi__init_zdefaults();
-							if (stbi__zbuild_huffman(&a->z_length, ((byte*) (stbi__zdefault_length)), (int) (288)) == 0) return (int) (0);
-							if (stbi__zbuild_huffman(&a->z_distance, ((byte*) (stbi__zdefault_distance)), (int) (32)) == 0) return (int) (0);
+							if ((stbi__zdefault_distance)[31] == 0) stbi__init_zdefaults();
+
+							fixed (byte* b = stbi__zdefault_length)
+							{
+								if (stbi__zbuild_huffman(&a->z_length, b, (int) (288)) == 0) return (int) (0);
+							}
+							fixed (byte* b = stbi__zdefault_distance)
+							{
+								if (stbi__zbuild_huffman(&a->z_distance, b, (int) (32)) == 0) return (int) (0);
+							}
 						}
 						else
 						{
@@ -2566,10 +2564,11 @@ namespace StbSharp
 					{
 						;
 						cur += x*out_n - img_width_bytes;
+						prior = cur - stride;
 						filter_bytes = (int) (1);
 						width = (int) (img_width_bytes);
 					}
-					if ((j) == (0)) filter = (int) (((byte*) (first_row_filter))[filter]);
+					if ((j) == (0)) filter = (int) ((first_row_filter)[filter]);
 					for (k = (int) (0); (k) < (filter_bytes); ++k)
 					{
 						{
@@ -2781,7 +2780,7 @@ namespace StbSharp
 					{
 						byte* cur = a._out_ + stride*j;
 						byte* _in_ = a._out_ + stride*j + x*out_n - img_width_bytes;
-						byte scale = (byte) (((color) == (0)) ? ((byte*) (stbi__depth_scale_table))[depth] : 1);
+						byte scale = (byte) (((color) == (0)) ? (stbi__depth_scale_table)[depth] : 1);
 						if ((depth) == (4))
 						{
 							for (k = (int) (x*img_n); (k) >= (2); k -= (int) (2) , ++_in_)
@@ -3275,7 +3274,7 @@ namespace StbSharp
 								{
 									for (k = (int) (0); (k) < (s.img_n); ++k)
 									{
-										((byte*) (tc))[k] = (byte) ((byte) (stbi__get16be(s) & 255)*((byte*) (stbi__depth_scale_table))[z.depth]);
+										((byte*) (tc))[k] = (byte) ((byte) (stbi__get16be(s) & 255)*(stbi__depth_scale_table)[z.depth]);
 									}
 								}
 							}

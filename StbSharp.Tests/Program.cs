@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Sichem;
 using StbNative;
 
 namespace StbSharp.Tests
@@ -21,6 +22,8 @@ namespace StbSharp.Tests
 		{
 			try
 			{
+				var stbSharpLoading = 0;
+				var stbNativeLoading = 0;
 				var imagesPath = "..\\..\\..\\TestImages";
 
 				var files = Directory.EnumerateFiles(imagesPath, "*.*", SearchOption.AllDirectories).ToArray();
@@ -43,18 +46,20 @@ namespace StbSharp.Tests
 					Log("Parsing with StbSharp");
 					var stamp = DateTime.Now;
 					int x, y, comp;
-					var parsed = Stb.stbi_load_from_memory(data, out x, out y, out comp, Stb.STBI_rgb_alpha);
+					var parsed = Stb.stbi_load_from_memory(data, out x, out y, out comp, Stb.STBI_default);
 					Log("x: {0}, y: {1}, comp: {2}, size: {3}", x, y, comp, parsed.Length);
 					var passed = DateTime.Now - stamp;
 					Log("Span: {0} ms", passed.TotalMilliseconds);
+					stbSharpLoading += (int)passed.TotalMilliseconds;
 
 					Log("Parsing with Stb.Native");
 					stamp = DateTime.Now;
 					int x2, y2, comp2;
-					var parsed2 = Native.load_from_memory(data, out x2, out y2, out comp2, Stb.STBI_rgb_alpha);
+					var parsed2 = Native.load_from_memory(data, out x2, out y2, out comp2, Stb.STBI_default);
 					Log("x: {0}, y: {1}, comp: {2}, size: {3}", x2, y2, comp2, parsed2.Length);
 					passed = DateTime.Now - stamp;
 					Log("Span: {0} ms", passed.TotalMilliseconds);
+					stbNativeLoading += (int)passed.TotalMilliseconds;
 
 					if (x != x2)
 					{
@@ -90,11 +95,6 @@ namespace StbSharp.Tests
 
 					for (var k = 0; k <= 3; ++k)
 					{
-						if (k == 2)
-						{
-							continue;
-						}
-
 						Log("Saving as {0} with StbSharp", ((Stb.ImageWriterType) k).ToString());
 						byte[] save;
 						stamp = DateTime.Now;
@@ -107,7 +107,7 @@ namespace StbSharp.Tests
 						Log("Span: {0} ms", passed.TotalMilliseconds);
 						Log("StbSharp Size: {0}", save.Length);
 
-						Log("Saving as BMP with Stb.Native");
+						Log("Saving as {0} with Stb.Native", ((Stb.ImageWriterType)k).ToString());
 						stamp = DateTime.Now;
 						byte[] save2;
 						using (var stream = new MemoryStream())
@@ -139,6 +139,12 @@ namespace StbSharp.Tests
 					}
 
 					++filesProcessed;
+
+					Log("Total StbSharp Loading Time: {0} ms", stbSharpLoading);
+					Log("Total Stb.Native Loading Time: {0} ms", stbNativeLoading);
+
+					GC.Collect();
+					Log(string.Format("Sichem Allocated: {0}", Operations.AllocatedTotal));
 				}
 
 				Log("Files processed: {0}", filesProcessed);

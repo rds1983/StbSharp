@@ -36,7 +36,8 @@ namespace StbNative {
 			y = yy;
 			comp = ccomp;
 
-			array<unsigned char> ^result = gcnew array<unsigned char>(x * y * req_comp);
+			int c = req_comp != 0 ? req_comp : comp;
+			array<unsigned char> ^result = gcnew array<unsigned char>(x * y * c);
 			for (int i = 0; i < result->Length; ++i)
 			{
 				result[i] = res[i];
@@ -55,6 +56,7 @@ namespace StbNative {
 			pin_ptr<unsigned char> p = &bytes[0];
 			unsigned char *ptr = (unsigned char *)p;
 
+			std::vector<float> ff;
 			switch (type)
 			{
 				case 0:
@@ -65,7 +67,6 @@ namespace StbNative {
 					break;
 				case 2:
 				{
-					std::vector<float> ff;
 					ff.resize(bytes->Length);
 					for (int i = 0; i < bytes->Length; ++i)
 					{

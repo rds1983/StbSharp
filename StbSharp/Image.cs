@@ -54,11 +54,11 @@ namespace StbSharp
 		public class stbi__jpeg
 		{
 			public stbi__context s;
-			public readonly ArrayPointer<stbi__huffman> huff_dc = new ArrayPointer<stbi__huffman>(4);
-			public readonly ArrayPointer<stbi__huffman> huff_ac = new ArrayPointer<stbi__huffman>(4);
-			public readonly ArrayPointer<byte>[] dequant;
+			public readonly PinnedArray<stbi__huffman> huff_dc = new PinnedArray<stbi__huffman>(4);
+			public readonly PinnedArray<stbi__huffman> huff_ac = new PinnedArray<stbi__huffman>(4);
+			public readonly PinnedArray<byte>[] dequant;
 
-			public readonly ArrayPointer<short>[] fast_ac;
+			public readonly PinnedArray<short>[] fast_ac;
 
 // sizes for components, interleaved MCUs
 			public int img_h_max, img_v_max;
@@ -82,7 +82,7 @@ namespace StbSharp
 			public int rgb;
 
 			public int scan_n;
-			public ArrayPointer<int> order = new ArrayPointer<int>(4);
+			public PinnedArray<int> order = new PinnedArray<int>(4);
 			public int restart_interval, todo;
 
 // kernels
@@ -103,16 +103,16 @@ namespace StbSharp
 					img_comp[i] = new img_comp();
 				}
 
-				fast_ac = new ArrayPointer<short>[4];
+				fast_ac = new PinnedArray<short>[4];
 				for (var i = 0; i < fast_ac.Length; ++i)
 				{
-					fast_ac[i] = new ArrayPointer<short>(1 << STBI__ZFAST_BITS);
+					fast_ac[i] = new PinnedArray<short>(1 << STBI__ZFAST_BITS);
 				}
 
-				dequant = new ArrayPointer<byte>[4];
+				dequant = new PinnedArray<byte>[4];
 				for (var i = 0; i < dequant.Length; ++i)
 				{
-					dequant[i] = new ArrayPointer<byte>(64);
+					dequant[i] = new PinnedArray<byte>(64);
 				}
 			}
 		};
@@ -149,9 +149,9 @@ namespace StbSharp
 			public int transparent;
 			public int eflags;
 			public int delay;
-			public ArrayPointer<byte> pal;
-			public ArrayPointer<byte> lpal;
-			public ArrayPointer<stbi__gif_lzw> codes;
+			public PinnedArray<byte> pal;
+			public PinnedArray<byte> lpal;
+			public PinnedArray<stbi__gif_lzw> codes;
 			public byte* color_table;
 			public int parse;
 			public int step;
@@ -166,9 +166,9 @@ namespace StbSharp
 
 			public stbi__gif()
 			{
-				codes = new ArrayPointer<stbi__gif_lzw>(4096);
-				pal = new ArrayPointer<byte>(256 * 4);
-				lpal = new ArrayPointer<byte>(256 * 4);
+				codes = new PinnedArray<stbi__gif_lzw>(4096);
+				pal = new PinnedArray<byte>(256 * 4);
+				lpal = new PinnedArray<byte>(256 * 4);
 			}
 		}
 
@@ -351,7 +351,8 @@ namespace StbSharp
 			}
 
 			// Convert to array
-			var data = new byte[x*y*req_comp];
+			var c = req_comp != 0 ? req_comp : comp;
+			var data = new byte[x*y*c];
 			Marshal.Copy(new IntPtr(result), data, 0, data.Length);
 			Operations.Free(result);
 
