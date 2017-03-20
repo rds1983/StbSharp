@@ -67,8 +67,11 @@
     <Compile Include="..\Sichem\Sichem.Framework\PinnedArray.cs">
       <Link>PinnedArray.cs</Link>
     </Compile>
+    <Compile Include="ImageLoaderFromStream.cs" />
     <Compile Include="ImageWriter.cs" />
     <Compile Include="ImageWriter.Generated.cs" />
+    <Compile Include="ImageWriterToStream.cs" />
+    <Compile Include="ImageWriterType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="Image.Generated.cs" />

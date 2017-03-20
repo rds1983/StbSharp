@@ -512,7 +512,6 @@ namespace StbSharp
 								dest[2] = (byte) (src[2]);
 							}
 							break;
-							;
 					}
 				}
 			}

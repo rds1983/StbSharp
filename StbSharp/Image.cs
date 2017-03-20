@@ -10,7 +10,7 @@ namespace StbSharp
 
 		public const int STBI__ZFAST_BITS = 9;
 
-		public unsafe delegate int ReadCallback(void* user, sbyte* data, long size);
+		public unsafe delegate int ReadCallback(void* user, sbyte* data, int size);
 
 		public unsafe delegate int SkipCallback(void* user, int n);
 
@@ -167,8 +167,8 @@ namespace StbSharp
 			public stbi__gif()
 			{
 				codes = new PinnedArray<stbi__gif_lzw>(4096);
-				pal = new PinnedArray<byte>(256 * 4);
-				lpal = new PinnedArray<byte>(256 * 4);
+				pal = new PinnedArray<byte>(256*4);
+				lpal = new PinnedArray<byte>(256*4);
 			}
 		}
 
@@ -210,7 +210,7 @@ namespace StbSharp
 
 		private static unsafe void memmove(void* a, void* b, ulong size)
 		{
-			memmove(a, b, (long)size);
+			memmove(a, b, (long) size);
 		}
 
 		private static unsafe int memcmp(void* a, void* b, long size)
@@ -266,7 +266,7 @@ namespace StbSharp
 		public const long DBL_EXP_MASK = 0x7ff0000000000000L;
 		public const int DBL_MANT_BITS = 52;
 		public const long DBL_SGN_MASK = -1 - 0x7fffffffffffffffL;
-		public const long DBL_MANT_MASK = 0x000fffffffffffffL; 
+		public const long DBL_MANT_MASK = 0x000fffffffffffffL;
 		public const long DBL_EXP_CLR_MASK = DBL_SGN_MASK | DBL_MANT_MASK;
 
 		/// <summary>
@@ -278,7 +278,7 @@ namespace StbSharp
 		private static unsafe double frexp(double number, int* exponent)
 		{
 			var bits = BitConverter.DoubleToInt64Bits(number);
-			var exp = (int)((bits & DBL_EXP_MASK) >> DBL_MANT_BITS);
+			var exp = (int) ((bits & DBL_EXP_MASK) >> DBL_MANT_BITS);
 			*exponent = 0;
 
 			if (exp == 0x7ff || number == 0D)
@@ -292,7 +292,7 @@ namespace StbSharp
 					// Subnormal, scale number so that it is in [1, 2).
 					number *= BitConverter.Int64BitsToDouble(0x4350000000000000L); // 2^54
 					bits = BitConverter.DoubleToInt64Bits(number);
-					exp = (int)((bits & DBL_EXP_MASK) >> DBL_MANT_BITS);
+					exp = (int) ((bits & DBL_EXP_MASK) >> DBL_MANT_BITS);
 					*exponent = exp - 1022 - 54;
 				}
 				// Set exponent to -1 so that number is in [0.5, 1).

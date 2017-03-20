@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Sichem;
@@ -8,6 +9,10 @@ namespace StbSharp.Tests
 {
 	internal static class Program
 	{
+		private const int LoadTries = 100;
+
+		private static readonly Stopwatch _sw = new Stopwatch();
+
 		public static void Log(string message)
 		{
 			Console.WriteLine(message);
@@ -18,22 +23,103 @@ namespace StbSharp.Tests
 			Log(string.Format(format, args));
 		}
 
+		private static void BeginWatch()
+		{
+			_sw.Start();
+		}
+
+		private static int EndWatch()
+		{
+			_sw.Stop();
+			return (int) _sw.ElapsedMilliseconds;
+		}
+
+		private delegate byte[] LoadDelegate(out int x, out int y, out int comp);
+
+		private static void ParseTest(LoadDelegate load1, LoadDelegate load2,
+			out int load1Passed, out int load2Passed)
+		{
+			Log("With StbSharp");
+			int x = 0, y = 0, comp = 0;
+			byte[] parsed = new byte[0];
+			BeginWatch();
+
+			for (var i = 0; i < LoadTries; ++i)
+			{
+				parsed = load1(out x, out y, out comp);
+			}
+
+			Log("x: {0}, y: {1}, comp: {2}, size: {3}", x, y, comp, parsed.Length);
+			var passed = EndWatch()/LoadTries;
+			Log("Span: {0} ms", passed);
+			load1Passed = passed;
+
+			Log("With Stb.Native");
+			int x2 = 0, y2 = 0, comp2 = 0;
+			byte[] parsed2 = new byte[0];
+
+			BeginWatch();
+			for (var i = 0; i < LoadTries; ++i)
+			{
+				parsed2 = load2(out x2, out y2, out comp2);
+			}
+			Log("x: {0}, y: {1}, comp: {2}, size: {3}", x2, y2, comp2, parsed2.Length);
+			passed = EndWatch()/LoadTries;
+			Log("Span: {0} ms", passed);
+			load2Passed = passed;
+
+			if (x != x2)
+			{
+				throw new Exception(string.Format("Inconsistent x: StbSharp={0}, Stb.Native={1}", x, x2));
+			}
+
+			if (y != y2)
+			{
+				throw new Exception(string.Format("Inconsistent y: StbSharp={0}, Stb.Native={1}", y, y2));
+			}
+
+			if (comp != comp2)
+			{
+				throw new Exception(string.Format("Inconsistent comp: StbSharp={0}, Stb.Native={1}", comp, comp2));
+			}
+
+			if (parsed.Length != parsed2.Length)
+			{
+				throw new Exception(string.Format("Inconsistent parsed length: StbSharp={0}, Stb.Native={1}", parsed.Length,
+					parsed2.Length));
+			}
+
+			for (var i = 0; i < parsed.Length; ++i)
+			{
+				if (parsed[i] != parsed2[i])
+				{
+					throw new Exception(string.Format("Inconsistent data: index={0}, StbSharp={1}, Stb.Native={2}",
+						i,
+						(int) parsed[i],
+						(int) parsed2[i]));
+				}
+			}
+		}
+
 		public static bool RunTests()
 		{
 			try
 			{
-				var stbSharpLoading = 0;
-				var stbNativeLoading = 0;
+				var stbSharpLoadingFromStream = 0;
+				var stbNativeLoadingFromStream = 0;
+				var stbSharpLoadingFromMemory = 0;
+				var stbNativeLoadingFromMemory = 0;
 				var imagesPath = "..\\..\\..\\TestImages";
 
 				var files = Directory.EnumerateFiles(imagesPath, "*.*", SearchOption.AllDirectories).ToArray();
 				Log("Files count: {0}", files.Length);
 				int filesProcessed = 0;
+
 				foreach (var f in files)
 				{
 					if (!f.EndsWith(".bmp") && !f.EndsWith(".jpg") && !f.EndsWith(".png") &&
-						!f.EndsWith(".jpg") && !f.EndsWith(".psd") && !f.EndsWith(".pic") && 
-						!f.EndsWith(".tga"))
+					    !f.EndsWith(".jpg") && !f.EndsWith(".psd") && !f.EndsWith(".pic") &&
+					    !f.EndsWith(".tga"))
 					{
 						continue;
 					}
@@ -43,55 +129,53 @@ namespace StbSharp.Tests
 					var data = File.ReadAllBytes(f);
 					Log("----------------------------");
 
-					Log("Parsing with StbSharp");
-					var stamp = DateTime.Now;
-					int x, y, comp;
-					var parsed = Stb.stbi_load_from_memory(data, out x, out y, out comp, Stb.STBI_default);
-					Log("x: {0}, y: {1}, comp: {2}, size: {3}", x, y, comp, parsed.Length);
-					var passed = DateTime.Now - stamp;
-					Log("Span: {0} ms", passed.TotalMilliseconds);
-					stbSharpLoading += (int)passed.TotalMilliseconds;
-
-					Log("Parsing with Stb.Native");
-					stamp = DateTime.Now;
-					int x2, y2, comp2;
-					var parsed2 = Native.load_from_memory(data, out x2, out y2, out comp2, Stb.STBI_default);
-					Log("x: {0}, y: {1}, comp: {2}, size: {3}", x2, y2, comp2, parsed2.Length);
-					passed = DateTime.Now - stamp;
-					Log("Span: {0} ms", passed.TotalMilliseconds);
-					stbNativeLoading += (int)passed.TotalMilliseconds;
-
-					if (x != x2)
-					{
-						throw new Exception(string.Format("Inconsistent x: StbSharp={0}, Stb.Native={1}", x, x2));
-					}
-
-					if (y != y2)
-					{
-						throw new Exception(string.Format("Inconsistent y: StbSharp={0}, Stb.Native={1}", y, y2));
-					}
-
-					if (comp != comp2)
-					{
-						throw new Exception(string.Format("Inconsistent comp: StbSharp={0}, Stb.Native={1}", comp, comp2));
-					}
-
-					if (parsed.Length != parsed2.Length)
-					{
-						throw new Exception(string.Format("Inconsistent parsed length: StbSharp={0}, Stb.Native={1}", parsed.Length,
-							parsed2.Length));
-					}
-
-					for (var i = 0; i < parsed.Length; ++i)
-					{
-						if (parsed[i] != parsed2[i])
+					Log("Loading From Stream");
+					int x = 0, y = 0, comp = 0;
+					int stbSharpPassed, stbNativePassed;
+					byte[] parsed = new byte[0];
+					ParseTest(
+						(out int xx, out int yy, out int ccomp) =>
 						{
-							throw new Exception(string.Format("Inconsistent data: index={0}, StbSharp={1}, Stb.Native={2}",
-								i,
-								(int) parsed[i],
-								(int) parsed2[i]));
-						}
-					}
+							using (var ms = new MemoryStream(data))
+							{
+								var loader = new ImageLoaderFromStream();
+								parsed = loader.stbi_load_from_stream(ms, out xx, out yy, out ccomp, Stb.STBI_default);
+
+								x = xx;
+								y = yy;
+								comp = ccomp;
+								return parsed;
+							}
+						},
+						(out int xx, out int yy, out int ccomp) =>
+						{
+							using (var ms = new MemoryStream(data))
+							{
+								return Native.load_from_stream(ms, out xx, out yy, out ccomp, Stb.STBI_default);
+							}
+						},
+						out stbSharpPassed, out stbNativePassed
+						);
+					stbSharpLoadingFromStream += stbSharpPassed;
+					stbNativeLoadingFromStream += stbNativePassed;
+
+					Log("Loading from memory");
+					ParseTest(
+						(out int xx, out int yy, out int ccomp) =>
+						{
+							var res = Stb.stbi_load_from_memory(data, out xx, out yy, out ccomp, Stb.STBI_default);
+
+							x = xx;
+							y = yy;
+							comp = ccomp;
+							return res;
+						},
+						(out int xx, out int yy, out int ccomp) =>
+							Native.load_from_memory(data, out xx, out yy, out ccomp, Stb.STBI_default),
+						out stbSharpPassed, out stbNativePassed
+						);
+					stbSharpLoadingFromMemory += stbSharpPassed;
+					stbNativeLoadingFromMemory += stbNativePassed;
 
 					for (var k = 0; k <= 3; ++k)
 					{
@@ -101,20 +185,21 @@ namespace StbSharp.Tests
 							continue;
 						}
 
-						Log("Saving as {0} with StbSharp", ((Stb.ImageWriterType) k).ToString());
+						Log("Saving as {0} with StbSharp", ((ImageWriterType) k).ToString());
 						byte[] save;
-						stamp = DateTime.Now;
+						BeginWatch();
 						using (var stream = new MemoryStream())
 						{
-							Stb.stbi_write_to(parsed, x, y, comp, (Stb.ImageWriterType) k, stream);
+							var writer = new ImageWriterToStream();
+							writer.stbi_write_to(parsed, x, y, comp, (ImageWriterType) k, stream);
 							save = stream.ToArray();
 						}
-						passed = DateTime.Now - stamp;
-						Log("Span: {0} ms", passed.TotalMilliseconds);
+						var passed = EndWatch();
+						Log("Span: {0} ms", passed);
 						Log("StbSharp Size: {0}", save.Length);
 
-						Log("Saving as {0} with Stb.Native", ((Stb.ImageWriterType)k).ToString());
-						stamp = DateTime.Now;
+						Log("Saving as {0} with Stb.Native", ((ImageWriterType) k).ToString());
+						BeginWatch();
 						byte[] save2;
 						using (var stream = new MemoryStream())
 						{
@@ -122,8 +207,8 @@ namespace StbSharp.Tests
 							save2 = stream.ToArray();
 						}
 
-						passed = DateTime.Now - stamp;
-						Log("Span: {0} ms", passed.TotalMilliseconds);
+						passed = EndWatch();
+						Log("Span: {0} ms", passed);
 						Log("Stb.Native Size: {0}", save2.Length);
 
 						if (save.Length != save2.Length)
@@ -146,11 +231,13 @@ namespace StbSharp.Tests
 
 					++filesProcessed;
 
-					Log("Total StbSharp Loading Time: {0} ms", stbSharpLoading);
-					Log("Total Stb.Native Loading Time: {0} ms", stbNativeLoading);
+					Log("Total StbSharp Loading From Stream Time: {0} ms", stbSharpLoadingFromStream);
+					Log("Total Stb.Native Loading From Stream Time: {0} ms", stbNativeLoadingFromStream);
+					Log("Total StbSharp Loading From memory Time: {0} ms", stbSharpLoadingFromMemory);
+					Log("Total Stb.Native Loading From memory Time: {0} ms", stbNativeLoadingFromMemory);
 
-					Log(string.Format("GC Memory: {0}", GC.GetTotalMemory(true)));
-					Log(string.Format("Sichem Allocated: {0}", Operations.AllocatedTotal));
+					Log("GC Memory: {0}", GC.GetTotalMemory(true));
+					Log("Sichem Allocated: {0}", Operations.AllocatedTotal);
 				}
 
 				Log("Files processed: {0}", filesProcessed);

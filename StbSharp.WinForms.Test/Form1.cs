@@ -148,18 +148,18 @@ namespace StbSharp.WinForms.Test
 					fileName = dlg.FileName;
 				}
 
-				var type = Stb.ImageWriterType.Bmp;
+				var type = ImageWriterType.Bmp;
 				if (fileName.EndsWith(".tga"))
 				{
-					type = Stb.ImageWriterType.Tga;
+					type = ImageWriterType.Tga;
 				}
 				else if (fileName.EndsWith("png"))
 				{
-					type = Stb.ImageWriterType.Png;
+					type = ImageWriterType.Png;
 				}
 				else if (fileName.EndsWith("hdr"))
 				{
-					type = Stb.ImageWriterType.Hdr;
+					type = ImageWriterType.Hdr;
 				}
 
 				// Get bitmap bytes
@@ -189,7 +189,8 @@ namespace StbSharp.WinForms.Test
 				// Call StbSharp
 				using (var stream = File.Create(fileName))
 				{
-					Stb.stbi_write_to(data, x, y, 4, type, stream);
+					var writer = new ImageWriterToStream();
+					writer.stbi_write_to(data, x, y, 4, type, stream);
 				}
 			}
 			catch (Exception ex)

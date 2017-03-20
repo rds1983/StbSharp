@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Text;
-using Sichem;
+﻿using System.Text;
 
 namespace StbSharp
 {
@@ -9,7 +6,7 @@ namespace StbSharp
 	{
 		public static int stbi_write_tga_with_rle = 1;
 
-		public unsafe delegate int WriteCallback(void* context, void* data, long size);
+		public unsafe delegate int WriteCallback(void* context, void* data, int size);
 
 		public unsafe class stbi__write_context
 		{
@@ -166,68 +163,6 @@ namespace StbSharp
 			}
 			free(scratch);
 			return 1;
-		}
-
-		public enum ImageWriterType
-		{
-			Bmp,
-			Tga,
-			Hdr,
-			Png
-		}
-
-		public static unsafe void stbi_write_to(byte[] bytes, int x, int y, int comp, ImageWriterType type, Stream dest)
-		{
-			WriteCallback writeFunc = (context, data, size) =>
-			{
-				if (data == null || size <= 0)
-				{
-					return 0;
-				}
-
-				var b = new byte[size];
-				var bptr = (byte*) data;
-				for (var i = 0; i < size; ++i)
-				{
-					b[i] = *bptr++;
-				}
-
-				dest.Write(b, 0, b.Length);
-
-				return (int) size;
-			};
-
-			fixed (byte* b = &bytes[0])
-			{
-				switch (type)
-				{
-					case ImageWriterType.Bmp:
-						stbi_write_bmp_to_func(writeFunc, null, x, y, comp, b);
-						break;
-					case ImageWriterType.Tga:
-						stbi_write_tga_to_func(writeFunc, null, x, y, comp, b);
-						break;
-					case ImageWriterType.Hdr:
-					{
-						var f = new float[bytes.Length];
-						for (var i = 0; i < bytes.Length; ++i)
-						{
-							f[i] = bytes[i]/255.0f;
-						}
-
-						fixed (float* fptr = f)
-						{
-							stbi_write_hdr_to_func(writeFunc, null, x, y, comp, fptr);
-						}
-					}
-						break;
-					case ImageWriterType.Png:
-						stbi_write_png_to_func(writeFunc, null, x, y, comp, b, x*comp);
-						break;
-					default:
-						throw new ArgumentOutOfRangeException("type", type, null);
-				}
-			}
 		}
 	}
 }
