@@ -36,7 +36,7 @@ namespace StbNative {
 
 			int xx, yy, ccomp;
 			const unsigned char *ptr = (const unsigned char *)p;
-			const unsigned char *res = stbi_load_from_memory(ptr, bytes->Length, &xx, &yy, &ccomp, req_comp);
+			void *res = stbi_load_from_memory(ptr, bytes->Length, &xx, &yy, &ccomp, req_comp);
 
 			x = xx;
 			y = yy;
@@ -46,6 +46,7 @@ namespace StbNative {
 			array<unsigned char> ^result = gcnew array<unsigned char>(x * y * c);
 
 			Marshal::Copy(IntPtr((void *)res), result, 0, result->Length);
+			free(res);
 
 			return result;
 		}
@@ -62,7 +63,7 @@ namespace StbNative {
 
 			int xx, yy, ccomp;
 
-			const unsigned char *res = stbi_load_from_callbacks(&callbacks, nullptr, &xx, &yy, &ccomp, req_comp);
+			void *res = stbi_load_from_callbacks(&callbacks, nullptr, &xx, &yy, &ccomp, req_comp);
 
 			x = xx;
 			y = yy;
@@ -72,6 +73,7 @@ namespace StbNative {
 			array<unsigned char> ^result = gcnew array<unsigned char>(x * y * c);
 
 			Marshal::Copy(IntPtr((void *)res), result, 0, result->Length);
+			free(res);
 
 			stream = nullptr;
 			buffer = nullptr;

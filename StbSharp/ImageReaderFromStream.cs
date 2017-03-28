@@ -1,18 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using Sichem;
 
 namespace StbSharp
 {
-	public unsafe class ImageLoaderFromStream
+	public unsafe class ImageReaderFromStream
 	{
+		public class AnimatedGifFrame
+		{
+			public byte[] Data;
+			public int Delay;
+		}
+
 		private Stream _stream;
 		private byte[] _buffer = new byte[1024];
 
 		private readonly Stb.stbi_io_callbacks _callbacks;
 
-		public ImageLoaderFromStream()
+		public ImageReaderFromStream()
 		{
 			_callbacks = new Stb.stbi_io_callbacks
 			{
@@ -69,6 +76,64 @@ namespace StbSharp
 				Operations.Free(result);
 
 				return data;
+			}
+			finally
+			{
+				_stream = null;
+			}
+		}
+
+		public AnimatedGifFrame[] LoadAnimatedGifFromStream(Stream stream, out int x, out int y, out int comp, int req_comp)
+		{
+			try
+			{
+				x = y = comp = 0;
+
+				var res = new List<AnimatedGifFrame>();
+				_stream = stream;
+
+				var context = new Stb.stbi__context();
+				Stb.stbi__start_callbacks(context, _callbacks, null);
+
+				if (Stb.stbi__gif_test(context) == 0)
+				{
+					throw new Exception("Input stream is not GIF file.");
+				}
+
+				var g = new Stb.stbi__gif();
+
+				do
+				{
+					int ccomp;
+					var result = Stb.stbi__gif_load_next(context, g, &ccomp, req_comp);
+					if (result == null)
+					{
+						break;
+					}
+
+					comp = ccomp;
+					var c = req_comp != 0 ? req_comp : comp;
+					var data = new byte[g.w * g.h * c];
+					Marshal.Copy(new IntPtr(result), data, 0, data.Length);
+					Operations.Free(result);
+
+					var frame = new AnimatedGifFrame
+					{
+						Data = data,
+						Delay = g.delay
+					};
+					res.Add(frame);
+				} while (true);
+
+				Operations.Free(g._out_);
+
+				if (res.Count > 0)
+				{
+					x = g.w;
+					y = g.h;
+				}
+
+				return res.ToArray();
 			}
 			finally
 			{

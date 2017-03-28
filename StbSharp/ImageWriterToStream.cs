@@ -30,7 +30,7 @@ namespace StbSharp
 			return size;
 		}
 
-		public void stbi_write_to(byte[] bytes, int x, int y, int comp, ImageWriterType type, Stream dest)
+		public void Write(byte[] bytes, int x, int y, int comp, ImageWriterType type, Stream dest)
 		{
 			try
 			{

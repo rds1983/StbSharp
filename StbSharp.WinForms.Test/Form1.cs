@@ -63,7 +63,7 @@ namespace StbSharp.WinForms.Test
 				var data2 = Native.load_from_memory(bytes, out x, out y, out comp, Stb.STBI_rgb_alpha);
 
 				var stamp = DateTime.Now;
-				var data = Stb.stbi_load_from_memory(bytes, out x, out y, out comp, Stb.STBI_rgb_alpha);
+				var data = Stb.LoadFromMemory(bytes, out x, out y, out comp, Stb.STBI_rgb_alpha);
 
 				var wrongCount = 0;
 				for (var i = 0; i < data.Length; ++i)
@@ -98,8 +98,7 @@ namespace StbSharp.WinForms.Test
 				}
 
 				// Convert to Bitmap
-				var pixelFormat = PixelFormat.Format32bppArgb;
-				var bmp = new Bitmap(x, y, pixelFormat);
+				var bmp = new Bitmap(x, y, PixelFormat.Format32bppArgb);
 				var bmpData = bmp.LockBits(new Rectangle(0, 0, x, y), ImageLockMode.WriteOnly, bmp.PixelFormat);
 
 				Marshal.Copy(data, 0, bmpData.Scan0, bmpData.Stride*bmp.Height);

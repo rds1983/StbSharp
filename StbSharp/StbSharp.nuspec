@@ -4,13 +4,16 @@
 		<id>StbSharp</id>
 		<version>$version$</version>
 		<title>StbSharp</title>
-		<authors>StbSharpTeam</authors>
-		<owners>StbSharpTeam</owners>
+		<authors>Abarim Games</authors>
+		<owners>Abarim Games</owners>
 		<projectUrl>https://github.com/rds1983/StbSharp</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>C# port of famous C framework: https://github.com/nothings/stb</description>
-		<copyright>Copyright 2017</copyright>
+		<copyright>Copyright 2016-2017</copyright>
 		<tags>imaging</tags>
+		<dependencies>
+			<dependency id="Sichem.Framework" version="0.3.0" />
+		</dependencies>
 	</metadata>
 	<files>
 		<file src="bin\Release\StbSharp.dll" target="lib\net45\StbSharp.dll"/>

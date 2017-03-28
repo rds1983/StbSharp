@@ -25,7 +25,7 @@ namespace StbSharp.Tests
 
 		private static void BeginWatch()
 		{
-			_sw.Start();
+			_sw.Restart();
 		}
 
 		private static int EndWatch()
@@ -138,7 +138,7 @@ namespace StbSharp.Tests
 						{
 							using (var ms = new MemoryStream(data))
 							{
-								var loader = new ImageLoaderFromStream();
+								var loader = new ImageReaderFromStream();
 								parsed = loader.stbi_load_from_stream(ms, out xx, out yy, out ccomp, Stb.STBI_default);
 
 								x = xx;
