@@ -139,7 +139,7 @@ namespace StbSharp.Tests
 							using (var ms = new MemoryStream(data))
 							{
 								var loader = new ImageReaderFromStream();
-								parsed = loader.stbi_load_from_stream(ms, out xx, out yy, out ccomp, Stb.STBI_default);
+								parsed = loader.Read(ms, out xx, out yy, out ccomp, Stb.STBI_rgb_alpha);
 
 								x = xx;
 								y = yy;
@@ -163,7 +163,7 @@ namespace StbSharp.Tests
 					ParseTest(
 						(out int xx, out int yy, out int ccomp) =>
 						{
-							var res = Stb.stbi_load_from_memory(data, out xx, out yy, out ccomp, Stb.STBI_default);
+							var res = Stb.LoadFromMemory(data, out xx, out yy, out ccomp, Stb.STBI_default);
 
 							x = xx;
 							y = yy;
@@ -191,7 +191,7 @@ namespace StbSharp.Tests
 						using (var stream = new MemoryStream())
 						{
 							var writer = new ImageWriterToStream();
-							writer.stbi_write_to(parsed, x, y, comp, (ImageWriterType) k, stream);
+							writer.Write(parsed, x, y, comp, (ImageWriterType) k, stream);
 							save = stream.ToArray();
 						}
 						var passed = EndWatch();

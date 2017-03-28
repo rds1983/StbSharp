@@ -134,7 +134,7 @@ namespace Generator
 				data = data.Replace("if (((g.transparent) >= (0)) && ((g.eflags & 0x01)))",
 					"if (((g.transparent) >= (0)) && ((g.eflags & 0x01) != 0))");
 
-				File.WriteAllText(@"..\..\..\StbSharp\Image.Generated.cs", data);
+				File.WriteAllText(@"..\..\..\..\StbSharp\Image.Generated.cs", data);
 			}
 		}
 
@@ -205,7 +205,7 @@ namespace Generator
 				data = data.Replace("(hash_table[i])?",
 					"(hash_table[i] != null)?");
 
-				File.WriteAllText(@"..\..\..\StbSharp\ImageWriter.Generated.cs", data);
+				File.WriteAllText(@"..\..\..\..\StbSharp\ImageWriter.Generated.cs", data);
 			}
 		}
 

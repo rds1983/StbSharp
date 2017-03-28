@@ -332,7 +332,7 @@ namespace StbSharp
 			return 1;
 		}
 
-		public static unsafe byte[] stbi_load_from_memory(byte[] bytes, out int x, out int y, out int comp, int req_comp)
+		public static unsafe byte[] LoadFromMemory(byte[] bytes, out int x, out int y, out int comp, int req_comp)
 		{
 			byte* result;
 			int xx, yy, ccomp;

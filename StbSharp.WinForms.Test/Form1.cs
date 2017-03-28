@@ -189,7 +189,7 @@ namespace StbSharp.WinForms.Test
 				using (var stream = File.Create(fileName))
 				{
 					var writer = new ImageWriterToStream();
-					writer.stbi_write_to(data, x, y, 4, type, stream);
+					writer.Write(data, x, y, 4, type, stream);
 				}
 			}
 			catch (Exception ex)

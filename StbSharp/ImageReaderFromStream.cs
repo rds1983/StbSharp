@@ -51,7 +51,7 @@ namespace StbSharp
 			return res;
 		}
 
-		public byte[] stbi_load_from_stream(Stream stream, out int x, out int y, out int comp, int req_comp)
+		public byte[] Read(Stream stream, out int x, out int y, out int comp, int req_comp)
 		{
 			_stream = stream;
 
@@ -83,7 +83,7 @@ namespace StbSharp
 			}
 		}
 
-		public AnimatedGifFrame[] LoadAnimatedGifFromStream(Stream stream, out int x, out int y, out int comp, int req_comp)
+		public AnimatedGifFrame[] ReadAnimatedGif(Stream stream, out int x, out int y, out int comp, int req_comp)
 		{
 			try
 			{
