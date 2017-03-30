@@ -6,7 +6,7 @@ using Sichem;
 
 namespace StbSharp
 {
-	public unsafe class ImageReaderFromStream
+	public unsafe class ImageReader
 	{
 		public class AnimatedGifFrame
 		{
@@ -19,7 +19,7 @@ namespace StbSharp
 
 		private readonly Stb.stbi_io_callbacks _callbacks;
 
-		public ImageReaderFromStream()
+		public ImageReader()
 		{
 			_callbacks = new Stb.stbi_io_callbacks
 			{
@@ -51,18 +51,22 @@ namespace StbSharp
 			return res;
 		}
 
-		public byte[] Read(Stream stream, out int x, out int y, out int comp, int req_comp)
+		public Image Read(Stream stream, int req_comp = Stb.STBI_default)
 		{
 			_stream = stream;
 
 			try
 			{
-				int xx, yy, ccomp;
-				var result = Stb.stbi_load_from_callbacks(_callbacks, null, &xx, &yy, &ccomp, req_comp);
+				int x, y, comp;
+				var result = Stb.stbi_load_from_callbacks(_callbacks, null, &x, &y, &comp, req_comp);
 
-				x = xx;
-				y = yy;
-				comp = ccomp;
+				var image = new Image
+				{
+					Width = x,
+					Height = y,
+					SourceComp = comp,
+					Comp = req_comp == Stb.STBI_default ? comp : req_comp
+				};
 
 				if (result == null)
 				{
@@ -70,12 +74,13 @@ namespace StbSharp
 				}
 
 				// Convert to array
-				var c = req_comp != 0 ? req_comp : comp;
-				var data = new byte[x*y*c];
+				var data = new byte[x*y*image.Comp];
 				Marshal.Copy(new IntPtr(result), data, 0, data.Length);
 				Operations.Free(result);
 
-				return data;
+				image.Data = data;
+
+				return image;
 			}
 			finally
 			{

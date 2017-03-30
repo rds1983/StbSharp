@@ -209,12 +209,90 @@ namespace Generator
 			}
 		}
 
+
+        static void ProcessImageResize()
+        {
+            using (var output = new StringWriter())
+            {
+	            var parameters = new ConversionParameters
+	            {
+		            InputPath = @"D:\Projects\StbSharp\StbSharp.Generator\StbSource\stb_image_resize.h",
+		            Output = output,
+		            Defines = new[]
+		            {
+			            "STB_IMAGE_RESIZE_IMPLEMENTATION"
+		            },
+		            Namespace = "StbSharp",
+		            Class = "Stb",
+		            SkipStructs = new[]
+		            {
+			            "stbir__filter_info",
+						"stbir__info",
+						"stbir__FP32"
+		            },
+		            SkipGlobalVariables = new[]
+		            {
+			            "stbir__filter_info_table"
+		            },
+		            SkipFunctions = new[]
+		            {
+			            "stbir__linear_to_srgb_uchar",
+			            "stbiw__writefv",
+			            "stbiw__writef",
+			            "stbiw__outfile",
+			            "stbi_write_bmp_to_func",
+			            "stbi_write_tga_to_func",
+			            "stbi_write_hdr_to_func",
+			            "stbi_write_png_to_func",
+			            "stbi_write_hdr_core",
+		            },
+		            Structs = new[]
+		            {
+			            "stbir__contributors",
+						"stbir__FP32"
+		            }
+	            };
+
+                var cp = new ClangParser();
+
+                cp.Process(parameters);
+                var data = output.ToString();
+
+                // Post processing
+                Logger.Info("Post processing...");
+
+/*                data = data.Replace("int has_alpha = (int)(((comp) == (2)) || ((comp) == (4)));",
+                    "int has_alpha = (((comp) == (2)) || ((comp) == (4)))?1:0;");
+                data = data.Replace("*arr?",
+                    "*arr != null?");
+                data = data.Replace("sizeof(int)* * 2",
+                    "sizeof(int) * 2");
+                data = data.Replace("(int)((*(data)).Size)",
+                    "sizeof(byte)");
+                data = data.Replace("(int)((*(_out_)).Size)",
+                    "sizeof(byte)");
+                data = data.Replace("(int)((*(hash_table[h])).Size)",
+                    "sizeof(byte*)");
+                data = data.Replace("(hash_table[h][0]).Size",
+                    "sizeof(byte*)");
+                data = data.Replace("(byte***)(malloc((ulong)(16384 * sizeof(char**)))))",
+                    "(byte***)(malloc((ulong)(16384 * sizeof(byte**))))");
+                data = data.Replace("(hlist)?",
+                    "(hlist != null)?");
+                data = data.Replace("(hash_table[i])?",
+                    "(hash_table[i] != null)?");*/
+
+                File.WriteAllText(@"..\..\..\..\StbSharp\ImageResize.Generated.cs", data);
+            }
+        }
+
 		static void Main(string[] args)
 		{
 			try
 			{
 				// ProcessImage();
-				ProcessImageWriter();
+				// ProcessImageWriter();
+				ProcessImageResize();
 			}
 			catch (Exception ex)
 			{

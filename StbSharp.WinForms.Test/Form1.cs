@@ -5,13 +5,13 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using StbNative;
 
 namespace StbSharp.WinForms.Test
 {
 	public partial class Form1 : Form
 	{
 		private string _fileName;
+		private Image _loadedImage;
 
 		public Form1()
 		{
@@ -32,7 +32,11 @@ namespace StbSharp.WinForms.Test
 					}
 
 					_fileName = dlg.FileName;
-					ThreadPool.QueueUserWorkItem(LoadProc);
+
+					var bytes = File.ReadAllBytes(_fileName);
+
+					_loadedImage = Stb.LoadFromMemory(bytes, Stb.STBI_rgb_alpha);
+					SetImage();
 				}
 			}
 			catch (Exception ex)
@@ -46,89 +50,37 @@ namespace StbSharp.WinForms.Test
 			Invoke(new MethodInvoker(action));
 		}
 
-		public void LoadProc(object state)
+		private void SetImage()
 		{
-			try
+			// Convert to bgra
+			var data = new byte[_loadedImage.Data.Length];
+			Array.Copy(_loadedImage.Data, data, data.Length);
+
+			for (var i = 0; i < _loadedImage.Width*_loadedImage.Height; ++i)
 			{
-				DoInvoke(() =>
-				{
-					button1.Enabled = false;
-					labelStatus.Text = string.Format("Trying to load through StbSharp '{0}'", _fileName);
-				});
-
-				var bytes = File.ReadAllBytes(_fileName);
-
-				int x, y, comp;
-
-				var data2 = Native.load_from_memory(bytes, out x, out y, out comp, Stb.STBI_rgb_alpha);
-
-				var stamp = DateTime.Now;
-				var data = Stb.LoadFromMemory(bytes, out x, out y, out comp, Stb.STBI_rgb_alpha);
-
-				var wrongCount = 0;
-				for (var i = 0; i < data.Length; ++i)
-				{
-					if (data[i] != data2[i])
-					{
-						++wrongCount;
-
-						var xc = i/4%x;
-						var yc = i/4/x;
-					}
-				}
-
-				// Convert rgba to bgra
-				DoInvoke(() =>
-				{
-					labelStatus.Text = string.Format("Converting to bgra", _fileName);
-				});
-
-				for (var i = 0; i < x*y; ++i)
-				{
-					var r = data[i*4];
-					var g = data[i*4 + 1];
-					var b = data[i*4 + 2];
-					var a = data[i*4 + 3];
+				var r = data[i*4];
+				var g = data[i*4 + 1];
+				var b = data[i*4 + 2];
+				var a = data[i*4 + 3];
 
 
-					data[i*4] = b;
-					data[i*4 + 1] = g;
-					data[i*4 + 2] = r;
-					data[i*4 + 3] = a;
-				}
-
-				// Convert to Bitmap
-				var bmp = new Bitmap(x, y, PixelFormat.Format32bppArgb);
-				var bmpData = bmp.LockBits(new Rectangle(0, 0, x, y), ImageLockMode.WriteOnly, bmp.PixelFormat);
-
-				Marshal.Copy(data, 0, bmpData.Scan0, bmpData.Stride*bmp.Height);
-				bmp.UnlockBits(bmpData);
-
-				var passed = DateTime.Now - stamp;
-
-				DoInvoke(() =>
-				{
-					pictureBox1.Image = bmp;
-					labelStbSharp.Text = string.Format("{0:0.00} ms", passed.TotalMilliseconds);
-					labelWrongCount.Text = wrongCount.ToString();
-					labelStatus.Text = "Success";
-				});
-
+				data[i*4] = b;
+				data[i*4 + 1] = g;
+				data[i*4 + 2] = r;
+				data[i*4 + 3] = a;
 			}
-			catch (Exception ex)
-			{
-				DoInvoke(() =>
-				{
-					labelStatus.Text = ex.Message;
-				});
-			}
-			finally
-			{
-				DoInvoke(() =>
-				{
-					button1.Enabled = true;
-				});
-			}
+
+			// Convert to Bitmap
+			var bmp = new Bitmap(_loadedImage.Width, _loadedImage.Height, PixelFormat.Format32bppArgb);
+			var bmpData = bmp.LockBits(new Rectangle(0, 0, _loadedImage.Width, _loadedImage.Height), ImageLockMode.WriteOnly,
+				bmp.PixelFormat);
+
+			Marshal.Copy(data, 0, bmpData.Scan0, bmpData.Stride*bmp.Height);
+			bmp.UnlockBits(bmpData);
+
+			pictureBox1.Image = bmp;
+			_numericWidth.Value = _loadedImage.Width;
+			_numericHeight.Value = _loadedImage.Height;
 		}
 
 		private void buttonSave_Click(object sender, EventArgs e)
@@ -147,18 +99,18 @@ namespace StbSharp.WinForms.Test
 					fileName = dlg.FileName;
 				}
 
-				var type = ImageWriterType.Bmp;
+				var type = ImageWriterFormat.Bmp;
 				if (fileName.EndsWith(".tga"))
 				{
-					type = ImageWriterType.Tga;
+					type = ImageWriterFormat.Tga;
 				}
 				else if (fileName.EndsWith("png"))
 				{
-					type = ImageWriterType.Png;
+					type = ImageWriterFormat.Png;
 				}
 				else if (fileName.EndsWith("hdr"))
 				{
-					type = ImageWriterType.Hdr;
+					type = ImageWriterFormat.Hdr;
 				}
 
 				// Get bitmap bytes
@@ -188,14 +140,32 @@ namespace StbSharp.WinForms.Test
 				// Call StbSharp
 				using (var stream = File.Create(fileName))
 				{
-					var writer = new ImageWriterToStream();
-					writer.Write(data, x, y, 4, type, stream);
+					var writer = new ImageWriter();
+					var image = new Image
+					{
+						Data = data,
+						Width = x,
+						Height = y,
+						Comp = 4
+					};
+					writer.Write(image, type, stream);
 				}
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show("Error", ex.Message);
 			}
+		}
+
+		private void buttonResize_Click(object sender, EventArgs e)
+		{
+			if (_loadedImage == null)
+			{
+				return;
+			}
+
+			_loadedImage = _loadedImage.CreateResized((int) _numericWidth.Value, (int) _numericHeight.Value);
+			SetImage();
 		}
 	}
 }

@@ -61,10 +61,9 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			// Loading through StbSharp
 			now = DateTime.Now;
 
-			int x, y, comp;
-			var data = Stb.LoadFromMemory(buffer, out x, out y, out comp, Stb.STBI_rgb_alpha);
-			texLoadedBySTB = new Texture2D(GraphicsDevice, x, y, false, SurfaceFormat.Color);
-			texLoadedBySTB.SetData(data);
+			var image = Stb.LoadFromMemory(buffer, Stb.STBI_rgb_alpha);
+			texLoadedBySTB = new Texture2D(GraphicsDevice, image.Width, image.Height, false, SurfaceFormat.Color);
+			texLoadedBySTB.SetData(image.Data);
 
 			stbLoadTime = (DateTime.Now - now).TotalMilliseconds;
 

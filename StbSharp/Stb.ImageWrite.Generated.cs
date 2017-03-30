@@ -4,7 +4,7 @@ using Sichem;
 
 namespace StbSharp
 {
-	public static unsafe partial class Stb
+	unsafe partial class Stb
 	{
 		public static uint[] crc_table = new uint[]
 			{
@@ -62,7 +62,7 @@ namespace StbSharp
 				(uint) (0x2D02EF8D)
 			};
 
-		public unsafe static void stbiw__write3(stbi__write_context s, byte a, byte b, byte c)
+		public static void stbiw__write3(stbi__write_context s, byte a, byte b, byte c)
 		{
 			byte* arr = stackalloc byte[3];
 			((byte*) (arr))[0] = (byte) (a);
@@ -71,7 +71,7 @@ namespace StbSharp
 			s.func(s.context, ((byte*) (arr)), (int) (3));
 		}
 
-		public unsafe static void stbiw__write_pixel(stbi__write_context s, int rgb_dir, int comp, int write_alpha,
+		public static void stbiw__write_pixel(stbi__write_context s, int rgb_dir, int comp, int write_alpha,
 			int expand_mono, byte* d)
 		{
 			byte* bg = stackalloc byte[3];
@@ -109,7 +109,7 @@ namespace StbSharp
 			if ((write_alpha) > (0)) s.func(s.context, &d[comp - 1], (int) (1));
 		}
 
-		public unsafe static void stbiw__write_pixels(stbi__write_context s, int rgb_dir, int vdir, int x, int y, int comp,
+		public static void stbiw__write_pixels(stbi__write_context s, int rgb_dir, int vdir, int x, int y, int comp,
 			void* data, int write_alpha, int scanline_pad, int expand_mono)
 		{
 			uint zero = (uint) (0);
@@ -143,7 +143,7 @@ namespace StbSharp
 			}
 		}
 
-		public unsafe static int stbi_write_bmp_core(stbi__write_context s, int x, int y, int comp, void* data)
+		public static int stbi_write_bmp_core(stbi__write_context s, int x, int y, int comp, void* data)
 		{
 			int pad = (int) ((-x*3) & 3);
 			return
@@ -154,7 +154,7 @@ namespace StbSharp
 						(int) (0), (int) (0), (int) (0), (int) (0)));
 		}
 
-		public unsafe static int stbi_write_tga_core(stbi__write_context s, int x, int y, int comp, void* data)
+		public static int stbi_write_tga_core(stbi__write_context s, int x, int y, int comp, void* data)
 		{
 			int has_alpha = (((comp) == (2)) || ((comp) == (4))) ? 1 : 0;
 			int colorbytes = (int) ((has_alpha) != 0 ? comp - 1 : comp);
@@ -252,7 +252,7 @@ namespace StbSharp
 			return (int) (1);
 		}
 
-		public unsafe static void stbiw__linear_to_rgbe(byte* rgbe, float* linear)
+		public static void stbiw__linear_to_rgbe(byte* rgbe, float* linear)
 		{
 			int exponent;
 			float maxcomp =
@@ -275,21 +275,21 @@ namespace StbSharp
 
 		}
 
-		public unsafe static void stbiw__write_run_data(stbi__write_context s, int length, byte databyte)
+		public static void stbiw__write_run_data(stbi__write_context s, int length, byte databyte)
 		{
 			byte lengthbyte = (byte) ((length + 128) & 0xff);
 			s.func(s.context, &lengthbyte, (int) (1));
 			s.func(s.context, &databyte, (int) (1));
 		}
 
-		public unsafe static void stbiw__write_dump_data(stbi__write_context s, int length, byte* data)
+		public static void stbiw__write_dump_data(stbi__write_context s, int length, byte* data)
 		{
 			byte lengthbyte = (byte) ((length) & 0xff);
 			s.func(s.context, &lengthbyte, (int) (1));
 			s.func(s.context, data, (int) (length));
 		}
 
-		public unsafe static void stbiw__write_hdr_scanline(stbi__write_context s, int width, int ncomp, byte* scratch,
+		public static void stbiw__write_hdr_scanline(stbi__write_context s, int width, int ncomp, byte* scratch,
 			float* scanline)
 		{
 			byte* scanlineheader = stackalloc byte[4];
@@ -404,7 +404,7 @@ namespace StbSharp
 
 		}
 
-		public unsafe static void* stbiw__sbgrowf(void** arr, int increment, int itemsize)
+		public static void* stbiw__sbgrowf(void** arr, int increment, int itemsize)
 		{
 			int m = (int) (*arr != null ? 2*((int*) (*arr) - 2)[0] + increment : increment + 1);
 			void* p = realloc(*arr != null ? ((int*) (*arr) - 2) : ((int*) (0)), (ulong) (itemsize*m + sizeof (int)*2));
@@ -418,7 +418,7 @@ namespace StbSharp
 			return *arr;
 		}
 
-		public unsafe static byte* stbiw__zlib_flushf(byte* data, uint* bitbuffer, int* bitcount)
+		public static byte* stbiw__zlib_flushf(byte* data, uint* bitbuffer, int* bitcount)
 		{
 			while ((*bitcount) >= (8))
 			{
@@ -437,7 +437,7 @@ namespace StbSharp
 			return data;
 		}
 
-		public unsafe static int stbiw__zlib_bitrev(int code, int codebits)
+		public static int stbiw__zlib_bitrev(int code, int codebits)
 		{
 			int res = (int) (0);
 			while ((codebits--) != 0)
@@ -450,7 +450,7 @@ namespace StbSharp
 			return (int) (res);
 		}
 
-		public unsafe static uint stbiw__zlib_countm(byte* a, byte* b, int limit)
+		public static uint stbiw__zlib_countm(byte* a, byte* b, int limit)
 		{
 			int i;
 			for (i = (int) (0); ((i) < (limit)) && ((i) < (258)); ++i)
@@ -460,7 +460,7 @@ namespace StbSharp
 			return (uint) (i);
 		}
 
-		public unsafe static uint stbiw__zhash(byte* data)
+		public static uint stbiw__zhash(byte* data)
 		{
 			uint hash = (uint) (data[0] + (data[1] << 8) + (data[2] << 16));
 			hash ^= (uint) (hash << 3);
@@ -472,7 +472,7 @@ namespace StbSharp
 			return (uint) (hash);
 		}
 
-		public unsafe static byte* stbi_zlib_compress(byte* data, int data_len, int* out_len, int quality)
+		public static byte* stbi_zlib_compress(byte* data, int data_len, int* out_len, int quality)
 		{
 			ushort* lengthc = stackalloc ushort[30];
 			lengthc[0] = (ushort) (3);
@@ -901,7 +901,7 @@ namespace StbSharp
 			return (byte*) ((int*) (_out_) - 2);
 		}
 
-		public unsafe static uint stbiw__crc32(byte* buffer, int len)
+		public static uint stbiw__crc32(byte* buffer, int len)
 		{
 			uint crc = (uint) (~0u);
 			int i;
@@ -912,7 +912,7 @@ namespace StbSharp
 			return (uint) (~crc);
 		}
 
-		public unsafe static void stbiw__wpcrc(byte** data, int len)
+		public static void stbiw__wpcrc(byte** data, int len)
 		{
 			uint crc = (uint) (stbiw__crc32(*data - len - 4, (int) (len + 4)));
 			(*data)[0] = (byte) ((byte) (((crc) >> 24) & 0xff));
@@ -922,7 +922,7 @@ namespace StbSharp
 			(*data) += 4;
 		}
 
-		public unsafe static byte stbiw__paeth(int a, int b, int c)
+		public static byte stbiw__paeth(int a, int b, int c)
 		{
 			int p = (int) (a + b - c);
 			int pa = (int) (abs((int) (p - a)));
@@ -933,7 +933,7 @@ namespace StbSharp
 			return (byte) ((c) & 0xff);
 		}
 
-		public unsafe static byte* stbi_write_png_to_mem(byte* pixels, int stride_bytes, int x, int y, int n, int* out_len)
+		public static byte* stbi_write_png_to_mem(byte* pixels, int stride_bytes, int x, int y, int n, int* out_len)
 		{
 			int* ctype = stackalloc int[5];
 			ctype[0] = (int) (-1);

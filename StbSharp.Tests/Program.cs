@@ -138,8 +138,13 @@ namespace StbSharp.Tests
 						{
 							using (var ms = new MemoryStream(data))
 							{
-								var loader = new ImageReaderFromStream();
-								parsed = loader.Read(ms, out xx, out yy, out ccomp, Stb.STBI_rgb_alpha);
+								var loader = new ImageReader();
+								var img = loader.Read(ms);
+
+								parsed = img.Data;
+								xx = img.Width;
+								yy = img.Height;
+								ccomp = img.SourceComp;
 
 								x = xx;
 								y = yy;
@@ -163,7 +168,12 @@ namespace StbSharp.Tests
 					ParseTest(
 						(out int xx, out int yy, out int ccomp) =>
 						{
-							var res = Stb.LoadFromMemory(data, out xx, out yy, out ccomp, Stb.STBI_default);
+							var img = Stb.LoadFromMemory(data);
+
+							var res = img.Data;
+							xx = img.Width;
+							yy = img.Height;
+							ccomp = img.SourceComp;
 
 							x = xx;
 							y = yy;
@@ -185,20 +195,27 @@ namespace StbSharp.Tests
 							continue;
 						}
 
-						Log("Saving as {0} with StbSharp", ((ImageWriterType) k).ToString());
+						Log("Saving as {0} with StbSharp", ((ImageWriterFormat) k).ToString());
 						byte[] save;
 						BeginWatch();
 						using (var stream = new MemoryStream())
 						{
-							var writer = new ImageWriterToStream();
-							writer.Write(parsed, x, y, comp, (ImageWriterType) k, stream);
+							var writer = new ImageWriter();
+							var image = new Image
+							{
+								Comp = comp,
+								Data = parsed,
+								Width = x,
+								Height = y
+							};
+							writer.Write(image, (ImageWriterFormat) k, stream);
 							save = stream.ToArray();
 						}
 						var passed = EndWatch();
 						Log("Span: {0} ms", passed);
 						Log("StbSharp Size: {0}", save.Length);
 
-						Log("Saving as {0} with Stb.Native", ((ImageWriterType) k).ToString());
+						Log("Saving as {0} with Stb.Native", ((ImageWriterFormat) k).ToString());
 						BeginWatch();
 						byte[] save2;
 						using (var stream = new MemoryStream())

@@ -16,14 +16,13 @@ Then add StbSharp.dll reference manually.
 ### Loading Image
 StbSharp has same API as STB. Therefore the STB documentation is valid for StbSharp as well.
 However some wrapper classes and functions had been added.
-I.e. 'ImageReaderFromStream' class wraps the call to 'stbi_load_from_callbacks' method.
+I.e. 'ImageReader' class wraps the call to 'stbi_load_from_callbacks' method.
 It could be used following way:
 ```c#
-ImageReaderFromStream loader = new ImageReaderFromStream();
-int x, y, comp;
+ImageReader loader = new ImageReader();
 using (Stream stream = File.Open(path, FileMode.Open)) 
 {
-	byte[] data = loader.Read(ms, out x, out y, out comp, Stb.STBI_rgb_alpha);
+	Image image = loader.Read(ms, Stb.STBI_rgb_alpha);
 }
 ```
 
@@ -31,20 +30,20 @@ Or 'LoadFromMemory' method wraps 'stbi_load_from_memory':
 ```c# 
 byte[] buffer = File.ReadAllBytes(path);
 int x, y, comp;
-byte[] data = Stb.LoadFromMemory(buffer, out x, out y, out comp, Stb.STBI_rgb_alpha);
+Image image = Stb.LoadFromMemory(buffer, Stb.STBI_rgb_alpha);
 ```
 
 Both code samples will try to load an image (JPG/PNG/BMP/TGA/PSD/PIC/GIF) located at 'path'. It'll throw Exception on failure.
-If the loading is succesful then it'll return byte array containing image in the 32-bit RGBA representation.
 
 If you are writing MonoGame application and would like to convert that data to the Texture2D. It could be done following way:
 ```c#
-Texture2D texture = new Texture2D(GraphicsDevice, x, y, false, SurfaceFormat.Color);
-texture.SetData(data);
+Texture2D texture = new Texture2D(GraphicsDevice, image.Width, image.Height, false, SurfaceFormat.Color);
+texture.SetData(image.Data);
 ```
 
 Or if you are writing WinForms app and would like StbSharp resulting bytes to be converted to the Bitmap. The sample code is:
 ```c#
+byte[] data = image.Data;
 // Convert rgba to bgra
 for (int i = 0; i < x*y; ++i)
 {
@@ -61,8 +60,9 @@ for (int i = 0; i < x*y; ++i)
 }
 
 // Create Bitmap
-Bitmap bmp = new Bitmap(x, y, PixelFormat.Format32bppArgb);
-BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, x, y), ImageLockMode.WriteOnly, bmp.PixelFormat);
+Bitmap bmp = new Bitmap(_loadedImage.Width, _loadedImage.Height, PixelFormat.Format32bppArgb);
+BitmapData bmpData = bmp.LockBits(new Rectangle(0, 0, _loadedImage.Width, _loadedImage.Height), ImageLockMode.WriteOnly,
+	bmp.PixelFormat);
 
 Marshal.Copy(data, 0, bmpData.Scan0, bmpData.Stride*bmp.Height);
 bmp.UnlockBits(bmpData);
@@ -70,12 +70,19 @@ bmp.UnlockBits(bmpData);
 
 ### Saving Image
 StbSharp can write images in BMP, TGA, PNG and HDR formats.
-Sample code:
+Sample code for writing an image represented as RGBA byte array `data`:
 ```c#
 using (Stream stream = File.OpenWrite(path))
 {
-	ImageWriterToStream writer = new ImageWriterToStream();
-	writer.Write(data, x, y, comp, Stb.ImageWriterType.Png, stream);
+	ImageWriter writer = new ImageWriter();
+	Image image = new Image
+	{
+		Data = data,
+		Width = width,
+		Height = height,
+		Comp = 4
+	};
+	writer.Write(image, Stb.ImageWriterType.Png, stream);
 }
 ```
 
