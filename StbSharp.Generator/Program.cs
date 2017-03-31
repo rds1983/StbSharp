@@ -19,9 +19,10 @@ namespace Generator
 						"STBI_NO_SIMD",
 						"STBI_NO_LINEAR",
 						"STBI_NO_HDR",
+						"STBI_NO_PIC",
+						"STBI_NO_PNM",
 						"STBI_NO_STDIO",
 						"STB_IMAGE_IMPLEMENTATION",
-						"STBI_NO_PNM"
 					},
 					Namespace = "StbSharp",
 					Class = "Stb",
@@ -49,7 +50,8 @@ namespace Generator
 						"stbi_is_hdr_from_callbacks",
 						"stbi__pnm_isspace",
 						"stbi__pnm_skip_whitespace",
-						"stbi__pic_is4"
+						"stbi__pic_is4",
+						"stbi__gif_parse_colortable"
 					},
 					Structs = new[]
 					{
@@ -62,7 +64,20 @@ namespace Generator
 						"stbi__huffman",
 						"stbi__zhuffman",
 						"stbi__zbuf",
-
+					},
+					GlobalArrays = new[]
+					{
+						"stbi__bmask",
+						"stbi__jbias",
+						"stbi__jpeg_dezigzag",
+						"stbi__zlength_base",
+						"stbi__zlength_extra",
+						"stbi__zdist_base",
+						"stbi__zdist_extra",
+						"first_row_filter",
+						"stbi__depth_scale_table",
+						"stbi__zdefault_length",
+						"stbi__zdefault_distance"
 					}
 				};
 
@@ -76,28 +91,26 @@ namespace Generator
 
 				data = data.Replace("s.io.read = ((void *)(0));",
 					"s.io.read = null;");
-				data = data.Replace("s.buflen = (int)(Operations.SizeOf((s.buffer_start)));",
-					"s.buflen = 128;");
-				data = data.Replace("memset(data, (int)(0), (ulong)(64 * (data[0]).Size));",
-					"memset(data, 0, 64 * sizeof(short));");
-				data = data.Replace("memset(((int*)(sizes)), (int)(0), (ulong)((sizes).Size));",
-					"memset(((int*)(sizes)), (int)(0), (ulong)(17 * sizeof(int)));");
-				data = data.Replace("memset(((ushort*)(z->fast)), (int)(0), (ulong)((z->fast).Size));",
+				data = data.Replace("sizeof((s.buffer_start))",
+					"s.buffer_start.Size");
+				data = data.Replace("sizeof((data[0]))", "sizeof(short)");
+				data = data.Replace("sizeof((sizes))", "sizeof(int)");
+				data = data.Replace("memset(((ushort*)(z->fast)), (int)(0), (ulong)(sizeof((z->fast))));",
 					"memset(((ushort*)(z->fast)), (int)(0), (ulong)((1 << 9) * sizeof(ushort)));");
-				data = data.Replace("memset(((byte*)(codelength_sizes)), (int)(0), (ulong)((codelength_sizes).Size));",
+				data = data.Replace("memset(((byte*)(codelength_sizes)), (int)(0), (ulong)(sizeof((codelength_sizes))));",
 					"memset(((byte*)(codelength_sizes)), (int)(0), (ulong)(19 * sizeof(byte)));");
 
 				data = data.Replace("short* d = ((short*)data.Pointer);",
 					"short* d = data;");
-				data = data.Replace("ArrayPointer<byte*> coutput = new ArrayPointer<byte>(4);",
-					"var coutput = new byte *[4];");
-				data = data.Replace("ArrayPointer<stbi__resample> res_comp = new ArrayPointer<stbi__resample>(4);",
+				data = data.Replace("byte** coutput = stackalloc byte[4];",
+					"byte** coutput = stackalloc byte *[4];");
+				data = data.Replace("stbi__resample res_comp = new PinnedArray<stbi__resample>(4);",
 					"var res_comp = new stbi__resample[4]; for (var kkk = 0; kkk < res_comp.Length; ++kkk) res_comp[kkk] = new stbi__resample();");
 				data = data.Replace("((byte**)coutput.Pointer)",
 					"coutput");
-				data = data.Replace("stbi__jpeg j = (stbi__jpeg)(stbi__malloc((ulong)(.Size)));",
+				data = data.Replace("stbi__jpeg j = (stbi__jpeg)(stbi__malloc((ulong)(sizeof(stbi__jpeg)))));",
 					"stbi__jpeg j = new stbi__jpeg();");
-				data = data.Replace("stbi__jpeg j = ((stbi__jpeg)(stbi__malloc((ulong)(.Size))));",
+				data = data.Replace("stbi__jpeg j = (stbi__jpeg)((stbi__malloc((ulong)(sizeof(stbi__jpeg))))));",
 					"stbi__jpeg j = new stbi__jpeg();");
 				data = data.Replace("stbi__jpeg j = (stbi__jpeg)((stbi__malloc((ulong)(.Size))));",
 					"stbi__jpeg j = new stbi__jpeg();");
@@ -125,16 +138,32 @@ namespace Generator
 					"int r = (((stbi__get32be(s)) == (0x38425053)))?1:0;");
 				data = data.Replace("(packets).Size / (packets[0]).Size",
 					"packets.Size");
-				data = data.Replace("stbi__gif g = (stbi__gif)(stbi__malloc((ulong)(.Size)));",
+				data = data.Replace("stbi__gif g = (stbi__gif)(stbi__malloc((ulong)(sizeof(stbi__gif)))));",
 					"stbi__gif g = new stbi__gif();");
 				data = data.Replace("free(g);",
 					string.Empty);
-				data = data.Replace("memset(g, (int)(0), (ulong)((stbi__gif)(g).Size));",
+				data = data.Replace("memset(g, (int)(0), (ulong)(sizeof((g))));",
 					string.Empty);
 				data = data.Replace("if (((g.transparent) >= (0)) && ((g.eflags & 0x01)))",
 					"if (((g.transparent) >= (0)) && ((g.eflags & 0x01) != 0))");
+				data = data.Replace("&((stbi__huffman*)(z.huff_dc))[z.img_comp[n].hd]",
+					"(stbi__huffman*)z.huff_dc + z.img_comp[n].hd");
+				data = data.Replace("&((stbi__huffman*)(z.huff_ac))[ha]",
+					"(stbi__huffman*)z.huff_ac + ha");
+				data = data.Replace("&((stbi__gif_lzw*)(g.codes))[avail++]",
+					"(stbi__gif_lzw*)g.codes + avail++");
+				data = data.Replace("((byte*)(tc))[k] = ((byte)(stbi__get16be(s) & 255) * stbi__depth_scale_table[z.depth]);",
+					"((byte*)(tc))[k] = (byte)((byte)(stbi__get16be(s) & 255) * stbi__depth_scale_table[z.depth]);");
+				data = data.Replace("byte** pal = stackalloc byte[256];",
+					"byte* pal = stackalloc byte[256 * 4];");
+				data = data.Replace("tga_data = (byte*)(stbi__malloc((ulong)(tga_width) * tga_height * tga_comp));",
+					"tga_data = (byte*)(stbi__malloc(tga_width * tga_height * tga_comp));");
+				data = data.Replace("case 0x3B:return (byte*)(s);",
+					"case 0x3B:return null;");
+				data = data.Replace("if ((u) == ((byte*)(s))) u = ((byte*)(0));",
+					string.Empty);
 
-				File.WriteAllText(@"..\..\..\..\StbSharp\Image.Generated.cs", data);
+				File.WriteAllText(@"..\..\..\..\StbSharp\Stb.Image.Generated.cs", data);
 			}
 		}
 
@@ -173,7 +202,14 @@ namespace Generator
 						"stbi_write_png_to_func",
 						"stbi_write_hdr_core",
 					},
-					Structs = new string[0]
+					GlobalArrays = new[]
+					{
+						"lengthc",
+						"lengtheb",
+						"distc",
+						"disteb",
+						"crc_table"
+					}
 				};
 
 				var cp = new ClangParser();
@@ -190,13 +226,13 @@ namespace Generator
 					"*arr != null?");
 				data = data.Replace("sizeof(int)* * 2",
 					"sizeof(int) * 2");
-				data = data.Replace("(int)((*(data)).Size)",
+				data = data.Replace("(int)(sizeof((*(data))))",
 					"sizeof(byte)");
-				data = data.Replace("(int)((*(_out_)).Size)",
+				data = data.Replace("(int)(sizeof((*(_out_))))",
 					"sizeof(byte)");
-				data = data.Replace("(int)((*(hash_table[h])).Size)",
+				data = data.Replace("(int)(sizeof((*(hash_table[h]))))",
 					"sizeof(byte*)");
-				data = data.Replace("(hash_table[h][0]).Size",
+				data = data.Replace("sizeof((hash_table[h][0]))",
 					"sizeof(byte*)");
 				data = data.Replace("(byte***)(malloc((ulong)(16384 * sizeof(char**)))))",
 					"(byte***)(malloc((ulong)(16384 * sizeof(byte**))))");
@@ -205,61 +241,67 @@ namespace Generator
 				data = data.Replace("(hash_table[i])?",
 					"(hash_table[i] != null)?");
 
-				File.WriteAllText(@"..\..\..\..\StbSharp\ImageWriter.Generated.cs", data);
+				File.WriteAllText(@"..\..\..\..\StbSharp\Stb.ImageWrite.Generated.cs", data);
 			}
 		}
 
 
-        static void ProcessImageResize()
-        {
-            using (var output = new StringWriter())
-            {
-	            var parameters = new ConversionParameters
-	            {
-		            InputPath = @"D:\Projects\StbSharp\StbSharp.Generator\StbSource\stb_image_resize.h",
-		            Output = output,
-		            Defines = new[]
-		            {
-			            "STB_IMAGE_RESIZE_IMPLEMENTATION"
-		            },
-		            Namespace = "StbSharp",
-		            Class = "Stb",
-		            SkipStructs = new[]
-		            {
-			            "stbir__filter_info",
+		static void ProcessImageResize()
+		{
+			using (var output = new StringWriter())
+			{
+				var parameters = new ConversionParameters
+				{
+					InputPath = @"D:\Projects\StbSharp\StbSharp.Generator\StbSource\stb_image_resize.h",
+					Output = output,
+					Defines = new[]
+					{
+						"STB_IMAGE_RESIZE_IMPLEMENTATION"
+					},
+					Namespace = "StbSharp",
+					Class = "Stb",
+					SkipStructs = new[]
+					{
+						"stbir__filter_info",
 						"stbir__info",
 						"stbir__FP32"
-		            },
-		            SkipGlobalVariables = new[]
-		            {
-			            "stbir__filter_info_table"
-		            },
-		            SkipFunctions = new[]
-		            {
-			            "stbir__linear_to_srgb_uchar",
-			            "stbiw__writefv",
-			            "stbiw__writef",
-			            "stbiw__outfile",
-			            "stbi_write_bmp_to_func",
-			            "stbi_write_tga_to_func",
-			            "stbi_write_hdr_to_func",
-			            "stbi_write_png_to_func",
-			            "stbi_write_hdr_core",
-		            },
-		            Structs = new[]
-		            {
-			            "stbir__contributors",
+					},
+					SkipGlobalVariables = new[]
+					{
+						"stbir__filter_info_table"
+					},
+					SkipFunctions = new[]
+					{
+						"stbir__linear_to_srgb_uchar",
+						"stbiw__writefv",
+						"stbiw__writef",
+						"stbiw__outfile",
+						"stbi_write_bmp_to_func",
+						"stbi_write_tga_to_func",
+						"stbi_write_hdr_to_func",
+						"stbi_write_png_to_func",
+						"stbi_write_hdr_core",
+					},
+					Structs = new[]
+					{
+						"stbir__contributors",
 						"stbir__FP32"
-		            }
-	            };
+					},
+					GlobalArrays = new[]
+					{
+						"stbir__type_size",
+						"stbir__srgb_uchar_to_linear_float",
+						"fp32_to_srgb8_tab4"
+					}
+				};
 
-                var cp = new ClangParser();
+				var cp = new ClangParser();
 
-                cp.Process(parameters);
-                var data = output.ToString();
+				cp.Process(parameters);
+				var data = output.ToString();
 
-                // Post processing
-                Logger.Info("Post processing...");
+				// Post processing
+				Logger.Info("Post processing...");
 
 /*                data = data.Replace("int has_alpha = (int)(((comp) == (2)) || ((comp) == (4)));",
                     "int has_alpha = (((comp) == (2)) || ((comp) == (4)))?1:0;");
@@ -282,9 +324,9 @@ namespace Generator
                 data = data.Replace("(hash_table[i])?",
                     "(hash_table[i] != null)?");*/
 
-                File.WriteAllText(@"..\..\..\..\StbSharp\ImageResize.Generated.cs", data);
-            }
-        }
+				File.WriteAllText(@"..\..\..\..\StbSharp\Stb.ImageResize.Generated.cs", data);
+			}
+		}
 
 		static void Main(string[] args)
 		{

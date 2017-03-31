@@ -9,7 +9,7 @@ namespace StbSharp.Tests
 {
 	internal static class Program
 	{
-		private const int LoadTries = 100;
+		private const int LoadTries = 10;
 
 		private static readonly Stopwatch _sw = new Stopwatch();
 
@@ -189,12 +189,6 @@ namespace StbSharp.Tests
 
 					for (var k = 0; k <= 3; ++k)
 					{
-						// Skip HDR for now
-						if (k == 2)
-						{
-							continue;
-						}
-
 						Log("Saving as {0} with StbSharp", ((ImageWriterFormat) k).ToString());
 						byte[] save;
 						BeginWatch();

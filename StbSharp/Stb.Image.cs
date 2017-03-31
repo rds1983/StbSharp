@@ -10,18 +10,18 @@ namespace StbSharp
 
 		public const int STBI__ZFAST_BITS = 9;
 
-		public unsafe delegate int ReadCallback(void* user, sbyte* data, int size);
+		public delegate int ReadCallback(void* user, sbyte* data, int size);
 
-		public unsafe delegate int SkipCallback(void* user, int n);
+		public delegate int SkipCallback(void* user, int n);
 
-		public unsafe delegate int EofCallback(void* user);
+		public delegate int EofCallback(void* user);
 
-		public unsafe delegate void idct_block_kernel(byte* output, int out_stride, short* data);
+		public delegate void idct_block_kernel(byte* output, int out_stride, short* data);
 
-		public unsafe delegate void YCbCr_to_RGB_kernel(
+		public delegate void YCbCr_to_RGB_kernel(
 			byte* output, byte* y, byte* pcb, byte* pcr, int count, int step);
 
-		public unsafe delegate byte* Resampler(byte* a, byte* b, byte* c, int d, int e);
+		public delegate byte* Resampler(byte* a, byte* b, byte* c, int d, int e);
 
 		public static string stbi__g_failure_reason;
 		public static int stbi__vertically_flip_on_load;
@@ -34,7 +34,7 @@ namespace StbSharp
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe struct img_comp
+		public struct img_comp
 		{
 			public int id;
 			public int h, v;
@@ -117,7 +117,7 @@ namespace StbSharp
 			}
 		};
 
-		public unsafe class stbi__resample
+		public class stbi__resample
 		{
 			public Resampler resample;
 			public byte* line0;
@@ -137,7 +137,7 @@ namespace StbSharp
 			public byte suffix;
 		}
 
-		public unsafe class stbi__gif
+		public class stbi__gif
 		{
 			public int w;
 			public int h;
@@ -172,17 +172,17 @@ namespace StbSharp
 			}
 		}
 
-		private static unsafe void* stbi__malloc(int size)
+		private static void* stbi__malloc(int size)
 		{
 			return Operations.Malloc(size);
 		}
 
-		private static unsafe void* stbi__malloc(ulong size)
+		private static void* stbi__malloc(ulong size)
 		{
 			return stbi__malloc((int) size);
 		}
 
-		private static unsafe void* malloc(ulong size)
+		private static void* malloc(ulong size)
 		{
 			return stbi__malloc(size);
 		}
@@ -193,42 +193,42 @@ namespace StbSharp
 			return 0;
 		}
 
-		private static unsafe void memcpy(void* a, void* b, long size)
+		private static void memcpy(void* a, void* b, long size)
 		{
 			Operations.Memcpy(a, b, size);
 		}
 
-		private static unsafe void memcpy(void* a, void* b, ulong size)
+		private static void memcpy(void* a, void* b, ulong size)
 		{
 			memcpy(a, b, (long) size);
 		}
 
-		private static unsafe void memmove(void* a, void* b, long size)
+		private static void memmove(void* a, void* b, long size)
 		{
 			Operations.MemMove(a, b, size);
 		}
 
-		private static unsafe void memmove(void* a, void* b, ulong size)
+		private static void memmove(void* a, void* b, ulong size)
 		{
 			memmove(a, b, (long) size);
 		}
 
-		private static unsafe int memcmp(void* a, void* b, long size)
+		private static int memcmp(void* a, void* b, long size)
 		{
 			return Operations.Memcmp(a, b, size);
 		}
 
-		private static unsafe int memcmp(void* a, void* b, ulong size)
+		private static int memcmp(void* a, void* b, ulong size)
 		{
 			return memcmp(a, b, (long) size);
 		}
 
-		private static unsafe void free(void* a)
+		private static void free(void* a)
 		{
 			Operations.Free(a);
 		}
 
-		private static unsafe void memset(void* ptr, int value, long size)
+		private static void memset(void* ptr, int value, long size)
 		{
 			byte* bptr = (byte*) ptr;
 			var bval = (byte) value;
@@ -238,7 +238,7 @@ namespace StbSharp
 			}
 		}
 
-		private static unsafe void memset(void* ptr, int value, ulong size)
+		private static void memset(void* ptr, int value, ulong size)
 		{
 			memset(ptr, value, (long) size);
 		}
@@ -248,12 +248,12 @@ namespace StbSharp
 			return (x << y) | (x >> (32 - y));
 		}
 
-		private static unsafe void* realloc(void* ptr, long newSize)
+		private static void* realloc(void* ptr, long newSize)
 		{
 			return Operations.Realloc(ptr, newSize);
 		}
 
-		private static unsafe void* realloc(void* ptr, ulong newSize)
+		private static void* realloc(void* ptr, ulong newSize)
 		{
 			return realloc(ptr, (long) newSize);
 		}
@@ -261,6 +261,18 @@ namespace StbSharp
 		private static int abs(int v)
 		{
 			return Math.Abs(v);
+		}
+
+		public static void stbi__gif_parse_colortable(stbi__context s, byte* pal, int num_entries, int transp)
+		{
+			int i;
+			for (i = 0; (i) < (num_entries); ++i)
+			{
+				pal[i * 4 + 2] = stbi__get8(s);
+				pal[i * 4 + 1] = stbi__get8(s);
+				pal[i * 4] = stbi__get8(s);
+				pal[i * 4 + 3] = (byte)(transp == i ? 0 : 255);
+			}
 		}
 
 		public const long DBL_EXP_MASK = 0x7ff0000000000000L;
@@ -275,7 +287,7 @@ namespace StbSharp
 		/// <param name="number"></param>
 		/// <param name="exponent"></param>
 		/// <returns></returns>
-		private static unsafe double frexp(double number, int* exponent)
+		private static double frexp(double number, int* exponent)
 		{
 			var bits = BitConverter.DoubleToInt64Bits(number);
 			var exp = (int) ((bits & DBL_EXP_MASK) >> DBL_MANT_BITS);
@@ -300,36 +312,6 @@ namespace StbSharp
 			}
 
 			return number;
-		}
-
-		public static int stbi__pnm_isspace(sbyte c)
-		{
-			return (c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r') ? 1 : 0;
-		}
-
-		public static unsafe void stbi__pnm_skip_whitespace(stbi__context s, sbyte* c)
-		{
-			for (;;)
-			{
-				while (stbi__at_eof(s) == 0 && stbi__pnm_isspace(*c) != 0)
-					*c = (sbyte) stbi__get8(s);
-
-				if (stbi__at_eof(s) != 0 || *c != '#')
-					break;
-
-				while (stbi__at_eof(s) == 0 && *c != '\n' && *c != '\r')
-					*c = (sbyte) stbi__get8(s);
-			}
-		}
-
-		public static int stbi__pic_is4(stbi__context s, string str)
-		{
-			int i;
-			for (i = 0; (i) < (4); ++i)
-			{
-				if (stbi__get8(s) != str[i]) return 0;
-			}
-			return 1;
 		}
 
 		public static Image LoadFromMemory(byte[] bytes, int req_comp = STBI_default)

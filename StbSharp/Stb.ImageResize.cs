@@ -130,7 +130,7 @@ namespace StbSharp
 			if (!(_in_ > minval.f)) _in_ = minval.f;
 			if (_in_ > almostone.f) _in_ = almostone.f;
 			f.f = _in_;
-			tab = ((uint*) fp32_to_srgb8_tab4)[(f.u - minval.u) >> 20];
+			tab = fp32_to_srgb8_tab4[(f.u - minval.u) >> 20];
 			bias = (tab >> 16) << 9;
 			scale = tab & 0xffff;
 			t = (f.u >> 12) & 0xff;

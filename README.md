@@ -1,7 +1,7 @@
 ### About
 StbSharp is C# image decoding/encoding library. 
 It is port of famous C library: [https://github.com/nothings/stb](https://github.com/nothings/stb)  
-Right now, it can load images in JPG, PNG, BMP, TGA, PSD, PIC and GIF formats. And write in BMP, TGA, PNG and HDR formats.
+Right now, it can load images in JPG, PNG, BMP, TGA, PSD and GIF formats. And write in BMP, TGA, PNG and HDR formats.
 
 ### Adding Reference to StbSharp
 StbSharp.dll is PCL and therefore could be used on the broad range of platforms.
@@ -33,7 +33,7 @@ int x, y, comp;
 Image image = Stb.LoadFromMemory(buffer, Stb.STBI_rgb_alpha);
 ```
 
-Both code samples will try to load an image (JPG/PNG/BMP/TGA/PSD/PIC/GIF) located at 'path'. It'll throw Exception on failure.
+Both code samples will try to load an image (JPG/PNG/BMP/TGA/PSD/GIF) located at 'path'. It'll throw Exception on failure.
 
 If you are writing MonoGame application and would like to convert that data to the Texture2D. It could be done following way:
 ```c#

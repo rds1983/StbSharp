@@ -2,25 +2,25 @@
 
 namespace StbSharp
 {
-	partial class Stb
+	unsafe partial class Stb
 	{
 		public static int stbi_write_tga_with_rle = 1;
 
-		public unsafe delegate int WriteCallback(void* context, void* data, int size);
+		public delegate int WriteCallback(void* context, void* data, int size);
 
-		public unsafe class stbi__write_context
+		public class stbi__write_context
 		{
 			public WriteCallback func;
 			public void* context;
 		}
 
-		public static unsafe void stbi__start_write_callbacks(stbi__write_context s, WriteCallback c, void* context)
+		public static void stbi__start_write_callbacks(stbi__write_context s, WriteCallback c, void* context)
 		{
 			s.func = c;
 			s.context = context;
 		}
 
-		public static unsafe void stbiw__writefv(stbi__write_context s, string fmt, params object[] v)
+		public static void stbiw__writefv(stbi__write_context s, string fmt, params object[] v)
 		{
 			var vindex = 0;
 			for (var i = 0; i < fmt.Length; ++i)
@@ -65,7 +65,7 @@ namespace StbSharp
 			stbiw__writefv(s, fmt, v);
 		}
 
-		public static unsafe int stbiw__outfile(stbi__write_context s, int rgb_dir, int vdir, int x, int y, int comp,
+		public static int stbiw__outfile(stbi__write_context s, int rgb_dir, int vdir, int x, int y, int comp,
 			int expand_mono, void* data, int alpha, int pad, string fmt, params object[] v)
 		{
 			if ((y < 0) || (x < 0))
@@ -78,7 +78,7 @@ namespace StbSharp
 			return 1;
 		}
 
-		public static unsafe int stbi_write_bmp_to_func(WriteCallback func,
+		public static int stbi_write_bmp_to_func(WriteCallback func,
 			void* context,
 			int x,
 			int y,
@@ -91,7 +91,7 @@ namespace StbSharp
 			return stbi_write_bmp_core(s, x, y, comp, data);
 		}
 
-		public static unsafe int stbi_write_tga_to_func(WriteCallback func,
+		public static int stbi_write_tga_to_func(WriteCallback func,
 			void* context,
 			int x,
 			int y,
@@ -104,7 +104,7 @@ namespace StbSharp
 			return stbi_write_tga_core(s, x, y, comp, data);
 		}
 
-		public static unsafe int stbi_write_hdr_to_func(WriteCallback func,
+		public static int stbi_write_hdr_to_func(WriteCallback func,
 			void* context,
 			int x,
 			int y,
@@ -117,7 +117,7 @@ namespace StbSharp
 			return stbi_write_hdr_core(s, x, y, comp, data);
 		}
 
-		public static unsafe int stbi_write_png_to_func(WriteCallback func,
+		public static int stbi_write_png_to_func(WriteCallback func,
 			void* context,
 			int x,
 			int y,
@@ -134,7 +134,7 @@ namespace StbSharp
 			return 1;
 		}
 
-		public static unsafe int stbi_write_hdr_core(stbi__write_context s, int x, int y, int comp, float* data)
+		public static int stbi_write_hdr_core(stbi__write_context s, int x, int y, int comp, float* data)
 		{
 			if ((y <= 0) || (x <= 0) || (data == null))
 			{

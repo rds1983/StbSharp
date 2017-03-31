@@ -25,7 +25,7 @@ namespace StbSharp.WinForms.Test
 				using (var dlg = new OpenFileDialog())
 				{
 					dlg.Filter =
-						"PNG Files (*.png)|*.png|JPEG Files (*.jpg)|*.jpg|BMP Files (*.bmp)|*.bmp|PSD Files (*.psd)|*.psd|PIC Files (*.pic)|*.pic|TGA Files (*.tga)|*.tga|GIF Files (*.gif)|*.gif|All Files (*.*)|*.*";
+						"PNG Files (*.png)|*.png|JPEG Files (*.jpg)|*.jpg|BMP Files (*.bmp)|*.bmp|PSD Files (*.psd)|*.psd|TGA Files (*.tga)|*.tga|GIF Files (*.gif)|*.gif|All Files (*.*)|*.*";
 					if (dlg.ShowDialog() != DialogResult.OK)
 					{
 						return;
