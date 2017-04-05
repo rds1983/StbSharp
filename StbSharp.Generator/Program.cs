@@ -77,7 +77,8 @@ namespace Generator
 						"first_row_filter",
 						"stbi__depth_scale_table",
 						"stbi__zdefault_length",
-						"stbi__zdefault_distance"
+						"stbi__zdefault_distance",
+						"length_dezigzag"
 					}
 				};
 
@@ -332,9 +333,9 @@ namespace Generator
 		{
 			try
 			{
-				// ProcessImage();
+				ProcessImage();
 				// ProcessImageWriter();
-				ProcessImageResize();
+				// ProcessImageResize();
 			}
 			catch (Exception ex)
 			{
