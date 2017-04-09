@@ -78,7 +78,8 @@ namespace Generator
 						"stbi__depth_scale_table",
 						"stbi__zdefault_length",
 						"stbi__zdefault_distance",
-						"length_dezigzag"
+						"length_dezigzag",
+						"png_sig"
 					}
 				};
 
