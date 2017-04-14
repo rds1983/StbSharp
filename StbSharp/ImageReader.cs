@@ -16,11 +16,11 @@ namespace StbSharp
 		private Stream _stream;
 		private byte[] _buffer = new byte[1024];
 
-		private readonly Stb.stbi_io_callbacks _callbacks;
+		private readonly StbImage.stbi_io_callbacks _callbacks;
 
 		public ImageReader()
 		{
-			_callbacks = new Stb.stbi_io_callbacks
+			_callbacks = new StbImage.stbi_io_callbacks
 			{
 				read = ReadCallback,
 				skip = SkipCallback,
@@ -30,7 +30,7 @@ namespace StbSharp
 
 		private int SkipCallback(void* user, int i)
 		{
-			return (int)_stream.Seek(i, SeekOrigin.Current);
+			return (int) _stream.Seek(i, SeekOrigin.Current);
 		}
 
 		private int Eof(void* user)
@@ -42,7 +42,7 @@ namespace StbSharp
 		{
 			if (size > _buffer.Length)
 			{
-				_buffer = new byte[size * 2];
+				_buffer = new byte[size*2];
 			}
 
 			var res = _stream.Read(_buffer, 0, size);
@@ -50,26 +50,26 @@ namespace StbSharp
 			return res;
 		}
 
-		public Image Read(Stream stream, int req_comp = Stb.STBI_default)
+		public Image Read(Stream stream, int req_comp = StbImage.STBI_default)
 		{
 			_stream = stream;
 
 			try
 			{
 				int x, y, comp;
-				var result = Stb.stbi_load_from_callbacks(_callbacks, null, &x, &y, &comp, req_comp);
+				var result = StbImage.stbi_load_from_callbacks(_callbacks, null, &x, &y, &comp, req_comp);
 
 				var image = new Image
 				{
 					Width = x,
 					Height = y,
 					SourceComp = comp,
-					Comp = req_comp == Stb.STBI_default ? comp : req_comp
+					Comp = req_comp == StbImage.STBI_default ? comp : req_comp
 				};
 
 				if (result == null)
 				{
-					throw new Exception(Stb.LastError);
+					throw new Exception(StbImage.LastError);
 				}
 
 				// Convert to array
@@ -96,20 +96,20 @@ namespace StbSharp
 				var res = new List<AnimatedGifFrame>();
 				_stream = stream;
 
-				var context = new Stb.stbi__context();
-				Stb.stbi__start_callbacks(context, _callbacks, null);
+				var context = new StbImage.stbi__context();
+				StbImage.stbi__start_callbacks(context, _callbacks, null);
 
-				if (Stb.stbi__gif_test(context) == 0)
+				if (StbImage.stbi__gif_test(context) == 0)
 				{
 					throw new Exception("Input stream is not GIF file.");
 				}
 
-				var g = new Stb.stbi__gif();
+				var g = new StbImage.stbi__gif();
 
 				do
 				{
 					int ccomp;
-					var result = Stb.stbi__gif_load_next(context, g, &ccomp, req_comp);
+					var result = StbImage.stbi__gif_load_next(context, g, &ccomp, req_comp);
 					if (result == null)
 					{
 						break;
@@ -117,7 +117,7 @@ namespace StbSharp
 
 					comp = ccomp;
 					var c = req_comp != 0 ? req_comp : comp;
-					var data = new byte[g.w * g.h * c];
+					var data = new byte[g.w*g.h*c];
 					Marshal.Copy(new IntPtr(result), data, 0, data.Length);
 					Operations.Free(result);
 

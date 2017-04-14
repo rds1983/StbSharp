@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace StbSharp
 {
-	unsafe partial class Stb
+	unsafe partial class StbImage
 	{
 		public class stbi__context
 		{
@@ -309,7 +309,7 @@ namespace StbSharp
 			{
 				reduced[i] = ((byte) ((orig[i] >> 8) & 0xFF));
 			}
-			free(orig);
+			CRuntime.free(orig);
 			return reduced;
 		}
 
@@ -325,7 +325,7 @@ namespace StbSharp
 			{
 				enlarged[i] = ((ushort) ((orig[i] << 8) + orig[i]));
 			}
-			free(orig);
+			CRuntime.free(orig);
 			return enlarged;
 		}
 
@@ -343,9 +343,9 @@ namespace StbSharp
 				while ((bytes_left) != 0)
 				{
 					ulong bytes_copy = (ulong) (((bytes_left) < (2048)) ? bytes_left : 2048);
-					memcpy(temp, row0, (ulong) (bytes_copy));
-					memcpy(row0, row1, (ulong) (bytes_copy));
-					memcpy(row1, temp, (ulong) (bytes_copy));
+					CRuntime.memcpy(temp, row0, (ulong) (bytes_copy));
+					CRuntime.memcpy(row0, row1, (ulong) (bytes_copy));
+					CRuntime.memcpy(row1, temp, (ulong) (bytes_copy));
 					row0 += bytes_copy;
 					row1 += bytes_copy;
 					bytes_left -= (ulong) (bytes_copy);
@@ -510,7 +510,7 @@ namespace StbSharp
 				{
 					int res;
 					int count;
-					memcpy(buffer, s.img_buffer, (ulong) (blen));
+					CRuntime.memcpy(buffer, s.img_buffer, (ulong) (blen));
 					count = (int) (s.io.read(s.io_user_data, (sbyte*) (buffer) + blen, (int) (n - blen)));
 					res = (int) ((count) == (n - blen) ? 1 : 0);
 					s.img_buffer = s.img_buffer_end;
@@ -520,7 +520,7 @@ namespace StbSharp
 
 			if (s.img_buffer + n <= s.img_buffer_end)
 			{
-				memcpy(buffer, s.img_buffer, (ulong) (n));
+				CRuntime.memcpy(buffer, s.img_buffer, (ulong) (n));
 				s.img_buffer += n;
 				return (int) (1);
 			}
@@ -565,7 +565,7 @@ namespace StbSharp
 			good = (byte*) (stbi__malloc_mad3((int) (req_comp), (int) (x), (int) (y), (int) (0)));
 			if ((good) == (null))
 			{
-				free(data);
+				CRuntime.free(data);
 				return ((byte*) ((ulong) ((stbi__err("outofmem")) != 0 ? ((byte*) null) : (null))));
 			}
 
@@ -661,7 +661,7 @@ namespace StbSharp
 						return ((byte*) ((ulong) ((stbi__err("0")) != 0 ? ((byte*) null) : (null))));
 				}
 			}
-			free(data);
+			CRuntime.free(data);
 			return good;
 		}
 
@@ -679,7 +679,7 @@ namespace StbSharp
 			good = (ushort*) (stbi__malloc((ulong) (req_comp*x*y*2)));
 			if ((good) == (null))
 			{
-				free(data);
+				CRuntime.free(data);
 				return (ushort*) ((byte*) ((ulong) ((stbi__err("outofmem")) != 0 ? ((byte*) null) : (null))));
 			}
 
@@ -775,7 +775,7 @@ namespace StbSharp
 						return (ushort*) ((byte*) ((ulong) ((stbi__err("0")) != 0 ? ((byte*) null) : (null))));
 				}
 			}
-			free(data);
+			CRuntime.free(data);
 			return good;
 		}
 
@@ -810,7 +810,7 @@ namespace StbSharp
 				code <<= 1;
 			}
 			h->maxcode[j] = (uint) (0xffffffff);
-			memset(h->fast, (int) (255), (ulong) (1 << 9));
+			CRuntime.memset(h->fast, (int) (255), (ulong) (1 << 9));
 			for (i = (int) (0); (i) < (k); ++i)
 			{
 				int s = (int) (h->size[i]);
@@ -916,7 +916,7 @@ namespace StbSharp
 			int sgn;
 			if ((j.code_bits) < (n)) stbi__grow_buffer_unsafe(j);
 			sgn = (int) ((int) j.code_buffer >> 31);
-			k = (uint) (_lrotl(j.code_buffer, (int) (n)));
+			k = (uint) (CRuntime._lrotl(j.code_buffer, (int) (n)));
 			j.code_buffer = (uint) (k & ~stbi__bmask[n]);
 			k &= (uint) (stbi__bmask[n]);
 			j.code_bits -= (int) (n);
@@ -927,7 +927,7 @@ namespace StbSharp
 		{
 			uint k;
 			if ((j.code_bits) < (n)) stbi__grow_buffer_unsafe(j);
-			k = (uint) (_lrotl(j.code_buffer, (int) (n)));
+			k = (uint) (CRuntime._lrotl(j.code_buffer, (int) (n)));
 			j.code_buffer = (uint) (k & ~stbi__bmask[n]);
 			k &= (uint) (stbi__bmask[n]);
 			j.code_bits -= (int) (n);
@@ -954,7 +954,7 @@ namespace StbSharp
 			if ((j.code_bits) < (16)) stbi__grow_buffer_unsafe(j);
 			t = (int) (stbi__jpeg_huff_decode(j, hdc));
 			if ((t) < (0)) return (int) (stbi__err("bad huffman code"));
-			memset(data, (int) (0), (ulong) (64*sizeof (short)));
+			CRuntime.memset(data, (int) (0), (ulong) (64*sizeof (short)));
 			diff = (int) ((t) != 0 ? stbi__extend_receive(j, (int) (t)) : 0);
 			dc = (int) (j.img_comp[b].dc_pred + diff);
 			j.img_comp[b].dc_pred = (int) (dc);
@@ -1009,7 +1009,7 @@ namespace StbSharp
 			if ((j.code_bits) < (16)) stbi__grow_buffer_unsafe(j);
 			if ((j.succ_high) == (0))
 			{
-				memset(data, (int) (0), (ulong) (64*sizeof (short)));
+				CRuntime.memset(data, (int) (0), (ulong) (64*sizeof (short)));
 				t = (int) (stbi__jpeg_huff_decode(j, hdc));
 				diff = (int) ((t) != 0 ? stbi__extend_receive(j, (int) (t)) : 0);
 				dc = (int) (j.img_comp[b].dc_pred + diff);
@@ -1707,19 +1707,19 @@ namespace StbSharp
 			{
 				if ((z.img_comp[i].raw_data) != null)
 				{
-					free(z.img_comp[i].raw_data);
+					CRuntime.free(z.img_comp[i].raw_data);
 					z.img_comp[i].raw_data = (null);
 					z.img_comp[i].data = (null);
 				}
 				if ((z.img_comp[i].raw_coeff) != null)
 				{
-					free(z.img_comp[i].raw_coeff);
+					CRuntime.free(z.img_comp[i].raw_coeff);
 					z.img_comp[i].raw_coeff = null;
 					z.img_comp[i].coeff = null;
 				}
 				if ((z.img_comp[i].linebuf) != null)
 				{
-					free(z.img_comp[i].linebuf);
+					CRuntime.free(z.img_comp[i].linebuf);
 					z.img_comp[i].linebuf = (null);
 				}
 			}
@@ -2284,8 +2284,8 @@ namespace StbSharp
 			int code;
 			int* next_code = stackalloc int[16];
 			int* sizes = stackalloc int[17];
-			memset(sizes, (int) (0), (ulong) (sizeof (int)));
-			memset(((ushort*) (z->fast)), (int) (0), (ulong) ((1 << 9)*sizeof (ushort)));
+			CRuntime.memset(sizes, (int) (0), (ulong) (sizeof (int)));
+			CRuntime.memset(((ushort*) (z->fast)), (int) (0), (ulong) ((1 << 9)*sizeof (ushort)));
 			for (i = (int) (0); (i) < (num); ++i)
 			{
 				++sizes[sizelist[i]];
@@ -2405,7 +2405,7 @@ namespace StbSharp
 			{
 				limit *= (int) (2);
 			}
-			q = (sbyte*) (realloc(z->zout_start, (ulong) (limit)));
+			q = (sbyte*) (CRuntime.realloc(z->zout_start, (ulong) (limit)));
 			if ((q) == (null)) return (int) (stbi__err("outofmem"));
 			z->zout_start = q;
 			z->zout = q + cur;
@@ -2483,7 +2483,7 @@ namespace StbSharp
 			int hdist = (int) (stbi__zreceive(a, (int) (5)) + 1);
 			int hclen = (int) (stbi__zreceive(a, (int) (4)) + 4);
 			int ntot = (int) (hlit + hdist);
-			memset(((byte*) (codelength_sizes)), (int) (0), (ulong) (19*sizeof (byte)));
+			CRuntime.memset(((byte*) (codelength_sizes)), (int) (0), (ulong) (19*sizeof (byte)));
 			for (i = (int) (0); (i) < (hclen); ++i)
 			{
 				int s = (int) (stbi__zreceive(a, (int) (3)));
@@ -2511,7 +2511,7 @@ namespace StbSharp
 						c = (int) (stbi__zreceive(a, (int) (7)) + 11);
 					}
 					if ((ntot - n) < (c)) return (int) (stbi__err("bad codelengths"));
-					memset(lencodes + n, (int) (fill), (ulong) (c));
+					CRuntime.memset(lencodes + n, (int) (fill), (ulong) (c));
 					n += (int) (c);
 				}
 			}
@@ -2544,7 +2544,7 @@ namespace StbSharp
 			if (nlen != (len ^ 0xffff)) return (int) (stbi__err("zlib corrupt"));
 			if ((a->zbuffer + len) > (a->zbuffer_end)) return (int) (stbi__err("read past buffer"));
 			if ((a->zout + len) > (a->zout_end)) if (stbi__zexpand(a, a->zout, (int) (len)) == 0) return (int) (0);
-			memcpy(a->zout, a->zbuffer, (ulong) (len));
+			CRuntime.memcpy(a->zout, a->zbuffer, (ulong) (len));
 			a->zbuffer += len;
 			a->zout += len;
 			return (int) (1);
@@ -2626,7 +2626,7 @@ namespace StbSharp
 			}
 			else
 			{
-				free(a.zout_start);
+				CRuntime.free(a.zout_start);
 				return (null);
 			}
 
@@ -2652,7 +2652,7 @@ namespace StbSharp
 			}
 			else
 			{
-				free(a.zout_start);
+				CRuntime.free(a.zout_start);
 				return (null);
 			}
 
@@ -2681,7 +2681,7 @@ namespace StbSharp
 			}
 			else
 			{
-				free(a.zout_start);
+				CRuntime.free(a.zout_start);
 				return (null);
 			}
 
@@ -2717,9 +2717,9 @@ namespace StbSharp
 		public static int stbi__paeth(int a, int b, int c)
 		{
 			int p = (int) (a + b - c);
-			int pa = (int) (abs((int) (p - a)));
-			int pb = (int) (abs((int) (p - b)));
-			int pc = (int) (abs((int) (p - c)));
+			int pa = (int) (CRuntime.abs((int) (p - a)));
+			int pb = (int) (CRuntime.abs((int) (p - b)));
+			int pc = (int) (CRuntime.abs((int) (p - c)));
 			if ((pa <= pb) && (pa <= pc)) return (int) (a);
 			if (pb <= pc) return (int) (b);
 			return (int) (c);
@@ -2816,7 +2816,7 @@ namespace StbSharp
 					switch (filter)
 					{
 						case STBI__F_none:
-							memcpy(cur, raw, (ulong) (nk));
+							CRuntime.memcpy(cur, raw, (ulong) (nk));
 							break;
 						case STBI__F_sub:
 							for (k = (int) (0); (k) < (nk); ++k)
@@ -3103,7 +3103,7 @@ namespace StbSharp
 						stbi__create_png_image_raw(a, image_data, (uint) (image_data_len), (int) (out_n), (uint) (x), (uint) (y),
 							(int) (depth), (int) (color)) == 0)
 					{
-						free(final);
+						CRuntime.free(final);
 						return (int) (0);
 					}
 					for (j = (int) (0); (j) < (y); ++j)
@@ -3112,10 +3112,11 @@ namespace StbSharp
 						{
 							int out_y = (int) (j*yspc[p] + yorig[p]);
 							int out_x = (int) (i*xspc[p] + xorig[p]);
-							memcpy(final + out_y*a.s.img_x*out_bytes + out_x*out_bytes, a._out_ + (j*x + i)*out_bytes, (ulong) (out_bytes));
+							CRuntime.memcpy(final + out_y*a.s.img_x*out_bytes + out_x*out_bytes, a._out_ + (j*x + i)*out_bytes,
+								(ulong) (out_bytes));
 						}
 					}
-					free(a._out_);
+					CRuntime.free(a._out_);
 					image_data += img_len;
 					image_data_len -= (uint) (img_len);
 				}
@@ -3210,7 +3211,7 @@ namespace StbSharp
 				}
 			}
 
-			free(a._out_);
+			CRuntime.free(a._out_);
 			a._out_ = temp_out;
 			return (int) (1);
 		}
@@ -3423,7 +3424,7 @@ namespace StbSharp
 							{
 								idata_limit *= (uint) (2);
 							}
-							p = (byte*) (realloc(z.idata, (ulong) (idata_limit)));
+							p = (byte*) (CRuntime.realloc(z.idata, (ulong) (idata_limit)));
 							if ((p) == (null)) return (int) (stbi__err("outofmem"));
 							z.idata = p;
 						}
@@ -3445,7 +3446,7 @@ namespace StbSharp
 								(stbi_zlib_decode_malloc_guesssize_headerflag((sbyte*) (z.idata), (int) (ioff), (int) (raw_len),
 									(int*) (&raw_len), is_iphone != 0 ? 0 : 1));
 						if ((z.expanded) == (null)) return (int) (0);
-						free(z.idata);
+						CRuntime.free(z.idata);
 						z.idata = (null);
 						if (((((req_comp) == (s.img_n + 1)) && (req_comp != 3)) && (pal_img_n == 0)) || ((has_trans) != 0))
 							s.img_out_n = (int) (s.img_n + 1);
@@ -3476,7 +3477,7 @@ namespace StbSharp
 						{
 							++s.img_n;
 						}
-						free(z.expanded);
+						CRuntime.free(z.expanded);
 						z.expanded = (null);
 						return (int) (1);
 					}
@@ -3521,11 +3522,11 @@ namespace StbSharp
 				if ((n) != null) *n = (int) (p.s.img_n);
 			}
 
-			free(p._out_);
+			CRuntime.free(p._out_);
 			p._out_ = (null);
-			free(p.expanded);
+			CRuntime.free(p.expanded);
 			p.expanded = (null);
-			free(p.idata);
+			CRuntime.free(p.idata);
 			p.idata = (null);
 			return result;
 		}
@@ -3776,7 +3777,7 @@ namespace StbSharp
 			info.all_a = (uint) (255);
 			if ((stbi__bmp_parse_header(s, &info)) == (null)) return (null);
 			flip_vertically = (int) (((int) (s.img_y)) > (0) ? 1 : 0);
-			s.img_y = (uint) (abs((int) (s.img_y)));
+			s.img_y = (uint) (CRuntime.abs((int) (s.img_y)));
 			mr = (uint) (info.mr);
 			mg = (uint) (info.mg);
 			mb = (uint) (info.mb);
@@ -3803,7 +3804,7 @@ namespace StbSharp
 				int z = (int) (0);
 				if (((psize) == (0)) || ((psize) > (256)))
 				{
-					free(_out_);
+					CRuntime.free(_out_);
 					return ((byte*) ((ulong) ((stbi__err("invalid")) != 0 ? ((byte*) null) : (null))));
 				}
 				for (i = (int) (0); (i) < (psize); ++i)
@@ -3819,7 +3820,7 @@ namespace StbSharp
 				else if ((info.bpp) == (8)) width = (int) (s.img_x);
 				else
 				{
-					free(_out_);
+					CRuntime.free(_out_);
 					return ((byte*) ((ulong) ((stbi__err("bad bpp")) != 0 ? ((byte*) null) : (null))));
 				}
 				pad = (int) ((-width) & 3);
@@ -3878,7 +3879,7 @@ namespace StbSharp
 				{
 					if (((mr == 0) || (mg == 0)) || (mb == 0))
 					{
-						free(_out_);
+						CRuntime.free(_out_);
 						return ((byte*) ((ulong) ((stbi__err("bad masks")) != 0 ? ((byte*) null) : (null))));
 					}
 					rshift = (int) (stbi__high_bit((uint) (mr)) - 7);
@@ -4180,7 +4181,7 @@ namespace StbSharp
 					tga_palette = (byte*) (stbi__malloc_mad2((int) (tga_palette_len), (int) (tga_comp), (int) (0)));
 					if (tga_palette == null)
 					{
-						free(tga_data);
+						CRuntime.free(tga_data);
 						return ((byte*) ((ulong) ((stbi__err("outofmem")) != 0 ? ((byte*) null) : (null))));
 					}
 					if ((tga_rgb16) != 0)
@@ -4194,8 +4195,8 @@ namespace StbSharp
 					}
 					else if (stbi__getn(s, tga_palette, (int) (tga_palette_len*tga_comp)) == 0)
 					{
-						free(tga_data);
-						free(tga_palette);
+						CRuntime.free(tga_data);
+						CRuntime.free(tga_palette);
 						return ((byte*) ((ulong) ((stbi__err("bad palette")) != 0 ? ((byte*) null) : (null))));
 					}
 				}
@@ -4271,7 +4272,7 @@ namespace StbSharp
 				}
 				if (tga_palette != (null))
 				{
-					free(tga_palette);
+					CRuntime.free(tga_palette);
 				}
 			}
 
@@ -4403,7 +4404,7 @@ namespace StbSharp
 					{
 						if (stbi__psd_decode_rle(s, p, (int) (pixelCount)) == 0)
 						{
-							free(_out_);
+							CRuntime.free(_out_);
 							return ((byte*) ((ulong) ((stbi__err("corrupt")) != 0 ? ((byte*) null) : (null))));
 						}
 					}
@@ -4730,11 +4731,11 @@ namespace StbSharp
 					stbi__fill_gif_background(g, (int) (0), (int) (0), (int) (4*g.w), (int) (4*g.w*g.h));
 					break;
 				case 1:
-					if ((prev_out) != null) memcpy(g._out_, prev_out, (ulong) (4*g.w*g.h));
+					if ((prev_out) != null) CRuntime.memcpy(g._out_, prev_out, (ulong) (4*g.w*g.h));
 					g.old_out = prev_out;
 					break;
 				case 2:
-					if ((prev_out) != null) memcpy(g._out_, prev_out, (ulong) (4*g.w*g.h));
+					if ((prev_out) != null) CRuntime.memcpy(g._out_, prev_out, (ulong) (4*g.w*g.h));
 					stbi__fill_gif_background(g, (int) (g.start_x), (int) (g.start_y), (int) (g.max_x), (int) (g.max_y));
 					break;
 				case 3:
@@ -4742,7 +4743,7 @@ namespace StbSharp
 					{
 						for (i = (int) (g.start_y); (i) < (g.max_y); i += (int) (4*g.w))
 						{
-							memcpy(&g._out_[i + g.start_x], &g.old_out[i + g.start_x], (ulong) (g.max_x - g.start_x));
+							CRuntime.memcpy(&g._out_[i + g.start_x], &g.old_out[i + g.start_x], (ulong) (g.max_x - g.start_x));
 						}
 					}
 					break;
@@ -4850,7 +4851,7 @@ namespace StbSharp
 				if (((req_comp) != 0) && (req_comp != 4))
 					u = stbi__convert_format(u, (int) (4), (int) (req_comp), (uint) (g.w), (uint) (g.h));
 			}
-			else if ((g._out_) != null) free(g._out_);
+			else if ((g._out_) != null) CRuntime.free(g._out_);
 
 			return u;
 		}

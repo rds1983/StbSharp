@@ -23,7 +23,8 @@
 			{
 				fixed (byte* output = result.Data)
 				{
-					Stb.stbir_resize_uint8(input, Width, Height, Width*Comp, output, newWidth, newHeight, newWidth*Comp, Comp);
+					StbImageResize.stbir_resize_uint8(input, Width, Height, Width*Comp, output, newWidth, newHeight, newWidth*Comp,
+						Comp);
 				}
 			}
 

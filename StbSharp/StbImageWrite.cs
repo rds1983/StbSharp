@@ -2,7 +2,7 @@
 
 namespace StbSharp
 {
-	unsafe partial class Stb
+	public unsafe partial class StbImageWrite
 	{
 		public static int stbi_write_tga_with_rle = 1;
 
@@ -130,7 +130,7 @@ namespace StbSharp
 			var png = stbi_write_png_to_mem((byte*) (data), stride_bytes, x, y, comp, &len);
 			if (png == null) return 0;
 			func(context, png, len);
-			free(png);
+			CRuntime.free(png);
 			return 1;
 		}
 
@@ -155,7 +155,7 @@ namespace StbSharp
 				return 0;
 			}
 
-			var scratch = (byte*) (malloc((ulong) (x*4)));
+			var scratch = (byte*) (CRuntime.malloc((ulong) (x*4)));
 
 			int i;
 			var header = "#?RADIANCE\n# Written by stb_image_write.h\nFORMAT=32-bit_rle_rgbe\n";
@@ -175,7 +175,7 @@ namespace StbSharp
 			{
 				stbiw__write_hdr_scanline(s, x, comp, scratch, data + comp*i*x);
 			}
-			free(scratch);
+			CRuntime.free(scratch);
 			return 1;
 		}
 	}

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace StbSharp
 {
-	unsafe partial class Stb
+	unsafe partial class StbImageResize
 	{
 		[StructLayout(LayoutKind.Sequential)]
 		public struct stbir__contributors
@@ -100,20 +100,20 @@ namespace StbSharp
 		public static float stbir__srgb_to_linear(float f)
 		{
 			if (f <= 0.04045f) return (float) (f/12.92f);
-			else return (float) (pow((double) ((f + 0.055f)/1.055f), (double) (2.4f)));
+			else return (float) (CRuntime.pow((double) ((f + 0.055f)/1.055f), (double) (2.4f)));
 		}
 
 		public static float stbir__linear_to_srgb(float f)
 		{
 			if (f <= 0.0031308f) return (float) (f*12.92f);
-			else return (float) (1.055f*(float) (pow((double) (f), (double) (1/2.4f))) - 0.055f);
+			else return (float) (1.055f*(float) (CRuntime.pow((double) (f), (double) (1/2.4f))) - 0.055f);
 		}
 
 		public static float stbir__filter_trapezoid(float x, float scale)
 		{
 			float halfscale = (float) (scale/2);
 			float t = (float) (0.5f + halfscale);
-			x = ((float) (fabs((double) (x))));
+			x = ((float) (CRuntime.fabs((double) (x))));
 			if ((x) >= (t)) return (float) (0);
 			else
 			{
@@ -131,14 +131,14 @@ namespace StbSharp
 
 		public static float stbir__filter_triangle(float x, float s)
 		{
-			x = ((float) (fabs((double) (x))));
+			x = ((float) (CRuntime.fabs((double) (x))));
 			if (x <= 1.0f) return (float) (1 - x);
 			else return (float) (0);
 		}
 
 		public static float stbir__filter_cubic(float x, float s)
 		{
-			x = ((float) (fabs((double) (x))));
+			x = ((float) (CRuntime.fabs((double) (x))));
 			if ((x) < (1.0f)) return (float) ((4 + x*x*(3*x - 6))/6);
 			else if ((x) < (2.0f)) return (float) ((8 + x*(-12 + x*(6 - x)))/6);
 			return (float) (0.0f);
@@ -146,7 +146,7 @@ namespace StbSharp
 
 		public static float stbir__filter_catmullrom(float x, float s)
 		{
-			x = ((float) (fabs((double) (x))));
+			x = ((float) (CRuntime.fabs((double) (x))));
 			if ((x) < (1.0f)) return (float) (1 - x*x*(2.5f - 1.5f*x));
 			else if ((x) < (2.0f)) return (float) (2 - x*(4 + x*(0.5f*x - 2.5f)));
 			return (float) (0.0f);
@@ -154,7 +154,7 @@ namespace StbSharp
 
 		public static float stbir__filter_mitchell(float x, float s)
 		{
-			x = ((float) (fabs((double) (x))));
+			x = ((float) (CRuntime.fabs((double) (x))));
 			if ((x) < (1.0f)) return (float) ((16 + x*x*(21*x - 36))/18);
 			else if ((x) < (2.0f)) return (float) ((32 + x*(-60 + x*(36 - 7*x)))/18);
 			return (float) (0.0f);
@@ -193,8 +193,8 @@ namespace StbSharp
 		public static int stbir__get_filter_pixel_width(int filter, float scale)
 		{
 			if ((stbir__use_upsampling((float) (scale))) != 0)
-				return (int) (ceil((double) (stbir__filter_info_table[filter].support((float) (1/scale))*2)));
-			else return (int) (ceil((double) (stbir__filter_info_table[filter].support((float) (scale))*2/scale)));
+				return (int) (CRuntime.ceil((double) (stbir__filter_info_table[filter].support((float) (1/scale))*2)));
+			else return (int) (CRuntime.ceil((double) (stbir__filter_info_table[filter].support((float) (scale))*2/scale)));
 		}
 
 		public static int stbir__get_filter_pixel_margin(int filter, float scale)
@@ -205,8 +205,8 @@ namespace StbSharp
 		public static int stbir__get_coefficient_width(int filter, float scale)
 		{
 			if ((stbir__use_upsampling((float) (scale))) != 0)
-				return (int) (ceil((double) (stbir__filter_info_table[filter].support((float) (1/scale))*2)));
-			else return (int) (ceil((double) (stbir__filter_info_table[filter].support((float) (scale))*2)));
+				return (int) (CRuntime.ceil((double) (stbir__filter_info_table[filter].support((float) (1/scale))*2)));
+			else return (int) (CRuntime.ceil((double) (stbir__filter_info_table[filter].support((float) (scale))*2)));
 		}
 
 		public static int stbir__get_contributors(float scale, int filter, int input_size, int output_size)
@@ -298,8 +298,8 @@ namespace StbSharp
 			float in_pixel_influence_lowerbound = (float) ((out_pixel_influence_lowerbound + out_shift)/scale_ratio);
 			float in_pixel_influence_upperbound = (float) ((out_pixel_influence_upperbound + out_shift)/scale_ratio);
 			*in_center_of_out = (float) ((out_pixel_center + out_shift)/scale_ratio);
-			*in_first_pixel = ((int) (floor((double) (in_pixel_influence_lowerbound + 0.5))));
-			*in_last_pixel = ((int) (floor((double) (in_pixel_influence_upperbound - 0.5))));
+			*in_first_pixel = ((int) (CRuntime.floor((double) (in_pixel_influence_lowerbound + 0.5))));
+			*in_last_pixel = ((int) (CRuntime.floor((double) (in_pixel_influence_upperbound - 0.5))));
 		}
 
 		public static void stbir__calculate_sample_range_downsample(int n, float in_pixels_radius, float scale_ratio,
@@ -311,8 +311,8 @@ namespace StbSharp
 			float out_pixel_influence_lowerbound = (float) (in_pixel_influence_lowerbound*scale_ratio - out_shift);
 			float out_pixel_influence_upperbound = (float) (in_pixel_influence_upperbound*scale_ratio - out_shift);
 			*out_center_of_in = (float) (in_pixel_center*scale_ratio - out_shift);
-			*out_first_pixel = ((int) (floor((double) (out_pixel_influence_lowerbound + 0.5))));
-			*out_last_pixel = ((int) (floor((double) (out_pixel_influence_upperbound - 0.5))));
+			*out_first_pixel = ((int) (CRuntime.floor((double) (out_pixel_influence_lowerbound + 0.5))));
+			*out_last_pixel = ((int) (CRuntime.floor((double) (out_pixel_influence_upperbound - 0.5))));
 		}
 
 		public static void stbir__calculate_coefficients_upsample(stbir__info stbir_info, int filter, float scale,
@@ -694,7 +694,7 @@ namespace StbSharp
 
 			ring_buffer = stbir__get_ring_buffer_entry(stbir_info.ring_buffer, (int) (ring_buffer_index),
 				(int) (stbir_info.ring_buffer_length_bytes/sizeof (float)));
-			memset(ring_buffer, (int) (0), (ulong) (stbir_info.ring_buffer_length_bytes));
+			CRuntime.memset(ring_buffer, (int) (0), (ulong) (stbir_info.ring_buffer_length_bytes));
 			return ring_buffer;
 		}
 
@@ -900,7 +900,8 @@ namespace StbSharp
 		public static void stbir__decode_and_resample_downsample(stbir__info stbir_info, int n)
 		{
 			stbir__decode_scanline(stbir_info, (int) (n));
-			memset(stbir_info.horizontal_buffer, (int) (0), (ulong) (stbir_info.output_w*stbir_info.channels*sizeof (float)));
+			CRuntime.memset(stbir_info.horizontal_buffer, (int) (0),
+				(ulong) (stbir_info.output_w*stbir_info.channels*sizeof (float)));
 			if ((stbir__use_width_upsampling(stbir_info)) != 0)
 				stbir__resample_horizontal_upsample(stbir_info, (int) (n), stbir_info.horizontal_buffer);
 			else stbir__resample_horizontal_downsample(stbir_info, (int) (n), stbir_info.horizontal_buffer);
@@ -1085,7 +1086,7 @@ namespace StbSharp
 			n0 = (int) (vertical_contributors[contributor].n0);
 			n1 = (int) (vertical_contributors[contributor].n1);
 			output_row_start = (int) (n*stbir_info.output_stride_bytes);
-			memset(encode_buffer, (int) (0), (ulong) (output_w*sizeof (float)*channels));
+			CRuntime.memset(encode_buffer, (int) (0), (ulong) (output_w*sizeof (float)*channels));
 			coefficient_counter = (int) (0);
 			switch (channels)
 			{
@@ -1470,7 +1471,7 @@ namespace StbSharp
 			if ((alpha_channel) >= (info.channels)) return (int) (0);
 			if (tempmem == null) return (int) (0);
 			if ((tempmem_size_in_bytes) < (memory_required)) return (int) (0);
-			memset(tempmem, (int) (0), (ulong) (tempmem_size_in_bytes));
+			CRuntime.memset(tempmem, (int) (0), (ulong) (tempmem_size_in_bytes));
 			info.input_data = input_data;
 			info.input_stride_bytes = (int) (width_stride_input);
 			info.output_data = output_data;
@@ -1539,14 +1540,14 @@ namespace StbSharp
 			stbir__calculate_transform(info, (float) (s0), (float) (t0), (float) (s1), (float) (t1), transform);
 			stbir__choose_filter(info, (int) (h_filter), (int) (v_filter));
 			memory_required = (ulong) (stbir__calculate_memory(info));
-			extra_memory = malloc((ulong) (memory_required));
+			extra_memory = (CRuntime.malloc((ulong) (memory_required)));
 			if (extra_memory == null) return (int) (0);
 			result =
 				(int)
 					(stbir__resize_allocated(info, input_data, (int) (input_stride_in_bytes), output_data,
 						(int) (output_stride_in_bytes), (int) (alpha_channel), (uint) (flags), (int) (type), (int) (edge_horizontal),
 						(int) (edge_vertical), (int) (colorspace), extra_memory, (ulong) (memory_required)));
-			free(extra_memory);
+			CRuntime.free(extra_memory);
 			return (int) (result);
 		}
 

@@ -25,12 +25,12 @@ namespace StbSharp
 
 		public static implicit operator byte*(Pointer ptr)
 		{
-			return (byte *)ptr.Ptr;
+			return (byte*) ptr.Ptr;
 		}
 
 		public static implicit operator short*(Pointer ptr)
 		{
-			return (short*)ptr.Ptr;
+			return (short*) ptr.Ptr;
 		}
 	}
 

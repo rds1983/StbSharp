@@ -1,9 +1,8 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace StbSharp
 {
-	unsafe partial class Stb
+	public unsafe partial class StbImageResize
 	{
 		public delegate float stbir__kernel_fn(float x, float scale);
 
@@ -96,27 +95,6 @@ namespace StbSharp
 			new stbir__filter_info(stbir__filter_catmullrom, stbir__support_two),
 			new stbir__filter_info(stbir__filter_mitchell, stbir__support_two),
 		};
-
-		private static double pow(double a, double b)
-		{
-			return Math.Pow(a, b);
-		}
-
-		private static float fabs(double a)
-		{
-			return (float) Math.Abs(a);
-		}
-
-		private static double ceil(double a)
-		{
-			return Math.Ceiling(a);
-		}
-
-		
-		private static double floor(double a)
-		{
-			return Math.Floor(a);
-		}
 
 		public static byte stbir__linear_to_srgb_uchar(float _in_)
 		{

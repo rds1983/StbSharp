@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -18,6 +19,8 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 		private Texture2D texLoadedBySTB;
 		private SpriteFont spriteFont;
 		private double mgLoadTime, stbLoadTime;
+		private DynamicSoundEffectInstance _effect;
+		private bool _startedPlaying;
 
 		public Game1()
 		{
@@ -60,13 +63,39 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			// Loading through StbSharp
 			now = DateTime.Now;
 
-			var image = Stb.LoadFromMemory(buffer, Stb.STBI_rgb_alpha);
+			var image = StbImage.LoadFromMemory(buffer, StbImage.STBI_rgb_alpha);
 			texLoadedBySTB = new Texture2D(GraphicsDevice, image.Width, image.Height, false, SurfaceFormat.Color);
 			texLoadedBySTB.SetData(image.Data);
 
 			stbLoadTime = (DateTime.Now - now).TotalMilliseconds;
 
 			spriteFont = Content.Load<SpriteFont>("DefaultFont");
+
+			path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+			path = Path.Combine(path, "music.ogg");
+			buffer = File.ReadAllBytes(path);
+
+			int chan, sampleRate;
+			var audioShort = StbVorbis.decode_vorbis_from_memory(buffer, out sampleRate, out chan);
+
+			byte[] audioData = new byte[audioShort.Length / 2 * 4];
+			for (var i = 0; i < audioShort.Length; ++i)
+			{
+				if (i*2 >= audioData.Length)
+				{
+					break;
+				}
+
+				var b1 = (byte) (audioShort[i] >> 8);
+				var b2 = (byte) (audioShort[i] & 256);
+
+				audioData[i*2 + 0] = b2;
+				audioData[i*2 + 1] = b1;
+			}
+
+			_effect = new DynamicSoundEffectInstance(sampleRate, AudioChannels.Stereo);
+			_effect.SubmitBuffer(audioData);
+
 			GC.Collect();
 		}
 
@@ -91,6 +120,11 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 				Exit();
 
 			// TODO: Add your update logic here
+			if (!_startedPlaying)
+			{
+				_effect.Play();
+				_startedPlaying = true;
+			}
 
 			base.Update(gameTime);
 		}
@@ -115,7 +149,7 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			spriteBatch.DrawString(spriteFont, string.Format("{0}", (int) stbLoadTime),
 				new Vector2(x, texLoadedBySTB.Height + 10), Color.White);
 
-			spriteBatch.DrawString(spriteFont, string.Format("Sichem Allocated: {0}", Operations.AllocatedTotal),
+			spriteBatch.DrawString(spriteFont, string.Format("Sichem Allocated: {0}", Pointer.AllocatedTotal),
 				new Vector2(0, texLoadedByMG.Height + 30), Color.White);
 
 			spriteBatch.End();

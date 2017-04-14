@@ -37,7 +37,7 @@ namespace StbSharp
 				_stream = dest;
 				fixed (byte* b = &image.Data[0])
 				{
-					Stb.stbi_write_bmp_to_func(WriteCallback, null, image.Width, image.Height, image.Comp, b);
+					StbImageWrite.stbi_write_bmp_to_func(WriteCallback, null, image.Width, image.Height, image.Comp, b);
 				}
 			}
 			finally
@@ -53,7 +53,7 @@ namespace StbSharp
 				_stream = dest;
 				fixed (byte* b = &image.Data[0])
 				{
-					Stb.stbi_write_tga_to_func(WriteCallback, null, image.Width, image.Height, image.Comp, b);
+					StbImageWrite.stbi_write_tga_to_func(WriteCallback, null, image.Width, image.Height, image.Comp, b);
 				}
 			}
 			finally
@@ -75,7 +75,7 @@ namespace StbSharp
 
 				fixed (float* fptr = f)
 				{
-					Stb.stbi_write_hdr_to_func(WriteCallback, null, image.Width, image.Height, image.Comp, fptr);
+					StbImageWrite.stbi_write_hdr_to_func(WriteCallback, null, image.Width, image.Height, image.Comp, fptr);
 				}
 			}
 			finally
@@ -92,7 +92,8 @@ namespace StbSharp
 
 				fixed (byte* b = &image.Data[0])
 				{
-					Stb.stbi_write_png_to_func(WriteCallback, null, image.Width, image.Height, image.Comp, b, image.Width*image.Comp);
+					StbImageWrite.stbi_write_png_to_func(WriteCallback, null, image.Width, image.Height, image.Comp, b,
+						image.Width*image.Comp);
 				}
 			}
 			finally
@@ -115,7 +116,7 @@ namespace StbSharp
 
 				fixed (byte* b = &image.Data[0])
 				{
-					Stb.stbi_write_jpg_to_func(WriteCallback, null, image.Width, image.Height, image.Comp, b, quality);
+					StbImageWrite.stbi_write_jpg_to_func(WriteCallback, null, image.Width, image.Height, image.Comp, b, quality);
 				}
 			}
 			finally

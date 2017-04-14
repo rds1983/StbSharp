@@ -2,14 +2,9 @@
 
 namespace StbSharp
 {
-	public static unsafe class Operations
+	internal static unsafe class Operations
 	{
 		internal static ConcurrentDictionary<long, Pointer> _pointers = new ConcurrentDictionary<long, Pointer>();
-
-		public static long AllocatedTotal
-		{
-			get { return Pointer.AllocatedTotal; }
-		}
 
 		internal static void* Malloc(long size)
 		{
@@ -33,8 +28,8 @@ namespace StbSharp
 		{
 			using (var temp = new PinnedArray<byte>(size))
 			{
-				Memcpy(temp.Ptr, b, size);
-				Memcpy(a, temp.Ptr, size);
+				CRuntime.memcpy(temp.Ptr, b, size);
+				CRuntime.memcpy(a, temp.Ptr, size);
 			}
 		}
 
@@ -65,9 +60,9 @@ namespace StbSharp
 			}
 
 			var result = Malloc(newSize);
-			Memcpy(result, a, pointer.Size);
+			CRuntime.memcpy(result, a, pointer.Size);
 
-			_pointers.TryRemove((long)pointer.Ptr, out pointer);
+			_pointers.TryRemove((long) pointer.Ptr, out pointer);
 			pointer.Dispose();
 
 			return result;
@@ -76,8 +71,8 @@ namespace StbSharp
 		internal static int Memcmp(void* a, void* b, long size)
 		{
 			var result = 0;
-			var ap = (byte*)a;
-			var bp = (byte*)b;
+			var ap = (byte*) a;
+			var bp = (byte*) b;
 			for (long i = 0; i < size; ++i)
 			{
 				if (*ap != *bp)

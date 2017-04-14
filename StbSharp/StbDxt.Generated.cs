@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace StbSharp
 {
-	unsafe partial class Stb
+	unsafe partial class StbDxt
 	{
 		public static byte[] stb__Expand5 = new byte[32];
 		public static byte[] stb__Expand6 = new byte[64];
@@ -66,8 +66,8 @@ namespace StbSharp
 					{
 						int mine = (int) (expand[mn]);
 						int maxe = (int) (expand[mx]);
-						int err = (int) (abs((int) (stb__Lerp13((int) (maxe), (int) (mine)) - i)));
-						err += (int) (abs((int) (maxe - mine))*3/100);
+						int err = (int) (CRuntime.abs((int) (stb__Lerp13((int) (maxe), (int) (mine)) - i)));
+						err += (int) (CRuntime.abs((int) (maxe - mine))*3/100);
 						if ((err) < (bestErr))
 						{
 							Table[i*2 + 0] = (byte) (mx);
@@ -243,9 +243,9 @@ namespace StbSharp
 				vfg = (float) (g);
 				vfb = (float) (b);
 			}
-			magn = (double) (fabs((double) (vfr)));
-			if ((fabs((double) (vfg))) > (magn)) magn = (double) (fabs((double) (vfg)));
-			if ((fabs((double) (vfb))) > (magn)) magn = (double) (fabs((double) (vfb)));
+			magn = (double) (CRuntime.fabs((double) (vfr)));
+			if ((CRuntime.fabs((double) (vfg))) > (magn)) magn = (double) (CRuntime.fabs((double) (vfg)));
+			if ((CRuntime.fabs((double) (vfb))) > (magn)) magn = (double) (CRuntime.fabs((double) (vfb)));
 			if ((magn) < (4.0f))
 			{
 				v_r = (int) (299);

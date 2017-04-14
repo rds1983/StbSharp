@@ -2,7 +2,7 @@
 
 namespace StbSharp
 {
-	public unsafe partial class Stb
+	public unsafe partial class StbDxt
 	{
 		public static void stb__DitherBlock(byte* dest, byte* block)
 		{
@@ -17,7 +17,7 @@ namespace StbSharp
 				var quantArray = ch == (1) ? stb__QuantGTab : stb__QuantRBTab;
 				fixed (byte* quant = quantArray)
 				{
-					memset(err, 0, (ulong) (8*sizeof (int)));
+					CRuntime.memset(err, 0, (ulong) (8*sizeof (int)));
 					int y;
 					for (y = 0; (y) < (4); ++y)
 					{
@@ -66,7 +66,7 @@ namespace StbSharp
 							for (y = 0; y < 4; ++y)
 							{
 								if (j + y >= image.Height) break;
-								memcpy(block + y*16, rgba + image.Width*4*(j + y) + i*4, x*4);
+								CRuntime.memcpy(block + y*16, rgba + image.Width*4*(j + y) + i*4, x*4);
 							}
 							int y2;
 							if (x < 4)
@@ -78,23 +78,23 @@ namespace StbSharp
 									case 1:
 										for (y2 = 0; y2 < y; ++y2)
 										{
-											memcpy(block + y2*16 + 1*4, block + y2*16 + 0*4, 4);
-											memcpy(block + y2*16 + 2*4, block + y2*16 + 0*4, 8);
+											CRuntime.memcpy(block + y2*16 + 1*4, block + y2*16 + 0*4, 4);
+											CRuntime.memcpy(block + y2*16 + 2*4, block + y2*16 + 0*4, 8);
 										}
 										break;
 									case 2:
 										for (y2 = 0; y2 < y; ++y2)
-											memcpy(block + y2*16 + 2*4, block + y2*16 + 0*4, 8);
+											CRuntime.memcpy(block + y2*16 + 2*4, block + y2*16 + 0*4, 8);
 										break;
 									case 3:
 										for (y2 = 0; y2 < y; ++y2)
-											memcpy(block + y2*16 + 3*4, block + y2*16 + 1*4, 4);
+											CRuntime.memcpy(block + y2*16 + 3*4, block + y2*16 + 1*4, 4);
 										break;
 								}
 							}
 							y2 = 0;
 							for (; y < 4; ++y,++y2)
-								memcpy(block + y*16, block + y2*16, 4*4);
+								CRuntime.memcpy(block + y*16, block + y2*16, 4*4);
 							stb_compress_dxt_block(p, block, hasAlpha ? 1 : 0, mode);
 							p += hasAlpha ? 16 : 8;
 						}

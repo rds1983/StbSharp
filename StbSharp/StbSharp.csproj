@@ -65,16 +65,19 @@
     <Compile Include="ImageReader.cs" />
     <Compile Include="Operations.cs" />
     <Compile Include="PinnedArray.cs" />
-    <Compile Include="Stb.Dxt.cs" />
-    <Compile Include="Stb.Dxt.Generated.cs" />
-    <Compile Include="Stb.ImageResize.cs" />
-    <Compile Include="Stb.ImageResize.Generated.cs" />
-    <Compile Include="Stb.ImageWrite.cs" />
-    <Compile Include="Stb.ImageWrite.Generated.cs" />
+    <Compile Include="StbDxt.cs" />
+    <Compile Include="StbDxt.Generated.cs" />
+    <Compile Include="StbImageResize.cs" />
+    <Compile Include="StbImageResize.Generated.cs" />
+    <Compile Include="StbImageWrite.cs" />
+    <Compile Include="StbImageWrite.Generated.cs" />
     <Compile Include="ImageWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Stb.Image.cs" />
-    <Compile Include="Stb.Image.Generated.cs" />
+    <Compile Include="StbImage.cs" />
+    <Compile Include="StbImage.Generated.cs" />
+    <Compile Include="StbVorbis.cs" />
+    <Compile Include="StbVorbis.Generated.cs" />
+    <Compile Include="CRuntime.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

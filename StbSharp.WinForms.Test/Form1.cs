@@ -34,7 +34,7 @@ namespace StbSharp.WinForms.Test
 
 					var bytes = File.ReadAllBytes(_fileName);
 
-					_loadedImage = Stb.LoadFromMemory(bytes, Stb.STBI_rgb_alpha);
+					_loadedImage = StbImage.LoadFromMemory(bytes, StbImage.STBI_rgb_alpha);
 					SetImage();
 				}
 			}
@@ -42,11 +42,6 @@ namespace StbSharp.WinForms.Test
 			{
 				MessageBox.Show("Error", ex.Message);
 			}
-		}
-
-		private void DoInvoke(Action action)
-		{
-			Invoke(new MethodInvoker(action));
 		}
 
 		private void SetImage()

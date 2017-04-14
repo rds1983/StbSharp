@@ -255,7 +255,7 @@ namespace StbSharp.Tests
 						{
 							using (var ms = new MemoryStream(data))
 							{
-								return Native.load_from_stream(ms, out xx, out yy, out ccomp, Stb.STBI_default);
+								return Native.load_from_stream(ms, out xx, out yy, out ccomp, StbImage.STBI_default);
 							}
 						},
 						out stbSharpPassed, out stbNativePassed
@@ -268,7 +268,7 @@ namespace StbSharp.Tests
 						sw,
 						(out int xx, out int yy, out int ccomp) =>
 						{
-							var img = Stb.LoadFromMemory(data);
+							var img = StbImage.LoadFromMemory(data);
 
 							var res = img.Data;
 							xx = img.Width;
@@ -281,7 +281,7 @@ namespace StbSharp.Tests
 							return res;
 						},
 						(out int xx, out int yy, out int ccomp) =>
-							Native.load_from_memory(data, out xx, out yy, out ccomp, Stb.STBI_default),
+							Native.load_from_memory(data, out xx, out yy, out ccomp, StbImage.STBI_default),
 						out stbSharpPassed, out stbNativePassed
 						);
 					stbSharpLoadingFromMemory += stbSharpPassed;
@@ -420,10 +420,10 @@ namespace StbSharp.Tests
 
 					// Compressing
 					Log("Performing DXT compression with StbSharp");
-					image = Stb.LoadFromMemory(data, Stb.STBI_rgb_alpha);
+					image = StbImage.LoadFromMemory(data, StbImage.STBI_rgb_alpha);
 
 					BeginWatch(sw);
-					var compressed = Stb.stb_compress_dxt(image);
+					var compressed = StbDxt.stb_compress_dxt(image);
 					stbSharpCompression += EndWatch(sw);
 
 					Log("Performing DXT compression with Stb.Native");
@@ -461,7 +461,7 @@ namespace StbSharp.Tests
 					Log("Total Stb.Native Compression Time: {0} ms", stbNativeCompression);
 
 					Log("GC Memory: {0}", GC.GetTotalMemory(true));
-					Log("Pinned Memory Allocated: {0}", Operations.AllocatedTotal);
+					Log("Pinned Memory Allocated: {0}", Pointer.AllocatedTotal);
 				}
 
 				Log(DateTime.Now.ToLongTimeString() + " -- " + " Files processed: " + filesProcessed);
@@ -479,10 +479,64 @@ namespace StbSharp.Tests
 		public static int Main(string[] args)
 		{
 			var start = DateTime.Now;
+
+/*			var path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+			path = Path.Combine(path, "music.ogg");
+			var data = File.ReadAllBytes(path);
+
+			// Native
+			var sw = new Stopwatch();
+
+			int sampleRate, channels;
+
+			BeginWatch(sw);
+			short[] nativeResult = null;
+
+			for (var i = 0; i < 10; ++i)
+			{
+				nativeResult = Native.decode_vorbis_from_memory(data, out sampleRate, out channels);
+			}
+
+			var p = EndWatch(sw);
+			Log("Native vorbis decode took {0} ms", p);
+
+			// StbSharp
+			BeginWatch(sw);
+			short[] stbResult = null;
+			for (var i = 0; i < 10; ++i)
+			{
+				stbResult = StbVorbis.decode_vorbis_from_memory(data, out sampleRate, out channels);
+			}
+
+			p = EndWatch(sw);
+			Log("Stb vorbis decode took {0} ms", p);
+
+			var res = true;
+
+			if (nativeResult.Length != stbResult.Length)
+			{
+				res = false;
+			}
+			else
+			{
+				for (var i = 0; i < nativeResult.Length; ++i)
+				{
+					if (Math.Abs(nativeResult[i] - stbResult[i]) > 1)
+					{
+						Log("There is difference at {0}, native={1}, stb={2}", i, nativeResult[i], stbResult[i]);
+						res = false;
+						break;
+
+					}
+				}
+			}*/
+
 			var res = RunTests();
 			var passed = DateTime.Now - start;
 			Log("Span: {0} ms", passed.TotalMilliseconds);
 			Log(DateTime.Now.ToLongTimeString() + " -- " + (res ? "Success" : "Failure"));
+
+			Console.ReadKey();
 
 			return res ? 1 : 0;
 		}

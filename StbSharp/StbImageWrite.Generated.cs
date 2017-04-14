@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace StbSharp
 {
-	unsafe partial class Stb
+	unsafe partial class StbImageWrite
 	{
 		public static ushort[] lengthc =
 		{
@@ -326,13 +326,13 @@ namespace StbSharp
 						if ((i) < (x - 1))
 						{
 							++len;
-							diff = (int) (memcmp(begin, row + (i + 1)*comp, (ulong) (comp)));
+							diff = (int) (CRuntime.memcmp(begin, row + (i + 1)*comp, (ulong) (comp)));
 							if ((diff) != 0)
 							{
 								byte* prev = begin;
 								for (k = (int) (i + 2); ((k) < (x)) && ((len) < (128)); ++k)
 								{
-									if ((memcmp(prev, row + k*comp, (ulong) (comp))) != 0)
+									if ((CRuntime.memcmp(prev, row + k*comp, (ulong) (comp))) != 0)
 									{
 										prev += comp;
 										++len;
@@ -348,7 +348,7 @@ namespace StbSharp
 							{
 								for (k = (int) (i + 2); ((k) < (x)) && ((len) < (128)); ++k)
 								{
-									if (memcmp(begin, row + k*comp, (ulong) (comp)) == 0)
+									if (CRuntime.memcmp(begin, row + k*comp, (ulong) (comp)) == 0)
 									{
 										++len;
 									}
@@ -395,7 +395,7 @@ namespace StbSharp
 			}
 			else
 			{
-				float normalize = (float) ((float) (frexp((double) (maxcomp), &exponent))*256.0f/maxcomp);
+				float normalize = (float) ((float) (CRuntime.frexp((double) (maxcomp), &exponent))*256.0f/maxcomp);
 				rgbe[0] = ((byte) (linear[0]*normalize));
 				rgbe[1] = ((byte) (linear[1]*normalize));
 				rgbe[2] = ((byte) (linear[2]*normalize));
@@ -520,7 +520,7 @@ namespace StbSharp
 		public static void* stbiw__sbgrowf(void** arr, int increment, int itemsize)
 		{
 			int m = (int) (*arr != null ? 2*((int*) (*arr) - 2)[0] + increment : increment + 1);
-			void* p = realloc(*arr != null ? ((int*) (*arr) - 2) : ((int*) (0)), (ulong) (itemsize*m + sizeof (int)*2));
+			void* p = CRuntime.realloc(*arr != null ? ((int*) (*arr) - 2) : ((int*) (0)), (ulong) (itemsize*m + sizeof (int)*2));
 			if ((p) != null)
 			{
 				if (*arr == null) ((int*) (p))[1] = (int) (0);
@@ -586,7 +586,7 @@ namespace StbSharp
 			int j;
 			int bitcount = (int) (0);
 			byte* _out_ = null;
-			byte*** hash_table = (byte***) (malloc((ulong) (16384*sizeof (byte**))));
+			byte*** hash_table = (byte***) (CRuntime.malloc((ulong) (16384*sizeof (byte**))));
 			if ((quality) < (5)) quality = (int) (5);
 			if ((((_out_) == null) || ((((int*) (_out_) - 2)[1] + (1)) >= (((int*) (_out_) - 2)[0]))))
 			{
@@ -638,7 +638,7 @@ namespace StbSharp
 				}
 				if (((hash_table[h]) != null) && ((((int*) (hash_table[h]) - 2)[1]) == (2*quality)))
 				{
-					memmove(hash_table[h], hash_table[h] + quality, (ulong) (sizeof (byte*)*quality));
+					CRuntime.memmove(hash_table[h], hash_table[h] + quality, (ulong) (sizeof (byte*)*quality));
 					((int*) (hash_table[h]) - 2)[1] = (int) (quality);
 				}
 				if ((((hash_table[h]) == null) || ((((int*) (hash_table[h]) - 2)[1] + (1)) >= (((int*) (hash_table[h]) - 2)[0]))))
@@ -783,10 +783,10 @@ namespace StbSharp
 			{
 				if ((hash_table[i]) != null)
 				{
-					free(((int*) (hash_table[i]) - 2));
+					CRuntime.free(((int*) (hash_table[i]) - 2));
 				}
 			}
-			free(hash_table);
+			CRuntime.free(hash_table);
 			{
 				uint s1 = (uint) (1);
 				uint s2 = (uint) (0);
@@ -827,7 +827,7 @@ namespace StbSharp
 			}
 
 			*out_len = (int) (((int*) (_out_) - 2)[1]);
-			memmove(((int*) (_out_) - 2), _out_, (ulong) (*out_len));
+			CRuntime.memmove(((int*) (_out_) - 2), _out_, (ulong) (*out_len));
 			return (byte*) ((int*) (_out_) - 2);
 		}
 
@@ -855,9 +855,9 @@ namespace StbSharp
 		public static byte stbiw__paeth(int a, int b, int c)
 		{
 			int p = (int) (a + b - c);
-			int pa = (int) (abs((int) (p - a)));
-			int pb = (int) (abs((int) (p - b)));
-			int pc = (int) (abs((int) (p - c)));
+			int pa = (int) (CRuntime.abs((int) (p - a)));
+			int pb = (int) (CRuntime.abs((int) (p - b)));
+			int pc = (int) (CRuntime.abs((int) (p - c)));
 			if ((pa <= pb) && (pa <= pc)) return (byte) ((a) & 0xff);
 			if (pb <= pc) return (byte) ((b) & 0xff);
 			return (byte) ((c) & 0xff);
@@ -893,12 +893,12 @@ namespace StbSharp
 			int p;
 			int zlen;
 			if ((stride_bytes) == (0)) stride_bytes = (int) (x*n);
-			filt = (byte*) (malloc((ulong) ((x*n + 1)*y)));
+			filt = (byte*) (CRuntime.malloc((ulong) ((x*n + 1)*y)));
 			if (filt == null) return null;
-			line_buffer = (sbyte*) (malloc((ulong) (x*n)));
+			line_buffer = (sbyte*) (CRuntime.malloc((ulong) (x*n)));
 			if (line_buffer == null)
 			{
-				free(filt);
+				CRuntime.free(filt);
 				return null;
 			}
 
@@ -984,7 +984,7 @@ namespace StbSharp
 						if ((p) != 0) break;
 						for (i = (int) (0); (i) < (x*n); ++i)
 						{
-							est += (int) (abs((int) (line_buffer[i])));
+							est += (int) (CRuntime.abs((int) (line_buffer[i])));
 						}
 						if ((est) < (bestval))
 						{
@@ -994,17 +994,17 @@ namespace StbSharp
 					}
 				}
 				filt[j*(x*n + 1)] = ((byte) (best));
-				memmove(filt + j*(x*n + 1) + 1, line_buffer, (ulong) (x*n));
+				CRuntime.memmove(filt + j*(x*n + 1) + 1, line_buffer, (ulong) (x*n));
 			}
-			free(line_buffer);
+			CRuntime.free(line_buffer);
 			zlib = stbi_zlib_compress(filt, (int) (y*(x*n + 1)), &zlen, (int) (8));
-			free(filt);
+			CRuntime.free(filt);
 			if (zlib == null) return null;
-			_out_ = (byte*) (malloc((ulong) (8 + 12 + 13 + 12 + zlen + 12)));
+			_out_ = (byte*) (CRuntime.malloc((ulong) (8 + 12 + 13 + 12 + zlen + 12)));
 			if (_out_ == null) return null;
 			*out_len = (int) (8 + 12 + 13 + 12 + zlen + 12);
 			o = _out_;
-			memmove(o, sig, (ulong) (8));
+			CRuntime.memmove(o, sig, (ulong) (8));
 			o += 8;
 			(o)[0] = ((byte) (((13) >> 24) & 0xff));
 			(o)[1] = ((byte) (((13) >> 16) & 0xff));
@@ -1042,9 +1042,9 @@ namespace StbSharp
 			(o)[2] = ((byte) (("IDAT"[2]) & 0xff));
 			(o)[3] = ((byte) (("IDAT"[3]) & 0xff));
 			(o) += 4;
-			memmove(o, zlib, (ulong) (zlen));
+			CRuntime.memmove(o, zlib, (ulong) (zlen));
 			o += zlen;
-			free(zlib);
+			CRuntime.free(zlib);
 			stbiw__wpcrc(&o, (int) (zlen));
 			(o)[0] = ((byte) (((0) >> 24) & 0xff));
 			(o)[1] = ((byte) (((0) >> 16) & 0xff));
@@ -1376,7 +1376,7 @@ namespace StbSharp
 				float* UDU = stackalloc float[64];
 				float* VDU = stackalloc float[64];
 
-				for (y = (int)(0); (y) < (height); y += (int)(8))
+				for (y = (int) (0); (y) < (height); y += (int) (8))
 				{
 					for (x = (int) (0); (x) < (width); x += (int) (8))
 					{
