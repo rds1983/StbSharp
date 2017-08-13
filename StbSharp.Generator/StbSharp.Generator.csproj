@@ -61,6 +61,7 @@
     <None Include="StbSource\stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="StbSource\stb_dxt.h" />
     <Content Include="StbSource\stb_image_resize.h" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

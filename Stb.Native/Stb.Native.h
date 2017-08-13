@@ -17,6 +17,9 @@ using namespace System::Runtime::InteropServices;
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../StbSharp.Generator/StbSource/stb_image_write.h"
 
+#define STB_DXT_IMPLEMENTATION
+#include "../StbSharp.Generator/StbSource/stb_dxt.h"
+
 namespace StbNative {
 	int read_callback(void *user, char *data, int size);
 	void skip_callback(void *user, int size);
@@ -115,6 +118,66 @@ namespace StbNative {
 			}
 
 			stream = nullptr;
+		}
+
+		static array<unsigned char> ^ compress_dxt(array<unsigned char> ^input, int w, int h, bool hasAlpha)
+		{
+			int osize = hasAlpha ? 16 : 8;
+
+			array<unsigned char> ^result = gcnew array<unsigned char>((w + 3)*(h + 3) / 16 * osize);
+
+			pin_ptr<unsigned char> ip = &input[0];
+			unsigned char *rgba = ip;
+
+			pin_ptr<unsigned char> op = &result[0];
+			unsigned char *p = op;
+
+			unsigned char block[16 * 4];
+			for (int j = 0; j < w; j += 4)
+			{
+				int x = 4;
+				for (int i = 0; i < h; i += 4)
+				{
+					if (j + 3 >= w) x = w - j;
+					int y;
+					for (y = 0; y < 4; ++y)
+					{
+						if (j + y >= h) break;
+						memcpy(block + y * 16, rgba + w * 4 * (j + y) + i * 4, x * 4);
+					}
+					int y2;
+					if (x < 4)
+					{
+						switch (x)
+						{
+						case 0:
+							throw gcnew Exception("Unknown error");
+						case 1:
+							for (y2 = 0; y2 < y; ++y2)
+							{
+								memcpy(block + y2 * 16 + 1 * 4, block + y2 * 16 + 0 * 4, 4);
+								memcpy(block + y2 * 16 + 2 * 4, block + y2 * 16 + 0 * 4, 8);
+							}
+							break;
+						case 2:
+							for (y2 = 0; y2 < y; ++y2)
+								memcpy(block + y2 * 16 + 2 * 4, block + y2 * 16 + 0 * 4, 8);
+							break;
+						case 3:
+							for (y2 = 0; y2 < y; ++y2)
+								memcpy(block + y2 * 16 + 3 * 4, block + y2 * 16 + 1 * 4, 4);
+							break;
+						}
+					}
+					y2 = 0;
+					for (; y < 4; ++y, ++y2)
+						memcpy(block + y * 16, block + y2 * 16, 4 * 4);
+					stb_compress_dxt_block(p, block, hasAlpha ? 1 : 0, 10);
+					p += hasAlpha ? 16 : 8;
+				}
+			}
+
+			return result;
 		}
 	};
 

@@ -109,6 +109,8 @@ namespace StbSharp.Tests
 				var stbNativeLoadingFromStream = 0;
 				var stbSharpLoadingFromMemory = 0;
 				var stbNativeLoadingFromMemory = 0;
+				var stbSharpCompression = 0;
+				var stbNativeCompression = 0;
 				var imagesPath = "..\\..\\..\\TestImages";
 
 				var files = Directory.EnumerateFiles(imagesPath, "*.*", SearchOption.AllDirectories).ToArray();
@@ -187,6 +189,14 @@ namespace StbSharp.Tests
 					stbSharpLoadingFromMemory += stbSharpPassed;
 					stbNativeLoadingFromMemory += stbNativePassed;
 
+					var image = new Image
+					{
+						Comp = comp,
+						Data = parsed,
+						Width = x,
+						Height = y
+					}; 
+					
 					for (var k = 0; k <= 3; ++k)
 					{
 						Log("Saving as {0} with StbSharp", ((ImageWriterFormat) k).ToString());
@@ -195,13 +205,6 @@ namespace StbSharp.Tests
 						using (var stream = new MemoryStream())
 						{
 							var writer = new ImageWriter();
-							var image = new Image
-							{
-								Comp = comp,
-								Data = parsed,
-								Width = x,
-								Height = y
-							};
 							writer.Write(image, (ImageWriterFormat) k, stream);
 							save = stream.ToArray();
 						}
@@ -240,12 +243,45 @@ namespace StbSharp.Tests
 						}
 					}
 
+					// Compressing
+					Log("Performing DXT compression with StbSharp");
+					image = Stb.LoadFromMemory(data, Stb.STBI_rgb_alpha);
+
+					BeginWatch();
+					var compressed = Stb.stb_compress_dxt(image);
+					stbSharpCompression += EndWatch();
+
+					Log("Performing DXT compression with Stb.Native");
+					BeginWatch();
+					var compressed2 = Native.compress_dxt(image.Data, image.Width, image.Height, true);
+					stbNativeCompression += EndWatch();
+
+					if (compressed.Length != compressed2.Length)
+					{
+						throw new Exception(string.Format("Inconsistent output size: StbSharp={0}, Stb.Native={1}",
+							compressed.Length, compressed2.Length));
+					}
+
+					for (var i = 0; i < compressed.Length; ++i)
+					{
+						if (compressed[i] != compressed2[i])
+						{
+							throw new Exception(string.Format("Inconsistent data: index={0}, StbSharp={1}, Stb.Native={2}",
+								i,
+								(int)compressed[i],
+								(int)compressed2[i]));
+						}
+					}
+
+
 					++filesProcessed;
 
 					Log("Total StbSharp Loading From Stream Time: {0} ms", stbSharpLoadingFromStream);
 					Log("Total Stb.Native Loading From Stream Time: {0} ms", stbNativeLoadingFromStream);
 					Log("Total StbSharp Loading From memory Time: {0} ms", stbSharpLoadingFromMemory);
 					Log("Total Stb.Native Loading From memory Time: {0} ms", stbNativeLoadingFromMemory);
+					Log("Total StbSharp Compression Time: {0} ms", stbSharpCompression);
+					Log("Total Stb.Native Compression Time: {0} ms", stbNativeCompression);
 
 					Log("GC Memory: {0}", GC.GetTotalMemory(true));
 					Log("Sichem Allocated: {0}", Operations.AllocatedTotal);

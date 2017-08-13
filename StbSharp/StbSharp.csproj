@@ -63,6 +63,8 @@
   <ItemGroup>
     <Compile Include="Image.cs" />
     <Compile Include="ImageReader.cs" />
+    <Compile Include="Stb.Dxt.cs" />
+    <Compile Include="Stb.Dxt.Generated.cs" />
     <Compile Include="Stb.ImageResize.cs" />
     <Compile Include="Stb.ImageResize.Generated.cs" />
     <Compile Include="Stb.ImageWrite.cs" />
