@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace StbSharp.WinForms.Test
@@ -90,27 +89,14 @@ namespace StbSharp.WinForms.Test
 				string fileName;
 				using (var dlg = new SaveFileDialog())
 				{
-					dlg.Filter = "BMP Files (*.bmp)|*.bmp|TGA Files (*.tga)|*.tga|PNG Files (*.png)|*.png|HDR Files (*.hdr)|*.psd";
+					dlg.Filter =
+						"BMP Files (*.bmp)|*.bmp|TGA Files (*.tga)|*.tga|PNG Files (*.png)|*.png|HDR Files (*.hdr)|*.hdr|JPG Files (*.jpg)|*.jpg";
 					if (dlg.ShowDialog() != DialogResult.OK)
 					{
 						return;
 					}
 
 					fileName = dlg.FileName;
-				}
-
-				var type = ImageWriterFormat.Bmp;
-				if (fileName.EndsWith(".tga"))
-				{
-					type = ImageWriterFormat.Tga;
-				}
-				else if (fileName.EndsWith("png"))
-				{
-					type = ImageWriterFormat.Png;
-				}
-				else if (fileName.EndsWith("hdr"))
-				{
-					type = ImageWriterFormat.Hdr;
 				}
 
 				// Get bitmap bytes
@@ -124,17 +110,17 @@ namespace StbSharp.WinForms.Test
 				bmp.UnlockBits(bmpData);
 
 				// Convert bgra to rgba
-				for (var i = 0; i < x * y; ++i)
+				for (var i = 0; i < x*y; ++i)
 				{
-					var b = data[i * 4];
-					var g = data[i * 4 + 1];
-					var r = data[i * 4 + 2];
-					var a = data[i * 4 + 3];
+					var b = data[i*4];
+					var g = data[i*4 + 1];
+					var r = data[i*4 + 2];
+					var a = data[i*4 + 3];
 
-					data[i * 4] = r;
-					data[i * 4 + 1] = g;
-					data[i * 4 + 2] = b;
-					data[i * 4 + 3] = a;
+					data[i*4] = r;
+					data[i*4 + 1] = g;
+					data[i*4 + 2] = b;
+					data[i*4 + 3] = a;
 				}
 
 				// Call StbSharp
@@ -148,7 +134,27 @@ namespace StbSharp.WinForms.Test
 						Height = y,
 						Comp = 4
 					};
-					writer.Write(image, type, stream);
+
+					if (fileName.EndsWith(".bmp"))
+					{
+						writer.WriteBmp(image, stream);
+					}
+					else if (fileName.EndsWith(".tga"))
+					{
+						writer.WriteTga(image, stream);
+					}
+					else if (fileName.EndsWith("png"))
+					{
+						writer.WritePng(image, stream);
+					}
+					else if (fileName.EndsWith("hdr"))
+					{
+						writer.WriteHdr(image, stream);
+					}
+					else if (fileName.EndsWith("jpg") || fileName.EndsWith("jpeg"))
+					{
+						writer.WriteJpg(image, stream, 75);
+					}
 				}
 			}
 			catch (Exception ex)

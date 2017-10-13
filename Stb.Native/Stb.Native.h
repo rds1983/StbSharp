@@ -85,7 +85,7 @@ namespace StbNative {
 		}
 
 		// TODO: Add your methods for this class here.
-		static void save_to_memory(array<unsigned char> ^bytes, int x, int y, int comp, int type, Stream ^output)
+		static void save_to_stream(array<unsigned char> ^bytes, int x, int y, int comp, int type, Stream ^output)
 		{
 			stream = output;
 
@@ -116,6 +116,18 @@ namespace StbNative {
 					stbi_write_png_to_func(write_func, nullptr, x, y, comp, ptr, x * comp);
 					break;
 			}
+
+			stream = nullptr;
+		}
+
+		static void save_to_jpg(array<unsigned char> ^bytes, int x, int y, int comp, Stream ^output, int quality)
+		{
+			stream = output;
+
+			pin_ptr<unsigned char> p = &bytes[0];
+			unsigned char *ptr = (unsigned char *)p;
+
+			stbi_write_jpg_to_func(write_func, nullptr, x, y, comp, ptr, quality);
 
 			stream = nullptr;
 		}

@@ -69,7 +69,7 @@ bmp.UnlockBits(bmpData);
 ```
 
 ### Saving Image
-StbSharp can write images in BMP, TGA, PNG and HDR formats.
+StbSharp can write images in BMP, TGA, PNG, HDR and JPG formats.
 Sample code for writing an image represented as RGBA byte array `data`:
 ```c#
 using (Stream stream = File.OpenWrite(path))
@@ -82,7 +82,7 @@ using (Stream stream = File.OpenWrite(path))
 		Height = height,
 		Comp = 4
 	};
-	writer.Write(image, Stb.ImageWriterType.Png, stream);
+	writer.WritePng(image, stream);
 }
 ```
 

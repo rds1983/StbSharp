@@ -210,7 +210,27 @@ namespace Generator
 						"lengtheb",
 						"distc",
 						"disteb",
-						"crc_table"
+						"crc_table",
+						"stbiw__jpg_ZigZag",
+						"std_dc_luminance_nrcodes",
+						"std_dc_luminance_values",
+						"std_ac_luminance_nrcodes",
+						"std_ac_luminance_values",
+						"std_dc_chrominance_nrcodes",
+						"std_dc_chrominance_values",
+						"std_ac_chrominance_nrcodes",
+						"std_ac_chrominance_values",
+						"std_dc_chrominance_nrcodes",
+						"std_dc_chrominance_values",
+						"YDC_HT",
+						"UVDC_HT",
+						"YAC_HT",
+						"UVAC_HT",
+						"YQT",
+						"UVQT",
+						"aasf",
+						"head0",
+						"head2"
 					}
 				};
 
@@ -389,9 +409,9 @@ namespace Generator
 			try
 			{
 				// ProcessImage();
-				// ProcessImageWriter();
+				ProcessImageWriter();
 				// ProcessImageResize();
-				ProcessDXT();
+				// ProcessDXT();
 			}
 			catch (Exception ex)
 			{
