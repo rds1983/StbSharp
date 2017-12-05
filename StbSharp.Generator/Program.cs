@@ -91,16 +91,38 @@ namespace Generator
 				// Post processing
 				Logger.Info("Post processing...");
 
-				data = data.Replace("s.io.read = ((void *)(0));",
-					"s.io.read = null;");
+				data = data.Replace("(int)(a <= 2147483647 - b)", "(a <= 2147483647 - b)?1:0");
+				data = data.Replace("(int)(a <= 2147483647 / b)", "(a <= 2147483647 / b)?1:0");
+				data = data.Replace("(ulong)((ulong)(w) * bytes_per_pixel)", "(ulong)(w * bytes_per_pixel)");
+				data = data.Replace("bytes + row * bytes_per_row", "bytes + (ulong)row * bytes_per_row");
+				data = data.Replace("bytes + (h - row - 1) * bytes_per_row", "bytes + (ulong)(h - row - 1) * bytes_per_row");
+				data = data.Replace("(void *)(0)", "null");
+				data = data.Replace("s.img_buffer_end = s.buffer_start + 1;", "s.img_buffer_end = s.buffer_start; s.img_buffer_end++;");
+				data = data.Replace("s.img_buffer_end = s.buffer_start + n;", "s.img_buffer_end = s.buffer_start; s.img_buffer_end += n;");
+				data = data.Replace(" != 0?(null):(null)", " != 0?((byte *)null):(null)");
+				data = data.Replace("(int)(j.code_buffer)", "j.code_buffer");
+				data = data.Replace("z.huff_dc + ", "(stbi__huffman *)z.huff_dc + ");
+				data = data.Replace("z.huff_ac + ", "(stbi__huffman *)z.huff_ac + ");
+				data = data.Replace("z.dequant[z.img_comp[n].tq]", "(ushort *)z.dequant[z.img_comp[n].tq]");
+				data = data.Replace("int sixteen = (int)(p != 0);", "int sixteen = (p != 0)?1:0;");
+				data = data.Replace("(byte)('')", "(byte)('\\0')");
+				data = data.Replace("coeff = 0", "coeff = null");
+				data = data.Replace("if (stbi__zbuild_huffman(&a->z_length, stbi__zdefault_length, (int)(288))== 0) return (int)(0);",
+					"fixed (byte* b = stbi__zdefault_length) {if (stbi__zbuild_huffman(&a->z_length, b, (int) (288)) == 0) return (int) (0);}");
+				data = data.Replace("if (stbi__zbuild_huffman(&a->z_distance, stbi__zdefault_distance, (int)(32))== 0) return (int)(0);",
+					"fixed (byte* b = stbi__zdefault_distance) {if (stbi__zbuild_huffman(&a->z_distance, b, (int) (32)) == 0) return (int) (0);}");
+				data = data.Replace("sbyte* invalid_chunk", "string invalid_chunk");
+
 				data = data.Replace("sizeof((s.buffer_start))",
 					"s.buffer_start.Size");
 				data = data.Replace("sizeof((data[0]))", "sizeof(short)");
 				data = data.Replace("sizeof((sizes))", "sizeof(int)");
-				data = data.Replace("memset(((ushort*)(z->fast)), (int)(0), (ulong)(sizeof((z->fast))));",
+				data = data.Replace("memset(z->fast, (int)(0), (ulong)(sizeof((z->fast))));",
 					"memset(((ushort*)(z->fast)), (int)(0), (ulong)((1 << 9) * sizeof(ushort)));");
-				data = data.Replace("memset(((byte*)(codelength_sizes)), (int)(0), (ulong)(sizeof((codelength_sizes))));",
+				data = data.Replace("memset(codelength_sizes, (int)(0), (ulong)(sizeof((codelength_sizes))));",
 					"memset(((byte*)(codelength_sizes)), (int)(0), (ulong)(19 * sizeof(byte)));");
+				data = data.Replace("comp != 0", "comp != null");
+				data = data.Replace("(int)((tga_image_type) == (3))", "(tga_image_type) == (3)?1:0");
 
 				data = data.Replace("short* d = ((short*)data.Pointer);",
 					"short* d = data;");
@@ -132,6 +154,9 @@ namespace Generator
 					"if (p == null) return (int) (stbi__err(\"outofmem\"));");
 				data = data.Replace("ArrayPointer<ArrayPointer<byte>> pal = new ArrayPointer<byte>(256);",
 					"ArrayPointer<byte>[] pal = new ArrayPointer<byte>[256]; for (var kkk = 0; kkk < pal.Length; ++kkk) pal[kkk] = new ArrayPointer<byte>(4);");
+				data = data.Replace("pal[i][", "pal[i * 4 +");
+				data = data.Replace("pal[v][", "pal[v * 4 +");
+				data = data.Replace("pal[g.transparent][", "pal[g.transparent * 4 +");
 				data = data.Replace("uint v = (uint)((uint)((bpp) == (16)?stbi__get16le(s):stbi__get32le(s)));",
 					"uint v = (uint)((uint)((bpp) == (16)?(uint)stbi__get16le(s):stbi__get32le(s)));");
 				data = data.Replace("(int)(((tga_image_type) == (3)) || ((tga_image_type) == (11)))",
@@ -148,12 +173,14 @@ namespace Generator
 					string.Empty);
 				data = data.Replace("if (((g.transparent) >= (0)) && ((g.eflags & 0x01)))",
 					"if (((g.transparent) >= (0)) && ((g.eflags & 0x01) != 0))");
-				data = data.Replace("&((stbi__huffman*)(z.huff_dc))[z.img_comp[n].hd]",
+				data = data.Replace("&z.huff_dc[z.img_comp[n].hd]",
 					"(stbi__huffman*)z.huff_dc + z.img_comp[n].hd");
-				data = data.Replace("&((stbi__huffman*)(z.huff_ac))[ha]",
+				data = data.Replace("&z.huff_ac[ha]",
 					"(stbi__huffman*)z.huff_ac + ha");
-				data = data.Replace("&((stbi__gif_lzw*)(g.codes))[avail++]",
-					"(stbi__gif_lzw*)g.codes + avail++");
+				data = data.Replace("g.codes[init_code]", "((stbi__gif_lzw*) (g.codes))[init_code]");
+				data = data.Replace("&g.codes[avail++]", "(stbi__gif_lzw*)g.codes + avail++");
+				data = data.Replace("byte* c = g.pal[g.bgindex]", "byte* c = (byte *)g.pal + g.bgindex");
+				data = data.Replace("(g._out_) == (0)", "(g._out_) == null");
 				data = data.Replace("((byte*)(tc))[k] = ((byte)(stbi__get16be(s) & 255) * stbi__depth_scale_table[z.depth]);",
 					"((byte*)(tc))[k] = (byte)((byte)(stbi__get16be(s) & 255) * stbi__depth_scale_table[z.depth]);");
 				data = data.Replace("byte** pal = stackalloc byte[256];",
@@ -408,8 +435,8 @@ namespace Generator
 		{
 			try
 			{
-				// ProcessImage();
-				ProcessImageWriter();
+				ProcessImage();
+				// ProcessImageWriter();
 				// ProcessImageResize();
 				// ProcessDXT();
 			}
