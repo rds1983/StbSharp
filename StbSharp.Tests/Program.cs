@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Sichem;
 using StbNative;
 
@@ -12,14 +14,22 @@ namespace StbSharp.Tests
 		private delegate void WriteDelegate(Image image, Stream stream);
 
 		private const int LoadTries = 10;
+		private const int ThreadsCount = 10;
+
 		private static readonly int[] JpgQualities = {1, 4, 8, 16, 25, 32, 50, 64, 72, 80, 90, 100};
 		private static readonly string[] FormatNames = {"BMP", "TGA", "HDR", "PNG", "JPG"};
 
-		private static readonly Stopwatch _sw = new Stopwatch();
+		private class ThreadInfo
+		{
+			public string[] Files { get; set; }
+			public bool Success { get; set; }
+			public bool Finished { get; set; }
+		}
+
 
 		public static void Log(string message)
 		{
-			Console.WriteLine(message);
+			Console.WriteLine(Thread.CurrentThread.ManagedThreadId + " -- " + message);
 		}
 
 		public static void Log(string format, params object[] args)
@@ -27,26 +37,26 @@ namespace StbSharp.Tests
 			Log(string.Format(format, args));
 		}
 
-		private static void BeginWatch()
+		private static void BeginWatch(Stopwatch sw)
 		{
-			_sw.Restart();
+			sw.Restart();
 		}
 
-		private static int EndWatch()
+		private static int EndWatch(Stopwatch sw)
 		{
-			_sw.Stop();
-			return (int) _sw.ElapsedMilliseconds;
+			sw.Stop();
+			return (int) sw.ElapsedMilliseconds;
 		}
 
 		private delegate byte[] LoadDelegate(out int x, out int y, out int comp);
 
-		private static void ParseTest(LoadDelegate load1, LoadDelegate load2,
+		private static void ParseTest(Stopwatch sw, LoadDelegate load1, LoadDelegate load2,
 			out int load1Passed, out int load2Passed)
 		{
 			Log("With StbSharp");
 			int x = 0, y = 0, comp = 0;
 			byte[] parsed = new byte[0];
-			BeginWatch();
+			BeginWatch(sw);
 
 			for (var i = 0; i < LoadTries; ++i)
 			{
@@ -54,7 +64,7 @@ namespace StbSharp.Tests
 			}
 
 			Log("x: {0}, y: {1}, comp: {2}, size: {3}", x, y, comp, parsed.Length);
-			var passed = EndWatch()/LoadTries;
+			var passed = EndWatch(sw)/LoadTries;
 			Log("Span: {0} ms", passed);
 			load1Passed = passed;
 
@@ -62,13 +72,13 @@ namespace StbSharp.Tests
 			int x2 = 0, y2 = 0, comp2 = 0;
 			byte[] parsed2 = new byte[0];
 
-			BeginWatch();
+			BeginWatch(sw);
 			for (var i = 0; i < LoadTries; ++i)
 			{
 				parsed2 = load2(out x2, out y2, out comp2);
 			}
 			Log("x: {0}, y: {1}, comp: {2}, size: {3}", x2, y2, comp2, parsed2.Length);
-			passed = EndWatch()/LoadTries;
+			passed = EndWatch(sw)/LoadTries;
 			Log("Span: {0} ms", passed);
 			load2Passed = passed;
 
@@ -107,18 +117,101 @@ namespace StbSharp.Tests
 
 		public static bool RunTests()
 		{
+			var imagesPath = "..\\..\\..\\TestImages";
+
+			var files = Directory.EnumerateFiles(imagesPath, "*.*", SearchOption.AllDirectories).ToArray();
+			Log("Files count: {0}", files.Length);
+
+			var filesByThreads = new ThreadInfo[ThreadsCount];
+			var filesPerThread = files.Length/ThreadsCount;
+
+			var threadNum = 0;
+			var threadFiles = new List<string>();
+			foreach (var file in files)
+			{
+				if (threadNum < ThreadsCount - 1 && threadFiles.Count >= filesPerThread)
+				{
+					filesByThreads[threadNum] = new ThreadInfo
+					{
+						Files = threadFiles.ToArray()
+					};
+
+					threadFiles.Clear();
+					++threadNum;
+				}
+
+				threadFiles.Add(file);
+			}
+
+			filesByThreads[threadNum] = new ThreadInfo
+			{
+				Files = threadFiles.ToArray()
+			};
+
+			for (var i = 0; i < ThreadsCount; ++i)
+			{
+				ThreadPool.QueueUserWorkItem(ThreadProc, filesByThreads[i]);
+			}
+
+			while (true)
+			{
+				Thread.Sleep(1000);
+				var finished = true;
+				foreach (var ti in filesByThreads)
+				{
+					if (ti.Finished && !ti.Success)
+					{
+						return false;
+					}
+				}
+
+				foreach (var ti in filesByThreads)
+				{
+					if (!ti.Finished)
+					{
+						finished = false;
+						break;
+					}
+				}
+
+				if (finished)
+				{
+					break;
+				}
+			}
+
+			var result = true;
+			foreach (var ti in filesByThreads)
+			{
+				if (!ti.Success)
+				{
+					result = false;
+					break;
+				}
+			}
+
+			return result;
+		}
+
+		private static void ThreadProc(object state)
+		{
+			var threadInfo = (ThreadInfo)state;
+
 			try
 			{
+				var sw = new Stopwatch();
+
 				var stbSharpLoadingFromStream = 0;
 				var stbNativeLoadingFromStream = 0;
 				var stbSharpLoadingFromMemory = 0;
 				var stbNativeLoadingFromMemory = 0;
+				var stbSharpWrite = 0;
+				var stbNativeWrite = 0;
 				var stbSharpCompression = 0;
 				var stbNativeCompression = 0;
-				var imagesPath = "..\\..\\..\\TestImages";
 
-				var files = Directory.EnumerateFiles(imagesPath, "*.*", SearchOption.AllDirectories).ToArray();
-				Log("Files count: {0}", files.Length);
+				var files = threadInfo.Files;
+
 				int filesProcessed = 0;
 
 				foreach (var f in files)
@@ -140,6 +233,7 @@ namespace StbSharp.Tests
 					int stbSharpPassed, stbNativePassed;
 					byte[] parsed = new byte[0];
 					ParseTest(
+						sw,
 						(out int xx, out int yy, out int ccomp) =>
 						{
 							using (var ms = new MemoryStream(data))
@@ -172,6 +266,7 @@ namespace StbSharp.Tests
 
 					Log("Loading from memory");
 					ParseTest(
+						sw,
 						(out int xx, out int yy, out int ccomp) =>
 						{
 							var img = Stb.LoadFromMemory(data);
@@ -199,8 +294,8 @@ namespace StbSharp.Tests
 						Data = parsed,
 						Width = x,
 						Height = y
-					}; 
-					
+					};
+
 					for (var k = 0; k <= 4; ++k)
 					{
 						Log("Saving as {0} with StbSharp", FormatNames[k]);
@@ -226,18 +321,19 @@ namespace StbSharp.Tests
 							}
 
 							byte[] save;
-							BeginWatch();
+							BeginWatch(sw);
 							using (var stream = new MemoryStream())
 							{
 								wd(image, stream);
 								save = stream.ToArray();
 							}
-							var passed = EndWatch();
+							var passed = EndWatch(sw);
+							stbSharpWrite += passed;
 							Log("Span: {0} ms", passed);
 							Log("StbSharp Size: {0}", save.Length);
 
 							Log("Saving as {0} with Stb.Native", FormatNames[k]);
-							BeginWatch();
+							BeginWatch(sw);
 							byte[] save2;
 							using (var stream = new MemoryStream())
 							{
@@ -245,7 +341,9 @@ namespace StbSharp.Tests
 								save2 = stream.ToArray();
 							}
 
-							passed = EndWatch();
+							passed = EndWatch(sw);
+							stbNativeWrite += passed;
+
 							Log("Span: {0} ms", passed);
 							Log("Stb.Native Size: {0}", save2.Length);
 
@@ -273,19 +371,21 @@ namespace StbSharp.Tests
 								var quality = JpgQualities[qi];
 								Log("Saving as JPG with StbSharp with quality={0}", quality);
 								byte[] save;
-								BeginWatch();
+								BeginWatch(sw);
 								using (var stream = new MemoryStream())
 								{
 									var writer = new ImageWriter();
 									writer.WriteJpg(image, stream, quality);
 									save = stream.ToArray();
 								}
-								var passed = EndWatch();
+								var passed = EndWatch(sw);
+								stbSharpWrite += passed;
+
 								Log("Span: {0} ms", passed);
 								Log("StbSharp Size: {0}", save.Length);
 
 								Log("Saving as JPG with Stb.Native with quality={0}", quality);
-								BeginWatch();
+								BeginWatch(sw);
 								byte[] save2;
 								using (var stream = new MemoryStream())
 								{
@@ -293,7 +393,9 @@ namespace StbSharp.Tests
 									save2 = stream.ToArray();
 								}
 
-								passed = EndWatch();
+								passed = EndWatch(sw);
+								stbNativeWrite += passed;
+
 								Log("Span: {0} ms", passed);
 								Log("Stb.Native Size: {0}", save2.Length);
 
@@ -321,14 +423,14 @@ namespace StbSharp.Tests
 					Log("Performing DXT compression with StbSharp");
 					image = Stb.LoadFromMemory(data, Stb.STBI_rgb_alpha);
 
-					BeginWatch();
+					BeginWatch(sw);
 					var compressed = Stb.stb_compress_dxt(image);
-					stbSharpCompression += EndWatch();
+					stbSharpCompression += EndWatch(sw);
 
 					Log("Performing DXT compression with Stb.Native");
-					BeginWatch();
+					BeginWatch(sw);
 					var compressed2 = Native.compress_dxt(image.Data, image.Width, image.Height, true);
-					stbNativeCompression += EndWatch();
+					stbNativeCompression += EndWatch(sw);
 
 					if (compressed.Length != compressed2.Length)
 					{
@@ -342,8 +444,8 @@ namespace StbSharp.Tests
 						{
 							throw new Exception(string.Format("Inconsistent data: index={0}, StbSharp={1}, Stb.Native={2}",
 								i,
-								(int)compressed[i],
-								(int)compressed2[i]));
+								(int) compressed[i],
+								(int) compressed2[i]));
 						}
 					}
 
@@ -354,6 +456,8 @@ namespace StbSharp.Tests
 					Log("Total Stb.Native Loading From Stream Time: {0} ms", stbNativeLoadingFromStream);
 					Log("Total StbSharp Loading From memory Time: {0} ms", stbSharpLoadingFromMemory);
 					Log("Total Stb.Native Loading From memory Time: {0} ms", stbNativeLoadingFromMemory);
+					Log("Total StbSharp Write Time: {0} ms", stbSharpWrite);
+					Log("Total Stb.Native Write Time: {0} ms", stbNativeWrite);
 					Log("Total StbSharp Compression Time: {0} ms", stbSharpCompression);
 					Log("Total Stb.Native Compression Time: {0} ms", stbNativeCompression);
 
@@ -361,15 +465,16 @@ namespace StbSharp.Tests
 					Log("Sichem Allocated: {0}", Operations.AllocatedTotal);
 				}
 
-				Log("Files processed: {0}", filesProcessed);
+				Log(DateTime.Now.ToLongTimeString() + " -- " + " Files processed: " + filesProcessed);
+
+				threadInfo.Success = true;
 			}
 			catch (Exception ex)
 			{
-				Log(ex.Message);
-				return false;
+				Log("Error: " + ex.Message);
 			}
 
-			return true;
+			threadInfo.Finished = true;
 		}
 
 		public static int Main(string[] args)
