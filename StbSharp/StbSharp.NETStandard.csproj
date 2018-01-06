@@ -15,8 +15,4 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Sichem.Framework" Version="0.3.5.13" />
-  </ItemGroup>
-
 </Project>

@@ -2,7 +2,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Sichem;
 
 namespace StbSharp
 {

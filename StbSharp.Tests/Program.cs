@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Sichem;
 using StbNative;
 
 namespace StbSharp.Tests
@@ -462,7 +461,7 @@ namespace StbSharp.Tests
 					Log("Total Stb.Native Compression Time: {0} ms", stbNativeCompression);
 
 					Log("GC Memory: {0}", GC.GetTotalMemory(true));
-					Log("Sichem Allocated: {0}", Operations.AllocatedTotal);
+					Log("Pinned Memory Allocated: {0}", Operations.AllocatedTotal);
 				}
 
 				Log(DateTime.Now.ToLongTimeString() + " -- " + " Files processed: " + filesProcessed);
