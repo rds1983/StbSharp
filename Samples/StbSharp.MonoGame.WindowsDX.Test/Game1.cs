@@ -72,7 +72,7 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			spriteFont = Content.Load<SpriteFont>("DefaultFont");
 
 			path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-			path = Path.Combine(path, "music.ogg");
+			path = Path.Combine(path, "Adeste_Fideles.ogg");
 			buffer = File.ReadAllBytes(path);
 
 			int chan, sampleRate;
