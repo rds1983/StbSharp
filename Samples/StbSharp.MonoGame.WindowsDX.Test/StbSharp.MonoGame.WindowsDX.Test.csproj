@@ -61,13 +61,14 @@
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StbSharp\StbSharp.csproj">
+    <ProjectReference Include="..\..\StbSharp\StbSharp.csproj">
       <Project>{5a331dad-b629-41e7-9131-70e538cf0b42}</Project>
       <Name>StbSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="music.ogg">
+    <None Include="..\..\Testing\TestOggs\Adeste_Fideles.ogg">
+      <Link>Adeste_Fideles.ogg</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

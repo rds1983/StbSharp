@@ -14,14 +14,14 @@ using namespace System::Threading;
 
 #define STBI_NO_STDIO
 #define STB_IMAGE_IMPLEMENTATION
-#include "../StbSharp.Generator/StbSource/stb_image.h"
+#include "../../Generation/StbSharp.StbImage.Generator/stb_image.h"
 
 #define STBI_WRITE_NO_STDIO
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../StbSharp.Generator/StbSource/stb_image_write.h"
+#include "../../Generation/StbSharp.StbImageWrite.Generator/stb_image_write.h"
 
 #define STB_DXT_IMPLEMENTATION
-#include "../StbSharp.Generator/StbSource/stb_dxt.h"
+#include "../../Generation/StbSharp.StbDxt.Generator/stb_dxt.h"
 
 #define STB_VORBIS_NO_INLINE_DECODE
 #define STB_VORBIS_NO_FAST_SCALED_FLOAT

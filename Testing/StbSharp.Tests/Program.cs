@@ -476,67 +476,99 @@ namespace StbSharp.Tests
 			threadInfo.Finished = true;
 		}
 
+		private static bool TestVorbis()
+		{
+			try
+			{
+				var imagesPath = "..\\..\\..\\TestOggs";
+
+				var totalNative = 0;
+				var totalStb = 0;
+				var filesProcess = 0;
+
+				var files = Directory.EnumerateFiles(imagesPath, "*.*", SearchOption.AllDirectories).ToArray();
+				Log("Files count: {0}", files.Length);
+
+				foreach (var f in files)
+				{
+					if (!f.EndsWith(".ogg") && !f.EndsWith(".oga"))
+					{
+						continue;
+					}
+
+					Log("Processing file #" + (filesProcess + 1) + ": " + f);
+
+					var data = File.ReadAllBytes(f);
+
+					// Native
+					var sw = new Stopwatch();
+
+					int sampleRate = 0, channels = 0;
+
+					BeginWatch(sw);
+					var nativeResult = new short[0];
+
+					for (var i = 0; i < 1; ++i)
+					{
+						nativeResult = Native.decode_vorbis_from_memory(data, out sampleRate, out channels);
+					}
+
+					var p = EndWatch(sw);
+					totalNative += p;
+					Log("Native vorbis decode took {0} ms", p);
+					Log("Sample Rate: {0}, Channels: {1}, Size: {2}", sampleRate, channels, nativeResult.Length);
+
+					// StbSharp
+					BeginWatch(sw);
+					var stbResult = new short[0];
+					for (var i = 0; i < 1; ++i)
+					{
+						stbResult = StbVorbis.decode_vorbis_from_memory(data, out sampleRate, out channels);
+					}
+
+					p = EndWatch(sw);
+					totalStb += p;
+					Log("Stb vorbis decode took {0} ms", p);
+					Log("Sample Rate: {0}, Channels: {1}, Size: {2}", sampleRate, channels, stbResult.Length);
+
+					if (nativeResult.Length != stbResult.Length)
+					{
+						throw new Exception("Inconsistent size.");
+					}
+
+					for (var i = 0; i < nativeResult.Length; ++i)
+					{
+						if (Math.Abs(nativeResult[i] - stbResult[i]) > 1)
+						{
+							throw new Exception(string.Format("There is difference at {0}, native={1}, stb={2}", i, nativeResult[i],
+								stbResult[i]));
+						}
+					}
+
+					++filesProcess;
+
+					Log("Total Files Processed: " + filesProcess);
+					Log("Total Native Decoding Time In MS: " + totalNative);
+					Log("Total StbSharp Decoding Time In MS: " + totalStb);
+				}
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Log(ex.Message);
+				return false;
+			}
+		}
+
 		public static int Main(string[] args)
 		{
 			var start = DateTime.Now;
-
-/*			var path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-			path = Path.Combine(path, "music.ogg");
-			var data = File.ReadAllBytes(path);
-
-			// Native
-			var sw = new Stopwatch();
-
-			int sampleRate, channels;
-
-			BeginWatch(sw);
-			short[] nativeResult = null;
-
-			for (var i = 0; i < 10; ++i)
-			{
-				nativeResult = Native.decode_vorbis_from_memory(data, out sampleRate, out channels);
-			}
-
-			var p = EndWatch(sw);
-			Log("Native vorbis decode took {0} ms", p);
-
-			// StbSharp
-			BeginWatch(sw);
-			short[] stbResult = null;
-			for (var i = 0; i < 10; ++i)
-			{
-				stbResult = StbVorbis.decode_vorbis_from_memory(data, out sampleRate, out channels);
-			}
-
-			p = EndWatch(sw);
-			Log("Stb vorbis decode took {0} ms", p);
-
-			var res = true;
-
-			if (nativeResult.Length != stbResult.Length)
-			{
-				res = false;
-			}
-			else
-			{
-				for (var i = 0; i < nativeResult.Length; ++i)
-				{
-					if (Math.Abs(nativeResult[i] - stbResult[i]) > 1)
-					{
-						Log("There is difference at {0}, native={1}, stb={2}", i, nativeResult[i], stbResult[i]);
-						res = false;
-						break;
-
-					}
-				}
-			}*/
 
 			var res = RunTests();
 			var passed = DateTime.Now - start;
 			Log("Span: {0} ms", passed.TotalMilliseconds);
 			Log(DateTime.Now.ToLongTimeString() + " -- " + (res ? "Success" : "Failure"));
-
-			Console.ReadKey();
 
 			return res ? 1 : 0;
 		}

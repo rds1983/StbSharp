@@ -35,7 +35,7 @@ namespace StbSharp.OggPlayer
 				using (var dlg = new OpenFileDialog())
 				{
 					dlg.Filter =
-						"OGG Files (*.ogg)|*.ogg|All Files (*.*)|*.*";
+						"OGG Files (*.ogg)|*.ogg|OGA Files (*.oga)|*.oga|All Files (*.*)|*.*";
 					if (dlg.ShowDialog() != DialogResult.OK)
 					{
 						return;

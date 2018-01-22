@@ -81,7 +81,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StbSharp\StbSharp.csproj">
+    <ProjectReference Include="..\..\StbSharp\StbSharp.csproj">
       <Project>{5a331dad-b629-41e7-9131-70e538cf0b42}</Project>
       <Name>StbSharp</Name>
     </ProjectReference>
