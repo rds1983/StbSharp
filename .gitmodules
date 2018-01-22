@@ -1,6 +1,6 @@
 [submodule "Generation/Sichem"]
 	path = Generation/Sichem
-	url = git@github.com:rds1983/Sichem.git
+	url = https://github.com/rds1983/Sichem.git
 [submodule "Testing/TestImages"]
 	path = Testing/TestImages
 	url = https://github.com/rds1983/DigitalRune-Images
