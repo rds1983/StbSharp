@@ -13,7 +13,7 @@ namespace StbSharp.StbVorbis.Generator
 				var parameters = new ConversionParameters
 				{
 
-					InputPath = @"D:\Projects\StbSharp\StbSharp.Generator\StbSource\stb_vorbis.c",
+					InputPath = @"stb_vorbis.c",
 					Output = output,
 					Defines = new[]
 					{
@@ -189,7 +189,7 @@ namespace StbSharp.StbVorbis.Generator
 				data = data.Replace("if (((f.current_loc_valid) != 0) && (f.page_flag & 4))",
 					"if (((f.current_loc_valid) != 0) && (f.page_flag & 4) != 0)");
 
-				File.WriteAllText(@"..\..\..\..\StbSharp\Stb.Vorbis.Generated.cs", data);
+				File.WriteAllText(@"..\..\..\..\..\StbSharp\Stb.Vorbis.Generated.cs", data);
 			}
 		}
 

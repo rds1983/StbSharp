@@ -196,7 +196,7 @@ namespace StbSharp.StbImage.Generator
 				data = data.Replace("if ((u) == ((byte*)(s))) u = ((byte*)(0));",
 					string.Empty);
 
-				File.WriteAllText(@"..\..\..\..\StbSharp\Stb.Image.Generated.cs", data);
+				File.WriteAllText(@"..\..\..\..\..\StbSharp\Stb.Image.Generated.cs", data);
 			}
 		}
 

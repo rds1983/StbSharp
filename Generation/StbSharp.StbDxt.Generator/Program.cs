@@ -12,7 +12,7 @@ namespace StbSharp.StbDxt.Generator
 			{
 				var parameters = new ConversionParameters
 				{
-					InputPath = @"D:\Projects\StbSharp\StbSharp.Generator\StbSource\stb_dxt.h",
+					InputPath = @"stb_dxt.h",
 					Output = output,
 					Defines = new[]
 					{
@@ -57,7 +57,7 @@ namespace StbSharp.StbDxt.Generator
 				data = data.Replace("public static void stb__PrepareOptTable(byte* Table, byte* expand, int size)",
 					"public static void stb__PrepareOptTable(byte[] Table, byte[] expand, int size)");
 
-				File.WriteAllText(@"..\..\..\..\StbSharp\Stb.Dxt.Generated.cs", data);
+				File.WriteAllText(@"..\..\..\..\..\StbSharp\StbDxt.Generated.cs", data);
 			}
 		}
 

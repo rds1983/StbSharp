@@ -12,7 +12,7 @@ namespace StbSharp.StbImageResize.Generator
 			{
 				var parameters = new ConversionParameters
 				{
-					InputPath = @"D:\Projects\StbSharp\StbSharp.Generator\StbSource\stb_image_resize.h",
+					InputPath = @"stb_image_resize.h",
 					Output = output,
 					Defines = new[]
 					{
@@ -63,7 +63,7 @@ namespace StbSharp.StbImageResize.Generator
 				// Post processing
 				Logger.Info("Post processing...");
 
-				File.WriteAllText(@"..\..\..\..\StbSharp\Stb.ImageResize.Generated.cs", data);
+				File.WriteAllText(@"..\..\..\..\..\StbSharp\Stb.ImageResize.Generated.cs", data);
 			}
 		}
 

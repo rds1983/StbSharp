@@ -100,7 +100,7 @@ namespace StbSharp.StbImageWrite.Generator
 				data = data.Replace("(hash_table[i])?",
 					"(hash_table[i] != null)?");
 
-				File.WriteAllText(@"..\..\..\..\StbSharp\Stb.ImageWrite.Generated.cs", data);
+				File.WriteAllText(@"..\..\..\..\..\StbSharp\Stb.ImageWrite.Generated.cs", data);
 			}
 		}
 

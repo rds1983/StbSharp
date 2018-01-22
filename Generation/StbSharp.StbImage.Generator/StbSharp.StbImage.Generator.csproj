@@ -49,15 +49,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Sichem\Sichem\Sichem.csproj">
-      <Project>{71352218-91c4-490e-a650-ab17c48d0300}</Project>
-      <Name>Sichem</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="stb_image.h">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sichem\Sichem\Sichem.csproj">
+      <Project>{dcf9ccd1-4beb-46ef-96c0-386fd3f7c230}</Project>
+      <Name>Sichem</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
