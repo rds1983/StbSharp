@@ -9,7 +9,7 @@ assembly_info:
   assembly_informational_version: '{version}'
 build_script:
 - cmd: >-
-    git submodule update --init --recursive
+    git submodule update --init --recursive Generation/Sichem
 
     msbuild StbSharp\StbSharp.csproj /p:Configuration=Release /t:rebuild
 
