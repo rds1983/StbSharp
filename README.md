@@ -7,13 +7,13 @@ The porting hasn't been done by hand, but using [Sichem](https://github.com/rds1
 
 Following libraries had been ported so far: stb_image.h, stb_image_write.h, stb_image_resize.h, stb_dxt.h and stb_vorbis.c.
 
-Following libraries porting is planned: stb_textedit.h, stb_truetype.h and stb_rectpack.
+Following libraries porting is planned: stb_textedit.h, stb_truetype.h and stb_rectpack.h.
 
 ### Documentation
 StbSharp has same API as STB. Therefore the STB documentation is valid for StbSharp as well.
 However some wrapper classes and helper functions had been added.
 
-The [wiki](https://github.com/rds1983/StbSharp/wiki) contains instructions about referencing StbSharp in a project and the code samples.
+The [wiki](https://github.com/rds1983/StbSharp/wiki) contains instructions about adding StbSharp to a project and the code samples.
 
 ### License
 Public Domain
