@@ -7,8 +7,8 @@
     <ProjectGuid>{2F372A46-2B31-49ED-BEAA-B7D6E72CD983}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Generator</RootNamespace>
-    <AssemblyName>Generator</AssemblyName>
+    <RootNamespace>StbSharp.StbImage.Generator</RootNamespace>
+    <AssemblyName>StbSharp.StbImage.Generator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>ccc2377f</NuGetPackageImportStamp>
@@ -49,21 +49,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Sichem\Sichem\Sichem.csproj">
+    <ProjectReference Include="..\..\Sichem\Sichem\Sichem.csproj">
       <Project>{71352218-91c4-490e-a650-ab17c48d0300}</Project>
       <Name>Sichem</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="StbSource\stb_image.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="StbSource\stb_image_write.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="StbSource\stb_dxt.h" />
-    <Content Include="StbSource\stb_image_resize.h" />
-    <None Include="StbSource\stb_vorbis.c" />
+    <None Include="stb_image.h">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

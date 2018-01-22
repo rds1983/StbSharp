@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3E2A8A80-CE3E-4ADE-81FF-518CE804383C}</ProjectGuid>
+    <ProjectGuid>{EFF134D7-5AA1-4280-B32D-37E5CC6C620D}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>StbSharp.Tests</RootNamespace>
-    <AssemblyName>StbSharp.Tests</AssemblyName>
+    <RootNamespace>StbSharp.StbVorbis.Generator</RootNamespace>
+    <AssemblyName>StbSharp.StbVorbis.Generator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -45,17 +45,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Stb.Native\Stb.Native.vcxproj">
-      <Project>{ea7b8121-942a-437d-85d5-e4d55b94e88a}</Project>
-      <Name>Stb.Native</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\StbSharp\StbSharp.csproj">
-      <Project>{5a331dad-b629-41e7-9131-70e538cf0b42}</Project>
-      <Name>StbSharp</Name>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Sichem\Sichem\Sichem.csproj">
+      <Project>{71352218-91c4-490e-a650-ab17c48d0300}</Project>
+      <Name>Sichem</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="music.ogg">
+    <None Include="stb_vorbis.c">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
