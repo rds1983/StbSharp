@@ -78,6 +78,10 @@ namespace StbSharp.StbTrueType.Generator
 					data = data.Replace("(" + m + "(", "(CRuntime." + m + "(");
 					data = data.Replace(" " + m + "(", " CRuntime." + m + "(");
 					data = data.Replace(";" + m + "(", ";CRuntime." + m + "(");
+					data = data.Replace("\t" + m + "(", "\tCRuntime." + m + "(");
+					data = data.Replace("\n" + m + "(", "\nCRuntime." + m + "(");
+					data = data.Replace("-" + m + "(", "-CRuntime." + m + "(");
+					data = data.Replace("}" + m + "(", "}CRuntime." + m + "(");
 				}
 
 				data = data.Replace("(void *)(0)", "null");
@@ -92,6 +96,19 @@ namespace StbSharp.StbTrueType.Generator
 				data = data.Replace("stbtt_vertex* comp_verts = 0;", "stbtt_vertex* comp_verts = null;");
 				data = data.Replace("stbtt_vertex* tmp = 0;", "stbtt_vertex* tmp = null;");
 				data = data.Replace(",)", ")");
+				data = data.Replace("+ +", "+");
+				data = data.Replace("(sizeof(stbtt__hheap_chunk)+ size * (ulong)(count))", "((ulong)sizeof(stbtt__hheap_chunk)+ size * (ulong)(count))");
+				data = data.Replace("sizeof((*z))", "sizeof(stbtt__active_edge)");
+				data = data.Replace("_next_ = 0;", "_next_ = null;");
+				data = data.Replace("sizeof((scanline[0]))", "sizeof(float)");
+				data = data.Replace("int c = (int)(((a)->y0) < ((b)->y0));", "int c = (int)(a->y0 < b->y0?1:0);");
+				data = data.Replace("sizeof((*e))", "sizeof(stbtt__edge)");
+				data = data.Replace("sizeof((**contour_lengths))", "sizeof(int)");
+				data = data.Replace("sizeof((points[0]))", "sizeof(stbtt__point)");
+				data = data.Replace("sizeof((*context))", "sizeof(stbrp_context)");
+				data = data.Replace("sizeof((*nodes))", "sizeof(stbrp_node)");
+				data = data.Replace("sizeof((*rects))", "sizeof(stbrp_rect)");
+				data = data.Replace("(int)(((a[0]) == (b[0])) && ((a[1]) == (b[1])));", "(int)(((a[0] == b[0]) && (a[1] == b[1]))?1:0);");
 
 				File.WriteAllText(@"..\..\..\..\..\StbSharp\StbTrueType.Generated.cs", data);
 			}
