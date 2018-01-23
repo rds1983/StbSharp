@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -10,21 +11,23 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 	/// <summary>
 	/// This is the main type for your game.
 	/// </summary>
-	public class Game1 : Game
+	public unsafe class Game1 : Game
 	{
-		GraphicsDeviceManager graphics;
-		SpriteBatch spriteBatch;
+		private const int FontBitmapWidth = 512;
+		private const int FontBitmapHeight = 512;
 
-		private Texture2D texLoadedByMG;
-		private Texture2D texLoadedBySTB;
-		private SpriteFont spriteFont;
-		private double mgLoadTime, stbLoadTime;
+		GraphicsDeviceManager _graphics;
+		SpriteBatch _spriteBatch;
+
+		private Texture2D _image;
+		private Texture2D _fontTexture;
 		private DynamicSoundEffectInstance _effect;
 		private bool _startedPlaying;
+		private readonly Dictionary<char, StbTrueType.stbtt_bakedchar> _charData = new Dictionary<char, StbTrueType.stbtt_bakedchar>();
 
 		public Game1()
 		{
-			graphics = new GraphicsDeviceManager(this)
+			_graphics = new GraphicsDeviceManager(this)
 			{
 				PreferredBackBufferWidth = 1280,
 				PreferredBackBufferHeight = 800
@@ -42,7 +45,7 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 		protected override void LoadContent()
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
-			spriteBatch = new SpriteBatch(GraphicsDevice);
+			_spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			// TODO: use this.Content to load your game content here
 			// Load image data into memory
@@ -50,27 +53,59 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			path = Path.Combine(path, "image.jpg");
 			var buffer = File.ReadAllBytes(path);
 
-			// Loading through Texture2D.FromStream
-			var now = DateTime.Now;
+			var image = StbImage.LoadFromMemory(buffer, StbImage.STBI_rgb_alpha);
+			_image = new Texture2D(GraphicsDevice, image.Width, image.Height, false, SurfaceFormat.Color);
+			_image.SetData(image.Data);
 
-			using (var ms = new MemoryStream(buffer))
+			// Load ttf
+			buffer = File.ReadAllBytes("c:/windows/fonts/times.ttf");
+			var tempBitmap = new byte[FontBitmapWidth * FontBitmapHeight];
+			var charData = new StbTrueType.stbtt_bakedchar[256];
+
+/*			fixed (StbTrueType.stbtt_bakedchar* cPtr = charData)
 			{
-				texLoadedByMG = Texture2D.FromStream(GraphicsDevice, ms);
+				var bbb = Native.stbtt_BakeFontBitmap2(buffer, 0, 48, tempBitmap, FontBitmapWidth, FontBitmapHeight, 32, 96);
+				var size = 96*sizeof (StbTrueType.stbtt_bakedchar);
+				Marshal.Copy(bbb, 0, new IntPtr(cPtr), size);
+			}*/
+			StbTrueType.stbtt_BakeFontBitmap(buffer, 0, 48, tempBitmap, FontBitmapWidth, FontBitmapHeight, 32, 96, charData);
+
+			var c = 32;
+			foreach (var cd in charData)
+			{
+				_charData[(char)c] = cd;
+				++c;
 			}
 
-			mgLoadTime = (DateTime.Now - now).TotalMilliseconds;
+			var z = _charData['Z'];
+			var w = z.x1 - z.x0;
+			var buf = new byte[w*(z.y1 - z.y0)];
+			var i2 = 0;
+			for (var y = z.y0; y < z.y1; ++y)
+			{
+				for (var x = z.x0; x < z.x1; ++x)
+				{
+					buf[i2] = tempBitmap[y*w + x];
+					++i2;
+				}
+			}
 
-			// Loading through StbSharp
-			now = DateTime.Now;
 
-			var image = StbImage.LoadFromMemory(buffer, StbImage.STBI_rgb_alpha);
-			texLoadedBySTB = new Texture2D(GraphicsDevice, image.Width, image.Height, false, SurfaceFormat.Color);
-			texLoadedBySTB.SetData(image.Data);
+			var rgb = new Color[FontBitmapWidth * FontBitmapHeight];
+			for (var i = 0; i < tempBitmap.Length; ++i)
+			{
+				byte b = tempBitmap[i];
+				rgb[i].R = b;
+				rgb[i].G = b;
+				rgb[i].B = b;
+				
+				rgb[i].A = b;
+			}
 
-			stbLoadTime = (DateTime.Now - now).TotalMilliseconds;
+			_fontTexture = new Texture2D(GraphicsDevice, FontBitmapWidth, FontBitmapHeight);
+			_fontTexture.SetData(rgb);
 
-			spriteFont = Content.Load<SpriteFont>("DefaultFont");
-
+			// Load ogg
 			path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
 			path = Path.Combine(path, "Adeste_Fideles.ogg");
 			buffer = File.ReadAllBytes(path);
@@ -93,7 +128,12 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 				audioData[i*2 + 1] = b1;
 			}
 
-			_effect = new DynamicSoundEffectInstance(sampleRate, AudioChannels.Stereo);
+			_effect = new DynamicSoundEffectInstance(sampleRate, AudioChannels.Stereo)
+			{
+				Volume = 0.5f
+			};
+
+
 			_effect.SubmitBuffer(audioData);
 
 			GC.Collect();
@@ -122,11 +162,39 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			// TODO: Add your update logic here
 			if (!_startedPlaying)
 			{
-				_effect.Play();
+//				_effect.Play();
 				_startedPlaying = true;
 			}
 
 			base.Update(gameTime);
+		}
+
+		private void DrawTTFString(SpriteBatch batch, string str, Vector2 location, Color color)
+		{
+			if (string.IsNullOrEmpty(str))
+			{
+				return;
+			}
+
+			for (var i = 0; i < str.Length; ++i)
+			{
+				var c = str[i];
+				StbTrueType.stbtt_bakedchar cd;
+				if (!_charData.TryGetValue(c, out cd))
+				{
+					continue;
+				}
+
+				var pos = location;
+				pos.X += cd.xoff;
+				pos.Y += cd.yoff;
+
+				batch.Draw(_fontTexture, pos, 
+					new Rectangle(cd.x0, cd.y0, cd.x1 - cd.x0, cd.y1 - cd.y0),
+					color);
+
+				location.X += cd.xadvance;
+			}
 		}
 
 		/// <summary>
@@ -138,21 +206,17 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
 			// TODO: Add your drawing code here
-			spriteBatch.Begin();
+			_spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 
-			spriteBatch.Draw(texLoadedByMG, Vector2.Zero);
-			spriteBatch.DrawString(spriteFont, string.Format("{0}", (int) mgLoadTime),
-				new Vector2(0, texLoadedByMG.Height + 10), Color.White);
+			_spriteBatch.Draw(_image, new Vector2(0, 0));
+			_spriteBatch.Draw(_fontTexture, new Vector2(_image.Width + 10, 0));
 
-			var x = texLoadedByMG.Width + 10;
-			spriteBatch.Draw(texLoadedBySTB, new Vector2(x, 0));
-			spriteBatch.DrawString(spriteFont, string.Format("{0}", (int) stbLoadTime),
-				new Vector2(x, texLoadedBySTB.Height + 10), Color.White);
+			DrawTTFString(_spriteBatch, string.Format("Sichem Allocated: {0}", Pointer.AllocatedTotal),
+				new Vector2(0, _image.Height + 30), Color.White);
+			DrawTTFString(_spriteBatch, "ZZZZZZZZZZZZZZZZZZZZZZ",
+				new Vector2(0, _image.Height + 60), Color.White);
 
-			spriteBatch.DrawString(spriteFont, string.Format("Sichem Allocated: {0}", Pointer.AllocatedTotal),
-				new Vector2(0, texLoadedByMG.Height + 30), Color.White);
-
-			spriteBatch.End();
+			_spriteBatch.End();
 
 			base.Draw(gameTime);
 		}

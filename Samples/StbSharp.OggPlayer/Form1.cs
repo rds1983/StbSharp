@@ -43,7 +43,7 @@ namespace StbSharp.OggPlayer
 
 					var bytes = File.ReadAllBytes(dlg.FileName);
 
-					var audioShort = Stb.decode_vorbis_from_memory(bytes, out _sampleRate, out _channels);
+					var audioShort = StbVorbis.decode_vorbis_from_memory(bytes, out _sampleRate, out _channels);
 
 					_audioData = new byte[audioShort.Length/2*4];
 					for (var i = 0; i < audioShort.Length; ++i)

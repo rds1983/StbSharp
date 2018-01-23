@@ -1994,41 +1994,57 @@ static int stbtt__run_charstring(const stbtt_fontinfo *info, int glyph_index, st
 
       // hlineto/vlineto and vhcurveto/hvcurveto alternate horizontal and vertical
       // starting from a different place.
-
       case 0x07: // vlineto
-         if (sp < 1) return STBTT__CSERR("vlineto stack");
-         if (i >= sp) break;
-         stbtt__csctx_rline_to(c, 0, s[i]);
-         i++;
-         break;
       case 0x06: // hlineto
-         if (sp < 1) return STBTT__CSERR("hlineto stack");
-         for (;;) {
-            if (i >= sp) break;
-            stbtt__csctx_rline_to(c, s[i], 0);
-            i++;
-            if (i >= sp) break;
-            stbtt__csctx_rline_to(c, 0, s[i]);
-            i++;
-         }
-         break;
+      {
+          int gotoVlineTo = 0;
+          if (b0 == 0x07) {
+              if (sp < 1) return STBTT__CSERR("vlineto stack");
+              gotoVlineTo = 1;
+          }
+
+          if (sp < 1) return STBTT__CSERR("hlineto stack");
+          for (;;) {
+              if (!gotoVlineTo)
+              {
+                  if (i >= sp) break;
+                  stbtt__csctx_rline_to(c, s[i], 0);
+                  i++;
+              }
+              else {
+                  gotoVlineTo = 0;
+              }
+
+              if (i >= sp) break;
+              stbtt__csctx_rline_to(c, 0, s[i]);
+              i++;
+          }
+      }
+      break;
 
       case 0x1F: // hvcurveto
-         if (sp < 4) return STBTT__CSERR("hvcurveto stack");
-         if (i + 3 >= sp) break;
-         stbtt__csctx_rccurve_to(c, s[i], 0, s[i + 1], s[i + 2], (sp - i == 5) ? s[i + 4] : 0.0f, s[i + 3]);
-         i += 4;
-         break;
       case 0x1E: // vhcurveto
-         if (sp < 4) return STBTT__CSERR("vhcurveto stack");
-         for (;;) {
-            if (i + 3 >= sp) break;
-            stbtt__csctx_rccurve_to(c, 0, s[i], s[i+1], s[i+2], s[i+3], (sp - i == 5) ? s[i + 4] : 0.0f);
-            i += 4;
-            if (i + 3 >= sp) break;
-            stbtt__csctx_rccurve_to(c, s[i], 0, s[i+1], s[i+2], (sp - i == 5) ? s[i+4] : 0.0f, s[i+3]);
-            i += 4;
-         }
+      {
+          int gotoHcurveTo = 0;
+          if (b0 == 0x1F)
+          {
+              if (sp < 4) return STBTT__CSERR("vhcurveto stack");
+              gotoHcurveTo = 1;
+          }
+          for (;;) {
+              if (!gotoHcurveTo)
+              {
+                  if (i + 3 >= sp) break;
+                  stbtt__csctx_rccurve_to(c, 0, s[i], s[i + 1], s[i + 2], s[i + 3], (sp - i == 5) ? s[i + 4] : 0.0f);
+                  i += 4;
+              } else {
+                  gotoHcurveTo = 0;
+              }
+              if (i + 3 >= sp) break;
+              stbtt__csctx_rccurve_to(c, s[i], 0, s[i + 1], s[i + 2], (sp - i == 5) ? s[i + 4] : 0.0f, s[i + 3]);
+              i += 4;
+          }
+      }
          break;
 
       case 0x08: // rrcurveto
