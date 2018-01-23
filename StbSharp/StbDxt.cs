@@ -2,7 +2,7 @@
 
 namespace StbSharp
 {
-	public unsafe partial class StbDxt
+	public static unsafe partial class StbDxt
 	{
 		public static void stb__DitherBlock(byte* dest, byte* block)
 		{

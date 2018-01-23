@@ -154,6 +154,11 @@ namespace StbSharp
 			return Math.Cos(value);
 		}
 
+		public static double acos(double value)
+		{
+			return Math.Acos(value);
+		}
+
 		public static double sin(double value)
 		{
 			return Math.Sin(value);
@@ -231,6 +236,29 @@ namespace StbSharp
 		public static void qsort(void* data, ulong count, ulong size, QSortComparer comparer)
 		{
 			qsortInternal((byte *)data, (long)size, comparer, 0, (long)count - 1);
+		}
+
+		public static double sqrt(double val)
+		{
+			return Math.Sqrt(val);
+		}
+
+		public static double fmod(double x, double y)
+		{
+			return x % y;
+		}
+
+		public static ulong strlen(sbyte* str)
+		{
+			ulong res = 0;
+			var ptr = str;
+
+			while (*ptr != '\0')
+			{
+				ptr++;
+			}
+
+			return ((ulong)ptr - (ulong)str - 1);
 		}
 	}
 }

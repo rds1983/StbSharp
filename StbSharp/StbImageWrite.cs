@@ -2,7 +2,7 @@
 
 namespace StbSharp
 {
-	public unsafe partial class StbImageWrite
+	public static unsafe partial class StbImageWrite
 	{
 		public static int stbi_write_tga_with_rle = 1;
 

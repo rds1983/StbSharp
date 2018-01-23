@@ -27,6 +27,9 @@ using namespace System::Threading;
 #define STB_VORBIS_NO_FAST_SCALED_FLOAT
 #include "stb_vorbis.c"
 
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "stb_truetype.h"
+
 namespace StbNative {
 	int read_callback(void *user, char *data, int size);
 	void skip_callback(void *user, int size);
@@ -291,6 +294,34 @@ namespace StbNative {
 			}
 
 			return result;
+		}
+
+		static array<unsigned char> ^stbtt_BakeFontBitmap2(array<unsigned char> ^ttf, int offset, float pixel_height, array<unsigned char> ^pixels, int pw, int ph,
+			int first_char, int num_chars)
+		{
+
+			pin_ptr<unsigned char> ttfPin = &ttf[0];
+			unsigned char *ttfPtr = ttfPin;
+
+			pin_ptr<unsigned char> pixelsPin = &pixels[0];
+			unsigned char *pixelsPtr = pixelsPin;
+
+			stbtt_bakedchar chardata[256];
+			int result = stbtt_BakeFontBitmap(ttfPtr, offset, pixel_height, pixelsPtr, pw, ph, first_char, num_chars, chardata);
+
+			if (result == 0)
+			{
+				return nullptr;
+			}
+
+			size_t sz = sizeof(stbtt_bakedchar) * num_chars;
+			array<unsigned char> ^data = gcnew array<unsigned char>(sz);
+			pin_ptr<unsigned char> dataPin = &data[0];
+			unsigned char *dataPtr = dataPin;
+
+			memcpy(dataPtr, chardata, sizeof(stbtt_bakedchar) * sz);
+
+			return data;
 		}
 	};
 

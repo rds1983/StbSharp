@@ -27,6 +27,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
@@ -56,14 +57,16 @@
     <Content Include="image.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <MonoGameContentReference Include="Content\Content.mgcb" />
+    <Content Include="OpenSans\Apache License.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\StbSharp\StbSharp.csproj">
       <Project>{5a331dad-b629-41e7-9131-70e538cf0b42}</Project>
       <Name>StbSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Testing\Stb.Native\Stb.Native.vcxproj">
+      <Project>{ea7b8121-942a-437d-85d5-e4d55b94e88a}</Project>
+      <Name>Stb.Native</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -71,9 +74,11 @@
       <Link>Adeste_Fideles.ogg</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="OpenSans\OpenSans-Regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
