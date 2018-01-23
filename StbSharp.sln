@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sichem", "Generation\Sichem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sichem.Framework", "Generation\Sichem\Sichem.Framework\Sichem.Framework.csproj", "{9866E116-5E74-4B3F-A9F3-06F794A7D25A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StbSharp.StbTrueType.Generator", "Generation\StbSharp.StbTrueType.Generator\StbSharp.StbTrueType.Generator.csproj", "{002FAE39-051D-4BB2-B8D5-12543919E819}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -93,6 +95,10 @@ Global
 		{9866E116-5E74-4B3F-A9F3-06F794A7D25A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{9866E116-5E74-4B3F-A9F3-06F794A7D25A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{9866E116-5E74-4B3F-A9F3-06F794A7D25A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{002FAE39-051D-4BB2-B8D5-12543919E819}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
+		{002FAE39-051D-4BB2-B8D5-12543919E819}.Debug|Mixed Platforms.Build.0 = Debug|x64
+		{002FAE39-051D-4BB2-B8D5-12543919E819}.Release|Mixed Platforms.ActiveCfg = Release|x64
+		{002FAE39-051D-4BB2-B8D5-12543919E819}.Release|Mixed Platforms.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -110,5 +116,6 @@ Global
 		{3E2A8A80-CE3E-4ADE-81FF-518CE804383C} = {519A6B9C-7460-47E9-9030-F30D86D08DA8}
 		{71352218-91C4-490E-A650-AB17C48D0300} = {E6A1DB74-63F3-41DB-8793-6A94DA6F2020}
 		{9866E116-5E74-4B3F-A9F3-06F794A7D25A} = {E6A1DB74-63F3-41DB-8793-6A94DA6F2020}
+		{002FAE39-051D-4BB2-B8D5-12543919E819} = {E6A1DB74-63F3-41DB-8793-6A94DA6F2020}
 	EndGlobalSection
 EndGlobal

@@ -232,5 +232,10 @@ namespace StbSharp
 		{
 			qsortInternal((byte *)data, (long)size, comparer, 0, (long)count - 1);
 		}
+
+		public static double sqrt(double val)
+		{
+			return Math.Sqrt(val);
+		}
 	}
 }

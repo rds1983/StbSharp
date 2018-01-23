@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace StbSharp
 {
-	public unsafe partial class StbVorbis
+	public static unsafe partial class StbVorbis
 	{
 		public class Residue
 		{
