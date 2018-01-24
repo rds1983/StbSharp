@@ -91,7 +91,7 @@ namespace StbSharp.StbTrueType.Generator
 				data = data.Replace("(vertices) == (0)", "vertices == null");
 				data = data.Replace("sizeof(stbtt_vertex))))", "sizeof(stbtt_vertex)))");
 				data = data.Replace("sizeof((vertices[0]))", "sizeof(stbtt_vertex)");
-				data = data.Replace("(int)(!(flags & 1))", "((flags & 1) != 0?1:0)");
+				data = data.Replace("(int)(!(flags & 1))", "((flags & 1) != 0?0:1)");
 				data = data.Replace("vertices = 0;", "vertices = null;");
 				data = data.Replace("stbtt_vertex* comp_verts = 0;", "stbtt_vertex* comp_verts = null;");
 				data = data.Replace("stbtt_vertex* tmp = 0;", "stbtt_vertex* tmp = null;");

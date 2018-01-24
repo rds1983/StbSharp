@@ -58,16 +58,10 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			_image.SetData(image.Data);
 
 			// Load ttf
-			buffer = File.ReadAllBytes("c:/windows/fonts/times.ttf");
+			buffer = File.ReadAllBytes("OpenSans/OpenSans-Regular.ttf");
 			var tempBitmap = new byte[FontBitmapWidth * FontBitmapHeight];
 			var charData = new StbTrueType.stbtt_bakedchar[256];
 
-/*			fixed (StbTrueType.stbtt_bakedchar* cPtr = charData)
-			{
-				var bbb = Native.stbtt_BakeFontBitmap2(buffer, 0, 48, tempBitmap, FontBitmapWidth, FontBitmapHeight, 32, 96);
-				var size = 96*sizeof (StbTrueType.stbtt_bakedchar);
-				Marshal.Copy(bbb, 0, new IntPtr(cPtr), size);
-			}*/
 			StbTrueType.stbtt_BakeFontBitmap(buffer, 0, 48, tempBitmap, FontBitmapWidth, FontBitmapHeight, 32, 96, charData);
 
 			var c = 32;
@@ -77,24 +71,10 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 				++c;
 			}
 
-			var z = _charData['Z'];
-			var w = z.x1 - z.x0;
-			var buf = new byte[w*(z.y1 - z.y0)];
-			var i2 = 0;
-			for (var y = z.y0; y < z.y1; ++y)
-			{
-				for (var x = z.x0; x < z.x1; ++x)
-				{
-					buf[i2] = tempBitmap[y*w + x];
-					++i2;
-				}
-			}
-
-
 			var rgb = new Color[FontBitmapWidth * FontBitmapHeight];
 			for (var i = 0; i < tempBitmap.Length; ++i)
 			{
-				byte b = tempBitmap[i];
+				var b = tempBitmap[i];
 				rgb[i].R = b;
 				rgb[i].G = b;
 				rgb[i].B = b;
@@ -162,7 +142,7 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			// TODO: Add your update logic here
 			if (!_startedPlaying)
 			{
-//				_effect.Play();
+				_effect.Play();
 				_startedPlaying = true;
 			}
 
@@ -213,7 +193,7 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 
 			DrawTTFString(_spriteBatch, string.Format("Sichem Allocated: {0}", Pointer.AllocatedTotal),
 				new Vector2(0, _image.Height + 30), Color.White);
-			DrawTTFString(_spriteBatch, "ZZZZZZZZZZZZZZZZZZZZZZ",
+			DrawTTFString(_spriteBatch, "Hello, World!",
 				new Vector2(0, _image.Height + 60), Color.White);
 
 			_spriteBatch.End();
