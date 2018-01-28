@@ -32,26 +32,8 @@ namespace StbSharp.StbTrueType.Generator
 					{
 						"stbtt__find_table"
 					},
-					Structs = new[]
+					Classes= new string[]
 					{
-						"stbtt__buf",
-						"stbtt_bakedchar",
-						"stbtt_aligned_quad",
-						"stbtt_packedchar",
-						"stbtt_pack_context",
-						"stbtt_pack_range",
-						"stbtt_fontinfo",
-						"stbtt_vertex",
-						"stbtt__bitmap",
-						"stbtt__csctx",
-						"stbtt__hheap_chunk",
-						"stbtt__hheap",
-						"stbtt__edge",
-						"stbtt__active_edge",
-						"stbtt__point",
-						"stbrp_context",
-						"stbrp_node",
-						"stbrp_rect"
 					},
 					GlobalArrays = new string[]
 					{
@@ -66,23 +48,7 @@ namespace StbSharp.StbTrueType.Generator
 				// Post processing
 				Logger.Info("Post processing...");
 
-				// Build has of C functions
-				var methods = new HashSet<string>();
-				foreach (var f in typeof (CRuntime).GetMethods(BindingFlags.Public | BindingFlags.Static))
-				{
-					methods.Add(f.Name);
-				}
-
-				foreach (var m in methods)
-				{
-					data = data.Replace("(" + m + "(", "(CRuntime." + m + "(");
-					data = data.Replace(" " + m + "(", " CRuntime." + m + "(");
-					data = data.Replace(";" + m + "(", ";CRuntime." + m + "(");
-					data = data.Replace("\t" + m + "(", "\tCRuntime." + m + "(");
-					data = data.Replace("\n" + m + "(", "\nCRuntime." + m + "(");
-					data = data.Replace("-" + m + "(", "-CRuntime." + m + "(");
-					data = data.Replace("}" + m + "(", "}CRuntime." + m + "(");
-				}
+				data = Utility.ReplaceNativeCalls(data);
 
 				data = data.Replace("(void *)(0)", "null");
 				data = data.Replace("stbtt_vertex* vertices = 0;", "stbtt_vertex* vertices = null;");

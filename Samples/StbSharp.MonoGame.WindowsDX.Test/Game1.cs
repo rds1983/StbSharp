@@ -11,7 +11,7 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 	/// <summary>
 	/// This is the main type for your game.
 	/// </summary>
-	public unsafe class Game1 : Game
+	public class Game1 : Game
 	{
 		private const int FontBitmapWidth = 512;
 		private const int FontBitmapHeight = 512;

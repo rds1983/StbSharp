@@ -25,7 +25,7 @@ namespace StbSharp.StbImage.Generator
 						"STB_IMAGE_IMPLEMENTATION",
 					},
 					Namespace = "StbSharp",
-					Class = "Stb",
+					Class = "StbImage",
 					SkipStructs = new[]
 					{
 						"stbi_io_callbacks",
@@ -53,17 +53,14 @@ namespace StbSharp.StbImage.Generator
 						"stbi__pic_is4",
 						"stbi__gif_parse_colortable"
 					},
-					Structs = new[]
+					Classes = new[]
 					{
-						"img_comp",
-						"stbi__gif_lzw",
-						"stbi__result_info",
-						"stbi__pngchunk",
-						"stbi__bmp_data",
-						"stbi__pic_packet",
-						"stbi__huffman",
-						"stbi__zhuffman",
-						"stbi__zbuf",
+						"stbi_io_callbacks",
+						"stbi__jpeg",
+						"stbi__resample",
+						"stbi__gif",
+						"stbi__context",
+						"stbi__png"
 					},
 					GlobalArrays = new[]
 					{
@@ -90,6 +87,8 @@ namespace StbSharp.StbImage.Generator
 
 				// Post processing
 				Logger.Info("Post processing...");
+
+				data = Utility.ReplaceNativeCalls(data);
 
 				data = data.Replace("(int)(a <= 2147483647 - b)", "(a <= 2147483647 - b)?1:0");
 				data = data.Replace("(int)(a <= 2147483647 / b)", "(a <= 2147483647 / b)?1:0");
@@ -142,7 +141,7 @@ namespace StbSharp.StbImage.Generator
 					"stbi__jpeg j = new stbi__jpeg();");
 				data = data.Replace("stbi__jpeg j = (stbi__jpeg)((stbi__malloc((ulong)(.Size))));",
 					"stbi__jpeg j = new stbi__jpeg();");
-				data = data.Replace("free(j);",
+				data = data.Replace("CRuntime.free(j);",
 					string.Empty);
 				data = data.Replace("z.img_comp[i].data = (byte*)(((ulong)(z.img_comp[i].raw_data) + 15) & ~15);",
 					"z.img_comp[i].data = (byte*)((((long)z.img_comp[i].raw_data + 15) & ~15));");
@@ -171,9 +170,9 @@ namespace StbSharp.StbImage.Generator
 					"packets.Size");
 				data = data.Replace("stbi__gif g = (stbi__gif)(stbi__malloc((ulong)(sizeof(stbi__gif)))));",
 					"stbi__gif g = new stbi__gif();");
-				data = data.Replace("free(g);",
+				data = data.Replace("CRuntime.free(g);",
 					string.Empty);
-				data = data.Replace("memset(g, (int)(0), (ulong)(sizeof((g))));",
+				data = data.Replace("CRuntime.memset(g, (int)(0), (ulong)(sizeof((g))));",
 					string.Empty);
 				data = data.Replace("if (((g.transparent) >= (0)) && ((g.eflags & 0x01)))",
 					"if (((g.transparent) >= (0)) && ((g.eflags & 0x01) != 0))");
@@ -195,8 +194,10 @@ namespace StbSharp.StbImage.Generator
 					"case 0x3B:return null;");
 				data = data.Replace("if ((u) == ((byte*)(s))) u = ((byte*)(0));",
 					string.Empty);
+				data = data.Replace("sgn = (int)(j.code_buffer >> 31);", "sgn = (int)((int)j.code_buffer >> 31);");
 
-				File.WriteAllText(@"..\..\..\..\..\StbSharp\Stb.Image.Generated.cs", data);
+
+				File.WriteAllText(@"..\..\..\..\..\StbSharp\StbImage.Generated.cs", data);
 			}
 		}
 

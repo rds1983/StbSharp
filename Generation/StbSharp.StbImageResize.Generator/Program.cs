@@ -19,7 +19,7 @@ namespace StbSharp.StbImageResize.Generator
 						"STB_IMAGE_RESIZE_IMPLEMENTATION"
 					},
 					Namespace = "StbSharp",
-					Class = "Stb",
+					Class = "StbImageResize",
 					SkipStructs = new[]
 					{
 						"stbir__filter_info",
@@ -42,10 +42,10 @@ namespace StbSharp.StbImageResize.Generator
 						"stbi_write_png_to_func",
 						"stbi_write_hdr_core",
 					},
-					Structs = new[]
+					Classes = new[]
 					{
-						"stbir__contributors",
-						"stbir__FP32"
+						"stbir__filter_info",
+						"stbir__info"
 					},
 					GlobalArrays = new[]
 					{
@@ -63,7 +63,9 @@ namespace StbSharp.StbImageResize.Generator
 				// Post processing
 				Logger.Info("Post processing...");
 
-				File.WriteAllText(@"..\..\..\..\..\StbSharp\Stb.ImageResize.Generated.cs", data);
+				data = Utility.ReplaceNativeCalls(data);
+
+				File.WriteAllText(@"..\..\..\..\..\StbSharp\StbImageResize.Generated.cs", data);
 			}
 		}
 

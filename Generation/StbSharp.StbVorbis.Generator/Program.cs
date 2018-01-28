@@ -22,7 +22,7 @@ namespace StbSharp.StbVorbis.Generator
 						"STB_VORBIS_NO_FAST_SCALED_FLOAT"
 					},
 					Namespace = "StbSharp",
-					Class = "Stb",
+					Class = "StbVorbis",
 					SkipStructs = new[]
 					{
 						"Residue",
@@ -36,20 +36,10 @@ namespace StbSharp.StbVorbis.Generator
 					{
 						"get_bits",
 					},
-					Structs = new[]
+					Classes = new[]
 					{
-						"stb_vorbis_alloc",
-						"stb_vorbis_info",
-						"Codebook",
-						"Floor0",
-						"Floor1",
-						"Floor",
-						"MappingChannel",
-						"Mapping",
-						"Mode",
-						"CRCscan",
-						"ProbedPage",
-						"stbv__floor_ordering",
+						"Residue",
+						"stb_vorbis",
 					},
 					GlobalArrays = new[]
 					{
@@ -68,6 +58,8 @@ namespace StbSharp.StbVorbis.Generator
 
 				// Post processing
 				Logger.Info("Post processing...");
+
+				data = Utility.ReplaceNativeCalls(data);
 
 				data = data.Replace("byte* minp;", "byte* minp = null;");
 				data = data.Replace("byte* maxp;", "byte* maxp = null;");
@@ -189,7 +181,7 @@ namespace StbSharp.StbVorbis.Generator
 				data = data.Replace("if (((f.current_loc_valid) != 0) && (f.page_flag & 4))",
 					"if (((f.current_loc_valid) != 0) && (f.page_flag & 4) != 0)");
 
-				File.WriteAllText(@"..\..\..\..\..\StbSharp\Stb.Vorbis.Generated.cs", data);
+				File.WriteAllText(@"..\..\..\..\..\StbSharp\StbVorbis.Generated.cs", data);
 			}
 		}
 

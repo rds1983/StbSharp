@@ -27,7 +27,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
@@ -38,6 +38,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Game1.cs" />
@@ -63,10 +64,6 @@
     <ProjectReference Include="..\..\StbSharp\StbSharp.csproj">
       <Project>{5a331dad-b629-41e7-9131-70e538cf0b42}</Project>
       <Name>StbSharp</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Testing\Stb.Native\Stb.Native.vcxproj">
-      <Project>{ea7b8121-942a-437d-85d5-e4d55b94e88a}</Project>
-      <Name>Stb.Native</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

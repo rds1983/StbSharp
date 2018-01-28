@@ -20,7 +20,7 @@ namespace StbSharp.StbImageWrite.Generator
 						"STB_IMAGE_WRITE_IMPLEMENTATION"
 					},
 					Namespace = "StbSharp",
-					Class = "Stb",
+					Class = "StbImageWrite",
 					SkipStructs = new[]
 					{
 						"stbi__write_context"
@@ -40,6 +40,10 @@ namespace StbSharp.StbImageWrite.Generator
 						"stbi_write_hdr_to_func",
 						"stbi_write_png_to_func",
 						"stbi_write_hdr_core",
+					},
+					Classes = new []
+					{
+						"stbi__write_context"
 					},
 					GlobalArrays = new[]
 					{
@@ -79,6 +83,8 @@ namespace StbSharp.StbImageWrite.Generator
 				// Post processing
 				Logger.Info("Post processing...");
 
+				data = Utility.ReplaceNativeCalls(data);
+
 				data = data.Replace("int has_alpha = (int)(((comp) == (2)) || ((comp) == (4)));",
 					"int has_alpha = (((comp) == (2)) || ((comp) == (4)))?1:0;");
 				data = data.Replace("*arr?",
@@ -100,7 +106,7 @@ namespace StbSharp.StbImageWrite.Generator
 				data = data.Replace("(hash_table[i])?",
 					"(hash_table[i] != null)?");
 
-				File.WriteAllText(@"..\..\..\..\..\StbSharp\Stb.ImageWrite.Generated.cs", data);
+				File.WriteAllText(@"..\..\..\..\..\StbSharp\StbImageWrite.Generated.cs", data);
 			}
 		}
 

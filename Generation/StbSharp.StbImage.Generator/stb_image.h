@@ -6254,10 +6254,10 @@ static void stbi__fill_gif_background(stbi__gif *g, int x0, int y0, int x1, int 
 static stbi_uc *stbi__gif_load_next(stbi__context *s, stbi__gif *g, int *comp, int req_comp)
 {
    int i;
-   stbi_uc *prev_out = 0;
+   stbi_uc *prev_out = NULL;
 
    if (g->out == 0 && !stbi__gif_header(s, g, comp,0))
-      return 0; // stbi__g_failure_reason set by stbi__gif_header
+      return NULL; // stbi__g_failure_reason set by stbi__gif_header
 
    if (!stbi__mad3sizes_valid(g->w, g->h, 4, 0))
       return stbi__errpuc("too large", "GIF too large");
@@ -6372,7 +6372,7 @@ static stbi_uc *stbi__gif_load_next(stbi__context *s, stbi__gif *g, int *comp, i
 
 static void *stbi__gif_load(stbi__context *s, int *x, int *y, int *comp, int req_comp, stbi__result_info *ri)
 {
-   stbi_uc *u = 0;
+   stbi_uc *u = NULL;
    stbi__gif* g = (stbi__gif*) stbi__malloc(sizeof(stbi__gif));
    memset(g, 0, sizeof(*g));
    STBI_NOTUSED(ri);

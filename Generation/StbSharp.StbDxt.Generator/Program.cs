@@ -19,7 +19,7 @@ namespace StbSharp.StbDxt.Generator
 						"STB_DXT_IMPLEMENTATION"
 					},
 					Namespace = "StbSharp",
-					Class = "Stb",
+					Class = "StbDxt",
 					SkipStructs = new string[]
 					{
 					},
@@ -30,7 +30,7 @@ namespace StbSharp.StbDxt.Generator
 					{
 						"stb__DitherBlock"
 					},
-					Structs = new string[]
+					Classes = new string[]
 					{
 					},
 					GlobalArrays = new[]
@@ -51,6 +51,8 @@ namespace StbSharp.StbDxt.Generator
 
 				// Post processing
 				Logger.Info("Post processing...");
+
+				data = Utility.ReplaceNativeCalls(data);
 
 				data = data.Replace("byte* minp;", "byte* minp = null;");
 				data = data.Replace("byte* maxp;", "byte* maxp = null;");
