@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FontBaker.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="ImageReader.cs" />
     <Compile Include="Operations.cs" />

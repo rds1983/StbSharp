@@ -13,8 +13,8 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 	/// </summary>
 	public class Game1 : Game
 	{
-		private const int FontBitmapWidth = 512;
-		private const int FontBitmapHeight = 512;
+		private const int FontBitmapWidth = 1024;
+		private const int FontBitmapHeight = 1024;
 
 		GraphicsDeviceManager _graphics;
 		SpriteBatch _spriteBatch;
@@ -23,14 +23,15 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 		private Texture2D _fontTexture;
 		private DynamicSoundEffectInstance _effect;
 		private bool _startedPlaying;
-		private readonly Dictionary<char, StbTrueType.stbtt_bakedchar> _charData = new Dictionary<char, StbTrueType.stbtt_bakedchar>();
+		private Dictionary<char, StbTrueType.stbtt_packedchar> _charData = new Dictionary<char, StbTrueType.stbtt_packedchar>();
+		private Texture2D _white;
 
 		public Game1()
 		{
 			_graphics = new GraphicsDeviceManager(this)
 			{
-				PreferredBackBufferWidth = 1280,
-				PreferredBackBufferHeight = 800
+				PreferredBackBufferWidth = 1400,
+				PreferredBackBufferHeight = 960
 			};
 
 			Content.RootDirectory = "Content";
@@ -48,6 +49,10 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			// TODO: use this.Content to load your game content here
+			// Create white texture
+			_white = new Texture2D(GraphicsDevice, 1, 1);
+			_white.SetData(new[] {Color.White});
+			
 			// Load image data into memory
 			var path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
 			path = Path.Combine(path, "image.jpg");
@@ -58,18 +63,29 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			_image.SetData(image.Data);
 
 			// Load ttf
-			buffer = File.ReadAllBytes("OpenSans/OpenSans-Regular.ttf");
+			buffer = File.ReadAllBytes("Fonts/DroidSans.ttf");
+			var buffer2 = File.ReadAllBytes("Fonts/DroidSansJapanese.ttf");
+			
 			var tempBitmap = new byte[FontBitmapWidth * FontBitmapHeight];
-			var charData = new StbTrueType.stbtt_bakedchar[256];
 
-			StbTrueType.stbtt_BakeFontBitmap(buffer, 0, 48, tempBitmap, FontBitmapWidth, FontBitmapHeight, 32, 96, charData);
-
-			var c = 32;
-			foreach (var cd in charData)
+			var fontBaker = new FontBaker();
+			
+			fontBaker.Begin(tempBitmap, FontBitmapWidth, FontBitmapHeight);
+			fontBaker.Add(buffer, 32, new []
 			{
-				_charData[(char)c] = cd;
-				++c;
-			}
+				FontBakerCharacterRange.BasicLatin,
+				FontBakerCharacterRange.Latin1Supplement,
+				FontBakerCharacterRange.LatinExtendedA,
+				FontBakerCharacterRange.Cyrillic,
+			});
+			
+			fontBaker.Add(buffer2, 32, new []
+			{
+				FontBakerCharacterRange.Hiragana,
+				FontBakerCharacterRange.Katakana
+			});
+
+			_charData = fontBaker.End();
 
 			var rgb = new Color[FontBitmapWidth * FontBitmapHeight];
 			for (var i = 0; i < tempBitmap.Length; ++i)
@@ -159,13 +175,21 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			for (var i = 0; i < str.Length; ++i)
 			{
 				var c = str[i];
-				StbTrueType.stbtt_bakedchar cd;
+				StbTrueType.stbtt_packedchar cd;
+				var pos = location;
+				
 				if (!_charData.TryGetValue(c, out cd))
 				{
+					// Draw red rectangle
+					batch.Draw(_white,
+						new Rectangle((int)pos.X + 2, (int)pos.Y - 20, 20, 20),
+						new Rectangle(0, 0, 1, 1),
+						Color.Red);
+
+					location.X += 24;
 					continue;
 				}
 
-				var pos = location;
 				pos.X += cd.xoff;
 				pos.Y += cd.yoff;
 
@@ -193,8 +217,21 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 
 			DrawTTFString(_spriteBatch, string.Format("Sichem Allocated: {0}", Pointer.AllocatedTotal),
 				new Vector2(0, _image.Height + 30), Color.White);
-			DrawTTFString(_spriteBatch, "Hello, World!",
-				new Vector2(0, _image.Height + 60), Color.White);
+
+			DrawTTFString(_spriteBatch, "E: The quick brown fox jumps over the lazy dog",
+				new Vector2(0, _image.Height + 160), Color.White);
+			DrawTTFString(_spriteBatch, "G: Üben quält finſteren Jagdſchloß höfliche Bäcker größeren, N: Blåbærsyltetøy",
+				new Vector2(0, _image.Height + 190), Color.White);
+			DrawTTFString(_spriteBatch, "D: Høj bly gom vandt fræk sexquiz på wc, S: bäckasiner söka",
+				new Vector2(0, _image.Height + 220), Color.White);
+			DrawTTFString(_spriteBatch, "I: Sævör grét áðan því úlpan var ónýt, P: Pchnąć w tę łódź jeża lub osiem skrzyń fig",
+				new Vector2(0, _image.Height + 250), Color.White);
+			DrawTTFString(_spriteBatch, "C: Příliš žluťoučký kůň úpěl ďábelské kódy, R: В чащах юга жил-был цитрус? Да, но фальшивый экземпляр! ёъ.",
+				new Vector2(0, _image.Height + 280), Color.White);
+			DrawTTFString(_spriteBatch, "S: kilómetros y frío, añoraba, P: vôo à noite, F: Les naïfs ægithales hâtifs pondant à Noël où",
+				new Vector2(0, _image.Height + 310), Color.White);
+			DrawTTFString(_spriteBatch, "J: いろはにほへど",
+				new Vector2(0, _image.Height + 340), Color.White);
 
 			_spriteBatch.End();
 

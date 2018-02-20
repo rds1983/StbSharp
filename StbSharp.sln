@@ -11,13 +11,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{519A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StbSharp.ImageConverter", "Samples\StbSharp.ImageConverter\StbSharp.ImageConverter.csproj", "{87A1E8BA-4F87-4BE7-84DD-BECD47E9944B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StbSharp.MonoGame.WindowsDX.Test", "Samples\StbSharp.MonoGame.WindowsDX.Test\StbSharp.MonoGame.WindowsDX.Test.csproj", "{5528B473-7EEA-43EF-8DE2-6338C5F157D2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StbSharp.OggPlayer", "Samples\StbSharp.OggPlayer\StbSharp.OggPlayer.csproj", "{5A2992B2-E042-4DD4-A5DA-B032373A219D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stb.Native", "Testing\Stb.Native\Stb.Native.vcxproj", "{EA7B8121-942A-437D-85D5-E4D55B94E88A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StbSharp.Tests", "Testing\StbSharp.Tests\StbSharp.Tests.csproj", "{3E2A8A80-CE3E-4ADE-81FF-518CE804383C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StbSharp.MonoGame.Test", "Samples\StbSharp.MonoGame.Test\StbSharp.MonoGame.Test.csproj", "{5528B473-7EEA-43EF-8DE2-6338C5F157D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +33,6 @@ Global
 		{87A1E8BA-4F87-4BE7-84DD-BECD47E9944B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{87A1E8BA-4F87-4BE7-84DD-BECD47E9944B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{87A1E8BA-4F87-4BE7-84DD-BECD47E9944B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{5528B473-7EEA-43EF-8DE2-6338C5F157D2}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{5528B473-7EEA-43EF-8DE2-6338C5F157D2}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{5528B473-7EEA-43EF-8DE2-6338C5F157D2}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{5528B473-7EEA-43EF-8DE2-6338C5F157D2}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{5A2992B2-E042-4DD4-A5DA-B032373A219D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{5A2992B2-E042-4DD4-A5DA-B032373A219D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{5A2992B2-E042-4DD4-A5DA-B032373A219D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
@@ -49,15 +45,19 @@ Global
 		{3E2A8A80-CE3E-4ADE-81FF-518CE804383C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{3E2A8A80-CE3E-4ADE-81FF-518CE804383C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{3E2A8A80-CE3E-4ADE-81FF-518CE804383C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{5528B473-7EEA-43EF-8DE2-6338C5F157D2}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{5528B473-7EEA-43EF-8DE2-6338C5F157D2}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{5528B473-7EEA-43EF-8DE2-6338C5F157D2}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{5528B473-7EEA-43EF-8DE2-6338C5F157D2}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{87A1E8BA-4F87-4BE7-84DD-BECD47E9944B} = {14A355A8-A827-4D09-B3A4-4C7A0EF983EC}
-		{5528B473-7EEA-43EF-8DE2-6338C5F157D2} = {14A355A8-A827-4D09-B3A4-4C7A0EF983EC}
 		{5A2992B2-E042-4DD4-A5DA-B032373A219D} = {14A355A8-A827-4D09-B3A4-4C7A0EF983EC}
 		{EA7B8121-942A-437D-85D5-E4D55B94E88A} = {519A6B9C-7460-47E9-9030-F30D86D08DA8}
 		{3E2A8A80-CE3E-4ADE-81FF-518CE804383C} = {519A6B9C-7460-47E9-9030-F30D86D08DA8}
+		{5528B473-7EEA-43EF-8DE2-6338C5F157D2} = {14A355A8-A827-4D09-B3A4-4C7A0EF983EC}
 	EndGlobalSection
 EndGlobal
