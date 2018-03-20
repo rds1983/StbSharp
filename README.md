@@ -5,9 +5,9 @@ It is important to note, that this project is **port**, not **wrapper**. Origina
 
 The porting hasn't been done by hand, but using [Sichem](https://github.com/rds1983/Sichem), which is the C to C# code converter utility.
 
-Following libraries had been ported so far: stb_image.h, stb_image_write.h, stb_image_resize.h, stb_dxt.h and stb_vorbis.c.
+Following libraries had been ported so far: stb_image.h, stb_image_write.h, stb_image_resize.h, stb_dxt.h, stb_vorbis.c and stb_truetype.h.
 
-Following libraries porting is planned: stb_textedit.h, stb_truetype.h and stb_rectpack.h.
+Following libraries porting is planned: stb_textedit.h and stb_rectpack.h.
 
 ### Documentation
 StbSharp has same API as STB. Therefore the STB documentation is valid for StbSharp as well.

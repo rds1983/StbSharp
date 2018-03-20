@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -86,6 +87,25 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			});
 
 			_charData = fontBaker.End();
+
+			// Offset by minimal offset
+			float minimumOffsetY = 10000;
+			foreach (var pair in _charData)
+			{
+				if (pair.Value.yoff < minimumOffsetY)
+				{
+					minimumOffsetY = pair.Value.yoff;
+				}
+			}
+
+			var keys = _charData.Keys.ToArray();
+			foreach (var key in keys)
+			{
+				var pc = _charData[key];
+				pc.yoff -= minimumOffsetY;
+				_charData[key] = pc;
+			}
+
 
 			var rgb = new Color[FontBitmapWidth * FontBitmapHeight];
 			for (var i = 0; i < tempBitmap.Length; ++i)
@@ -215,23 +235,23 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			_spriteBatch.Draw(_image, new Vector2(0, 0));
 			_spriteBatch.Draw(_fontTexture, new Vector2(_image.Width + 10, 0));
 
-			DrawTTFString(_spriteBatch, string.Format("Sichem Allocated: {0}", Pointer.AllocatedTotal),
-				new Vector2(0, _image.Height + 30), Color.White);
+			DrawTTFString(_spriteBatch, string.Format("Native Memory Allocated: {0}", Pointer.AllocatedTotal),
+				new Vector2(0, _image.Height), Color.White);
 
 			DrawTTFString(_spriteBatch, "E: The quick brown fox jumps over the lazy dog",
-				new Vector2(0, _image.Height + 160), Color.White);
+				new Vector2(0, _image.Height + 30), Color.White);
 			DrawTTFString(_spriteBatch, "G: Üben quält finſteren Jagdſchloß höfliche Bäcker größeren, N: Blåbærsyltetøy",
-				new Vector2(0, _image.Height + 190), Color.White);
+				new Vector2(0, _image.Height + 60), Color.White);
 			DrawTTFString(_spriteBatch, "D: Høj bly gom vandt fræk sexquiz på wc, S: bäckasiner söka",
-				new Vector2(0, _image.Height + 220), Color.White);
+				new Vector2(0, _image.Height + 90), Color.White);
 			DrawTTFString(_spriteBatch, "I: Sævör grét áðan því úlpan var ónýt, P: Pchnąć w tę łódź jeża lub osiem skrzyń fig",
-				new Vector2(0, _image.Height + 250), Color.White);
+				new Vector2(0, _image.Height + 120), Color.White);
 			DrawTTFString(_spriteBatch, "C: Příliš žluťoučký kůň úpěl ďábelské kódy, R: В чащах юга жил-был цитрус? Да, но фальшивый экземпляр! ёъ.",
-				new Vector2(0, _image.Height + 280), Color.White);
+				new Vector2(0, _image.Height + 150), Color.White);
 			DrawTTFString(_spriteBatch, "S: kilómetros y frío, añoraba, P: vôo à noite, F: Les naïfs ægithales hâtifs pondant à Noël où",
-				new Vector2(0, _image.Height + 310), Color.White);
+				new Vector2(0, _image.Height + 180), Color.White);
 			DrawTTFString(_spriteBatch, "J: いろはにほへど",
-				new Vector2(0, _image.Height + 340), Color.White);
+				new Vector2(0, _image.Height + 210), Color.White);
 
 			_spriteBatch.End();
 
