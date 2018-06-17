@@ -51,7 +51,7 @@ namespace StbSharp
 			public int mapping_count;
 			public Mapping* mapping;
 			public int mode_count;
-			public PinnedArray<Mode> mode_config = new PinnedArray<Mode>(64);
+			public Mode* mode_config = (Mode*) CRuntime.malloc(64 * sizeof(Mode));
 			public uint total_samples;
 			public float*[] channel_buffers = new float*[16];
 			public float*[] outputs = new float*[16];
@@ -68,7 +68,7 @@ namespace StbSharp
 			public uint serial;
 			public int last_page;
 			public int segment_count;
-			public PinnedArray<byte> segments = new PinnedArray<byte>(255);
+			public byte* segments = (byte*) CRuntime.malloc(255 * sizeof(byte));
 			public byte page_flag;
 			public byte bytes_in_seg;
 			public byte first_decode;
@@ -111,6 +111,7 @@ namespace StbSharp
 					z += get_bits(f, n - 24) << 24;
 					return z;
 				}
+
 				if (f.valid_bits == 0) f.acc = 0;
 				while (f.valid_bits < n)
 				{
@@ -120,6 +121,7 @@ namespace StbSharp
 						f.valid_bits = -1;
 						return 0;
 					}
+
 					f.acc += (uint) (z2 << f.valid_bits);
 					f.valid_bits += 8;
 				}
@@ -144,9 +146,10 @@ namespace StbSharp
 				chan = c;
 				sampleRate = s;
 			}
+
 			var output = new short[length];
 			Marshal.Copy(new IntPtr(result), output, 0, output.Length);
-			Operations.Free(result);
+			CRuntime.free(result);
 
 			return output;
 		}

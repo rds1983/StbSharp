@@ -75,7 +75,7 @@ namespace StbSharp
 				// Convert to array
 				var data = new byte[x*y*image.Comp];
 				Marshal.Copy(new IntPtr(result), data, 0, data.Length);
-				Operations.Free(result);
+				CRuntime.free(result);
 
 				image.Data = data;
 
@@ -119,7 +119,7 @@ namespace StbSharp
 					var c = req_comp != 0 ? req_comp : comp;
 					var data = new byte[g.w*g.h*c];
 					Marshal.Copy(new IntPtr(result), data, 0, data.Length);
-					Operations.Free(result);
+					CRuntime.free(result);
 
 					var frame = new AnimatedGifFrame
 					{
@@ -129,7 +129,7 @@ namespace StbSharp
 					res.Add(frame);
 				} while (true);
 
-				Operations.Free(g._out_);
+				CRuntime.free(g._out_);
 
 				if (res.Count > 0)
 				{

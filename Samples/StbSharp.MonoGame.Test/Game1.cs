@@ -235,9 +235,6 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			_spriteBatch.Draw(_image, new Vector2(0, 0));
 			_spriteBatch.Draw(_fontTexture, new Vector2(_image.Width + 10, 0));
 
-			DrawTTFString(_spriteBatch, string.Format("Native Memory Allocated: {0}", Pointer.AllocatedTotal),
-				new Vector2(0, _image.Height), Color.White);
-
 			DrawTTFString(_spriteBatch, "E: The quick brown fox jumps over the lazy dog",
 				new Vector2(0, _image.Height + 30), Color.White);
 			DrawTTFString(_spriteBatch, "G: Üben quält finſteren Jagdſchloß höfliche Bäcker größeren, N: Blåbærsyltetøy",

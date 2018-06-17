@@ -17,7 +17,7 @@ namespace StbSharp
 			public void* io_user_data;
 			public int read_from_callbacks;
 			public int buflen;
-			public PinnedArray<byte> buffer_start = new PinnedArray<byte>(128);
+			public byte* buffer_start = (byte *)stbi__malloc(128);
 			public byte* img_buffer;
 			public byte* img_buffer_end;
 			public byte* img_buffer_original;
@@ -204,7 +204,7 @@ namespace StbSharp
 		{
 			s.io = (stbi_io_callbacks) (c);
 			s.io_user_data = user;
-			s.buflen = (int) (s.buffer_start.Size);
+			s.buflen = 128;
 			s.read_from_callbacks = (int) (1);
 			s.img_buffer_original = s.buffer_start;
 			stbi__refill_buffer(s);

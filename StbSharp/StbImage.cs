@@ -53,11 +53,11 @@ namespace StbSharp
 		public class stbi__jpeg
 		{
 			public stbi__context s;
-			public readonly PinnedArray<stbi__huffman> huff_dc = new PinnedArray<stbi__huffman>(4);
-			public readonly PinnedArray<stbi__huffman> huff_ac = new PinnedArray<stbi__huffman>(4);
-			public readonly PinnedArray<ushort>[] dequant;
+			public readonly stbi__huffman* huff_dc = (stbi__huffman*) stbi__malloc(4 * sizeof(stbi__huffman));
+			public readonly stbi__huffman* huff_ac = (stbi__huffman*) stbi__malloc(4 * sizeof(stbi__huffman));
+			public readonly ushort*[] dequant;
 
-			public readonly PinnedArray<short>[] fast_ac;
+			public readonly short*[] fast_ac;
 
 // sizes for components, interleaved MCUs
 			public int img_h_max, img_v_max;
@@ -83,7 +83,7 @@ namespace StbSharp
 			public int rgb;
 
 			public int scan_n;
-			public PinnedArray<int> order = new PinnedArray<int>(4);
+			public int* order = (int*) stbi__malloc(4 * sizeof(int));
 			public int restart_interval, todo;
 
 // kernels
@@ -104,16 +104,16 @@ namespace StbSharp
 					img_comp[i] = new img_comp();
 				}
 
-				fast_ac = new PinnedArray<short>[4];
+				fast_ac = new short *[4];
 				for (var i = 0; i < fast_ac.Length; ++i)
 				{
-					fast_ac[i] = new PinnedArray<short>(1 << STBI__ZFAST_BITS);
+					fast_ac[i] = (short*) stbi__malloc((1 << STBI__ZFAST_BITS) * sizeof(short));
 				}
 
-				dequant = new PinnedArray<ushort>[4];
+				dequant = new ushort *[4];
 				for (var i = 0; i < dequant.Length; ++i)
 				{
-					dequant[i] = new PinnedArray<ushort>(64);
+					dequant[i] = (ushort*) stbi__malloc(64 * sizeof(ushort));
 				}
 			}
 		};
@@ -150,9 +150,9 @@ namespace StbSharp
 			public int transparent;
 			public int eflags;
 			public int delay;
-			public PinnedArray<byte> pal;
-			public PinnedArray<byte> lpal;
-			public PinnedArray<stbi__gif_lzw> codes;
+			public byte* pal;
+			public byte* lpal;
+			public stbi__gif_lzw* codes;
 			public byte* color_table;
 			public int parse;
 			public int step;
@@ -167,9 +167,9 @@ namespace StbSharp
 
 			public stbi__gif()
 			{
-				codes = new PinnedArray<stbi__gif_lzw>(4096);
-				pal = new PinnedArray<byte>(256*4);
-				lpal = new PinnedArray<byte>(256*4);
+				codes = (stbi__gif_lzw*) stbi__malloc(4096 * sizeof(stbi__gif_lzw));
+				pal = (byte*) stbi__malloc(256 * 4 * sizeof(byte));
+				lpal = (byte*) stbi__malloc(256 * 4 * sizeof(byte));
 			}
 		}
 
@@ -194,10 +194,10 @@ namespace StbSharp
 			int i;
 			for (i = 0; (i) < (num_entries); ++i)
 			{
-				pal[i*4 + 2] = stbi__get8(s);
-				pal[i*4 + 1] = stbi__get8(s);
-				pal[i*4] = stbi__get8(s);
-				pal[i*4 + 3] = (byte) (transp == i ? 0 : 255);
+				pal[i * 4 + 2] = stbi__get8(s);
+				pal[i * 4 + 1] = stbi__get8(s);
+				pal[i * 4] = stbi__get8(s);
+				pal[i * 4 + 3] = (byte) (transp == i ? 0 : 255);
 			}
 		}
 
@@ -224,9 +224,9 @@ namespace StbSharp
 			}
 
 			// Convert to array
-			var data = new byte[x*y*image.Comp];
+			var data = new byte[x * y * image.Comp];
 			Marshal.Copy(new IntPtr(result), data, 0, data.Length);
-			Operations.Free(result);
+			CRuntime.free(result);
 
 			image.Data = data;
 

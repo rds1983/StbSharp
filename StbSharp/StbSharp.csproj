@@ -44,8 +44,6 @@
     <Compile Include="FontBaker.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="ImageReader.cs" />
-    <Compile Include="Operations.cs" />
-    <Compile Include="PinnedArray.cs" />
     <Compile Include="StbDxt.cs" />
     <Compile Include="StbDxt.Generated.cs" />
     <Compile Include="StbImageResize.cs" />

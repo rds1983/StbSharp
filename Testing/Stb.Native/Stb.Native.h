@@ -28,7 +28,7 @@ using namespace System::Threading;
 #include "stb_vorbis.c"
 
 #define STB_TRUETYPE_IMPLEMENTATION
-#include "stb_truetype.h"
+#include "../../Generation/StbSharp.StbTrueType.Generator/stb_truetype.h"
 
 namespace StbNative {
 	int read_callback(void *user, char *data, int size);
