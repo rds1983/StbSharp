@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -21,11 +22,10 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 		SpriteBatch _spriteBatch;
 
 		private Texture2D _image;
-		private Texture2D _fontTexture;
 		private DynamicSoundEffectInstance _effect;
 		private bool _startedPlaying;
-		private Dictionary<char, StbTrueType.stbtt_packedchar> _charData = new Dictionary<char, StbTrueType.stbtt_packedchar>();
-		private Texture2D _white;
+		private Texture2D _white, _fontTexture;
+		private SpriteFont _font;
 
 		public Game1()
 		{
@@ -38,6 +38,93 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			Content.RootDirectory = "Content";
 			IsMouseVisible = true;
 			Window.AllowUserResizing = true;
+		}
+		
+		private void LoadFont()
+		{
+			var buffer = File.ReadAllBytes("Fonts/DroidSans.ttf");
+			var buffer2 = File.ReadAllBytes("Fonts/DroidSansJapanese.ttf");
+			
+			var tempBitmap = new byte[FontBitmapWidth * FontBitmapHeight];
+
+			var fontBaker = new FontBaker();
+			
+			fontBaker.Begin(tempBitmap, FontBitmapWidth, FontBitmapHeight);
+			fontBaker.Add(buffer, 32, new []
+			{
+				FontBakerCharacterRange.BasicLatin,
+				FontBakerCharacterRange.Latin1Supplement,
+				FontBakerCharacterRange.LatinExtendedA,
+				FontBakerCharacterRange.Cyrillic,
+			});
+			
+			fontBaker.Add(buffer2, 32, new []
+			{
+				FontBakerCharacterRange.Hiragana,
+				FontBakerCharacterRange.Katakana
+			});
+
+			var _charData = fontBaker.End();
+
+			// Offset by minimal offset
+			float minimumOffsetY = 10000;
+			foreach (var pair in _charData)
+			{
+				if (pair.Value.yoff < minimumOffsetY)
+				{
+					minimumOffsetY = pair.Value.yoff;
+				}
+			}
+
+			var keys = _charData.Keys.ToArray();
+			foreach (var key in keys)
+			{
+				var pc = _charData[key];
+				pc.yoff -= minimumOffsetY;
+				_charData[key] = pc;
+			}
+
+			var rgb = new Color[FontBitmapWidth * FontBitmapHeight];
+			for (var i = 0; i < tempBitmap.Length; ++i)
+			{
+				var b = tempBitmap[i];
+				rgb[i].R = b;
+				rgb[i].G = b;
+				rgb[i].B = b;
+				
+				rgb[i].A = b;
+			}
+
+			_fontTexture = new Texture2D(GraphicsDevice, FontBitmapWidth, FontBitmapHeight);
+			_fontTexture.SetData(rgb);
+
+			var glyphBounds = new List<Rectangle>();
+			var cropping = new List<Rectangle>();
+			var chars = new List<char>();
+			var kerning = new List<Vector3>();
+
+			foreach (var pair in _charData)
+			{
+				var character = pair.Value;
+
+				var bounds = new Rectangle(character.x0, character.y0, 
+										character.x1 - character.x0,
+										character.y1 - character.y0);
+
+				glyphBounds.Add(bounds);
+				cropping.Add(new Rectangle((int)character.xoff, (int)character.yoff, bounds.Width, bounds.Height));
+
+				chars.Add(pair.Key);
+
+				kerning.Add(new Vector3(0, bounds.Width, character.xadvance - bounds.Width));
+			}
+
+			var constructorInfo = typeof(SpriteFont).GetTypeInfo().DeclaredConstructors.First();
+			_font = (SpriteFont) constructorInfo.Invoke(new object[]
+			{
+				_fontTexture, glyphBounds, cropping,
+				chars, 20, 0, kerning, ' '
+			});
 		}
 
 		/// <summary>
@@ -64,62 +151,7 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			_image.SetData(image.Data);
 
 			// Load ttf
-			buffer = File.ReadAllBytes("Fonts/DroidSans.ttf");
-			var buffer2 = File.ReadAllBytes("Fonts/DroidSansJapanese.ttf");
-			
-			var tempBitmap = new byte[FontBitmapWidth * FontBitmapHeight];
-
-			var fontBaker = new FontBaker();
-			
-			fontBaker.Begin(tempBitmap, FontBitmapWidth, FontBitmapHeight);
-			fontBaker.Add(buffer, 32, new []
-			{
-				FontBakerCharacterRange.BasicLatin,
-				FontBakerCharacterRange.Latin1Supplement,
-				FontBakerCharacterRange.LatinExtendedA,
-				FontBakerCharacterRange.Cyrillic,
-			});
-			
-			fontBaker.Add(buffer2, 32, new []
-			{
-				FontBakerCharacterRange.Hiragana,
-				FontBakerCharacterRange.Katakana
-			});
-
-			_charData = fontBaker.End();
-
-			// Offset by minimal offset
-			float minimumOffsetY = 10000;
-			foreach (var pair in _charData)
-			{
-				if (pair.Value.yoff < minimumOffsetY)
-				{
-					minimumOffsetY = pair.Value.yoff;
-				}
-			}
-
-			var keys = _charData.Keys.ToArray();
-			foreach (var key in keys)
-			{
-				var pc = _charData[key];
-				pc.yoff -= minimumOffsetY;
-				_charData[key] = pc;
-			}
-
-
-			var rgb = new Color[FontBitmapWidth * FontBitmapHeight];
-			for (var i = 0; i < tempBitmap.Length; ++i)
-			{
-				var b = tempBitmap[i];
-				rgb[i].R = b;
-				rgb[i].G = b;
-				rgb[i].B = b;
-				
-				rgb[i].A = b;
-			}
-
-			_fontTexture = new Texture2D(GraphicsDevice, FontBitmapWidth, FontBitmapHeight);
-			_fontTexture.SetData(rgb);
+			LoadFont();
 
 			// Load ogg
 			path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
@@ -185,42 +217,6 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			base.Update(gameTime);
 		}
 
-		private void DrawTTFString(SpriteBatch batch, string str, Vector2 location, Color color)
-		{
-			if (string.IsNullOrEmpty(str))
-			{
-				return;
-			}
-
-			for (var i = 0; i < str.Length; ++i)
-			{
-				var c = str[i];
-				StbTrueType.stbtt_packedchar cd;
-				var pos = location;
-				
-				if (!_charData.TryGetValue(c, out cd))
-				{
-					// Draw red rectangle
-					batch.Draw(_white,
-						new Rectangle((int)pos.X + 2, (int)pos.Y - 20, 20, 20),
-						new Rectangle(0, 0, 1, 1),
-						Color.Red);
-
-					location.X += 24;
-					continue;
-				}
-
-				pos.X += cd.xoff;
-				pos.Y += cd.yoff;
-
-				batch.Draw(_fontTexture, pos, 
-					new Rectangle(cd.x0, cd.y0, cd.x1 - cd.x0, cd.y1 - cd.y0),
-					color);
-
-				location.X += cd.xadvance;
-			}
-		}
-
 		/// <summary>
 		/// This is called when the game should draw itself.
 		/// </summary>
@@ -235,19 +231,20 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			_spriteBatch.Draw(_image, new Vector2(0, 0));
 			_spriteBatch.Draw(_fontTexture, new Vector2(_image.Width + 10, 0));
 
-			DrawTTFString(_spriteBatch, "E: The quick brown fox jumps over the lazy dog",
+
+			_spriteBatch.DrawString(_font, "E: The quick brown fox jumps over the lazy dog",
 				new Vector2(0, _image.Height + 30), Color.White);
-			DrawTTFString(_spriteBatch, "G: Üben quält finſteren Jagdſchloß höfliche Bäcker größeren, N: Blåbærsyltetøy",
+			_spriteBatch.DrawString(_font, "G: Üben quält finſteren Jagdſchloß höfliche Bäcker größeren, N: Blåbærsyltetøy",
 				new Vector2(0, _image.Height + 60), Color.White);
-			DrawTTFString(_spriteBatch, "D: Høj bly gom vandt fræk sexquiz på wc, S: bäckasiner söka",
+			_spriteBatch.DrawString(_font, "D: Høj bly gom vandt fræk sexquiz på wc, S: bäckasiner söka",
 				new Vector2(0, _image.Height + 90), Color.White);
-			DrawTTFString(_spriteBatch, "I: Sævör grét áðan því úlpan var ónýt, P: Pchnąć w tę łódź jeża lub osiem skrzyń fig",
+			_spriteBatch.DrawString(_font, "I: Sævör grét áðan því úlpan var ónýt, P: Pchnąć w tę łódź jeża lub osiem skrzyń fig",
 				new Vector2(0, _image.Height + 120), Color.White);
-			DrawTTFString(_spriteBatch, "C: Příliš žluťoučký kůň úpěl ďábelské kódy, R: В чащах юга жил-был цитрус? Да, но фальшивый экземпляр! ёъ.",
+			_spriteBatch.DrawString(_font, "C: Příliš žluťoučký kůň úpěl ďábelské kódy, R: В чащах юга жил-был цитрус? Да, но фальшивый экземпляр! ёъ.",
 				new Vector2(0, _image.Height + 150), Color.White);
-			DrawTTFString(_spriteBatch, "S: kilómetros y frío, añoraba, P: vôo à noite, F: Les naïfs ægithales hâtifs pondant à Noël où",
+			_spriteBatch.DrawString(_font, "S: kilómetros y frío, añoraba, P: vôo à noite, F: Les naïfs ægithales hâtifs pondant à Noël où",
 				new Vector2(0, _image.Height + 180), Color.White);
-			DrawTTFString(_spriteBatch, "J: いろはにほへど",
+			_spriteBatch.DrawString(_font, "J: いろはにほへど",
 				new Vector2(0, _image.Height + 210), Color.White);
 
 			_spriteBatch.End();
