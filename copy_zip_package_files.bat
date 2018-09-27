@@ -10,3 +10,4 @@ set "CONFIGURATION=Release"
 rem Copy output files
 copy "StbSharp\bin\%CONFIGURATION%\StbSharp.dll" ZipPackage /Y
 copy "StbSharp\bin\%CONFIGURATION%\netstandard1.1\publish\StbSharp.dll" ZipPackage\netstandard1.1 /Y
+copy "StbSharp\bin\%CONFIGURATION%\net20\StbSharp.dll" ZipPackage\net20 /Y

@@ -1,4 +1,4 @@
-version: 0.7.0.{build}
+version: 0.7.1.{build}
 image: Visual Studio 2017
 configuration: Release
 assembly_info:
@@ -12,6 +12,8 @@ build_script:
     git submodule update --init --recursive Generation/Sichem
 
     msbuild StbSharp\StbSharp.csproj /p:Configuration=Release /t:rebuild
+
+    msbuild StbSharp\StbSharp.NET20.csproj /p:Configuration=Release /t:rebuild
 
     nuget restore StbSharp\StbSharp.NETStandard.csproj
 

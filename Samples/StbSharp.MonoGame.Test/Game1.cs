@@ -22,6 +22,7 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 		SpriteBatch _spriteBatch;
 
 		private Texture2D _image;
+		private Vorbis _vorbis;
 		private DynamicSoundEffectInstance _effect;
 		private bool _startedPlaying;
 		private Texture2D _white, _fontTexture;
@@ -127,6 +128,54 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			});
 		}
 
+		private void SubmitBuffer()
+		{
+			_vorbis.SubmitBuffer();
+
+			if (_vorbis.Decoded == 0)
+			{
+				// Restart
+				_vorbis.Restart();
+				_vorbis.SubmitBuffer();
+			}
+
+			var audioShort = _vorbis.SongBuffer;
+			byte[] audioData = new byte[_vorbis.Decoded * 4];
+			for (var i = 0; i < _vorbis.Decoded * 2; ++i)
+			{
+				if (i * 2 >= audioData.Length)
+				{
+					break;
+				}
+
+				var b1 = (byte)(audioShort[i] >> 8);
+				var b2 = (byte)(audioShort[i] & 256);
+
+				audioData[i * 2 + 0] = b2;
+				audioData[i * 2 + 1] = b1;
+			}
+
+			_effect.SubmitBuffer(audioData);
+		}
+
+		private void LoadSong()
+		{
+			var path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+			path = Path.Combine(path, "Adeste_Fideles.ogg");
+			var buffer = File.ReadAllBytes(path);
+
+			_vorbis = Vorbis.FromMemory(buffer);
+
+			_effect = new DynamicSoundEffectInstance((int)_vorbis.StbVorbisInfo.sample_rate, AudioChannels.Stereo)
+			{
+				Volume = 0.5f
+			};
+
+			_effect.BufferNeeded += (s, a) => SubmitBuffer();
+
+			SubmitBuffer();
+		}
+
 		/// <summary>
 		/// LoadContent will be called once per game and is the place to load
 		/// all of your content.
@@ -154,35 +203,7 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			LoadFont();
 
 			// Load ogg
-			path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-			path = Path.Combine(path, "Adeste_Fideles.ogg");
-			buffer = File.ReadAllBytes(path);
-
-			int chan, sampleRate;
-			var audioShort = StbVorbis.decode_vorbis_from_memory(buffer, out sampleRate, out chan);
-
-			byte[] audioData = new byte[audioShort.Length / 2 * 4];
-			for (var i = 0; i < audioShort.Length; ++i)
-			{
-				if (i*2 >= audioData.Length)
-				{
-					break;
-				}
-
-				var b1 = (byte) (audioShort[i] >> 8);
-				var b2 = (byte) (audioShort[i] & 256);
-
-				audioData[i*2 + 0] = b2;
-				audioData[i*2 + 1] = b1;
-			}
-
-			_effect = new DynamicSoundEffectInstance(sampleRate, AudioChannels.Stereo)
-			{
-				Volume = 0.5f
-			};
-
-
-			_effect.SubmitBuffer(audioData);
+			LoadSong();
 
 			GC.Collect();
 		}
