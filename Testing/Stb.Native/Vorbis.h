@@ -17,6 +17,7 @@ namespace StbNative {
 		stb_vorbis_info *_vorbisInfo;
 		float _lengthInSeconds;
 		array<short> ^_songBuffer;
+		array<unsigned char> ^_data;
 		int _decoded;
 	public:
 		property int SampleRate
@@ -24,6 +25,14 @@ namespace StbNative {
 			int get()
 			{
 				return (int)_vorbisInfo->sample_rate;
+			}
+		}
+
+		property int Channels
+		{
+			int get()
+			{
+				return (int)_vorbisInfo->channels;
 			}
 		}
 
@@ -51,8 +60,12 @@ namespace StbNative {
 			}
 		}
 
-		Vorbis(stb_vorbis *vorbis)
+		Vorbis(array<unsigned char> ^data)
 		{
+			_data = data;
+
+			pin_ptr<unsigned char> b = &data[0];
+			stb_vorbis *vorbis = stb_vorbis_open_memory(b, data->Length, NULL, NULL);
 			_vorbis = vorbis;
 			_vorbisInfo = new stb_vorbis_info();
 
@@ -61,14 +74,14 @@ namespace StbNative {
 
 			_lengthInSeconds = stb_vorbis_stream_length_in_seconds(_vorbis);
 
-			_songBuffer = gcnew array<short>(_vorbisInfo->sample_rate * _vorbisInfo->channels * 4);
+			_songBuffer = gcnew array<short>(_vorbisInfo->sample_rate);
 
 			Restart();
 		}
 
 		void Restart()
 		{
-			stb_vorbis_seek(_vorbis, 0);
+			stb_vorbis_seek_start(_vorbis);
 		}
 
 		void SubmitBuffer()
@@ -79,10 +92,7 @@ namespace StbNative {
 
 		static Vorbis^ FromMemory(array<unsigned char> ^data)
 		{
-			pin_ptr<unsigned char> b = &data[0];
-			stb_vorbis *vorbis = stb_vorbis_open_memory(b, data->Length, NULL, NULL);
-
-			return gcnew Vorbis(vorbis);
+			return gcnew Vorbis(data);
 		}
 
 		static array<short> ^ decode_vorbis_from_memory(array<unsigned char> ^bytes, [Out] int %sampleRate, [Out] int %channels)

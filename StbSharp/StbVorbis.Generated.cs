@@ -1298,7 +1298,7 @@ namespace StbSharp
 						{
 							if (do_not_decode[j] == 0)
 							{
-								int c2 = (int) (part_classdata[j][class_set][i]);
+								c = (int) (part_classdata[j][class_set][i]);
 								int b = (int) (r.residue_books[c, pass]);
 								if ((b) >= (0))
 								{

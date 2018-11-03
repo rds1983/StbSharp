@@ -53,10 +53,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Testing\TestOggs\Andante_cantabile_S_4_Widor1872.ogg">
-      <Link>Andante_cantabile_S_4_Widor1872.ogg</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="..\ThirdParty\MonoGame.Framework.DesktopGL\libopenal.1.dylib">
       <Link>libopenal.1.dylib</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -99,6 +95,9 @@
     </None>
     <None Include="..\ThirdParty\MonoGame.Framework.DesktopGL\x86\soft_oal.dll">
       <Link>x86/soft_oal.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Audio\music.ogg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Fonts\DroidSans.ttf">

@@ -7,6 +7,7 @@ namespace StbSharp
 	{
 		private readonly stb_vorbis _vorbis;
 		private readonly stb_vorbis_info _vorbisInfo;
+		private readonly byte[] _data;
 		private readonly float _lengthInSeconds;
 		private readonly short[] _songBuffer;
 		private int _decoded;
@@ -35,6 +36,14 @@ namespace StbSharp
 			}
 		}
 
+		public int Channels
+		{
+			get
+			{
+				return _vorbisInfo.channels;
+			}
+		}
+
 		public float LengthInSeconds
 		{
 			get
@@ -59,18 +68,26 @@ namespace StbSharp
 			}
 		}
 
-		private Vorbis(stb_vorbis vorbis)
+		private Vorbis(byte[] data)
 		{
-			if (vorbis == null)
+			if (data == null)
 			{
-				throw new ArgumentNullException("vorbis");
+				throw new ArgumentNullException("data");
+			}
+
+			_data = data;
+
+			stb_vorbis vorbis;
+			fixed (byte* b = data)
+			{
+				vorbis = stb_vorbis_open_memory(b, data.Length, null, null);
 			}
 
 			_vorbis = vorbis;
 			_vorbisInfo = stb_vorbis_get_info(vorbis);
 			_lengthInSeconds = stb_vorbis_stream_length_in_seconds(_vorbis);
 
-			_songBuffer = new short[_vorbisInfo.sample_rate * _vorbisInfo.channels * 4];
+			_songBuffer = new short[_vorbisInfo.sample_rate];
 
 			Restart();
 		}
@@ -94,13 +111,7 @@ namespace StbSharp
 
 		public static Vorbis FromMemory(byte[] data)
 		{
-			stb_vorbis vorbis;
-			fixed (byte* b = data)
-			{
-				vorbis = stb_vorbis_open_memory(b, data.Length, null, null);
-			}
-
-			return new Vorbis(vorbis);
+			return new Vorbis(data);
 		}
 	}
 }

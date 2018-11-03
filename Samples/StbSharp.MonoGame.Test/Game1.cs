@@ -104,9 +104,10 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			var chars = new List<char>();
 			var kerning = new List<Vector3>();
 
-			foreach (var pair in _charData)
+			var orderedKeys = _charData.Keys.OrderBy(a => a);
+			foreach (var key in orderedKeys)
 			{
-				var character = pair.Value;
+				var character = _charData[key];
 
 				var bounds = new Rectangle(character.x0, character.y0, 
 										character.x1 - character.x0,
@@ -115,7 +116,7 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 				glyphBounds.Add(bounds);
 				cropping.Add(new Rectangle((int)character.xoff, (int)character.yoff, bounds.Width, bounds.Height));
 
-				chars.Add(pair.Key);
+				chars.Add(key);
 
 				kerning.Add(new Vector3(0, bounds.Width, character.xadvance - bounds.Width));
 			}
@@ -140,8 +141,8 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 			}
 
 			var audioShort = _vorbis.SongBuffer;
-			byte[] audioData = new byte[_vorbis.Decoded * 4];
-			for (var i = 0; i < _vorbis.Decoded * 2; ++i)
+			byte[] audioData = new byte[_vorbis.Decoded * _vorbis.Channels * 2];
+			for (var i = 0; i < _vorbis.Decoded * _vorbis.Channels; ++i)
 			{
 				if (i * 2 >= audioData.Length)
 				{
@@ -160,13 +161,13 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 
 		private void LoadSong()
 		{
-			var path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-			path = Path.Combine(path, "Andante_cantabile_S_4_Widor1872.ogg");
+			var path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+			path = Path.Combine(path, "Audio/music.ogg");
 			var buffer = File.ReadAllBytes(path);
 
 			_vorbis = Vorbis.FromMemory(buffer);
 
-			_effect = new DynamicSoundEffectInstance(_vorbis.SampleRate, AudioChannels.Stereo)
+			_effect = new DynamicSoundEffectInstance(_vorbis.SampleRate, (AudioChannels)_vorbis.Channels)
 			{
 				Volume = 0.5f
 			};

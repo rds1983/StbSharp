@@ -4,6 +4,7 @@ rmdir "ZipPackage" /Q /S
 rem Create required folders
 mkdir "ZipPackage"
 mkdir "ZipPackage\netstandard1.1"
+mkdir "ZipPackage\net20"
 
 set "CONFIGURATION=Release"
 
