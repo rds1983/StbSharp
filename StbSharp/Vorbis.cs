@@ -27,6 +27,14 @@ namespace StbSharp
 			}
 		}
 
+		public int SampleRate
+		{
+			get
+			{
+				return (int)_vorbisInfo.sample_rate;
+			}
+		}
+
 		public float LengthInSeconds
 		{
 			get
@@ -62,7 +70,7 @@ namespace StbSharp
 			_vorbisInfo = stb_vorbis_get_info(vorbis);
 			_lengthInSeconds = stb_vorbis_stream_length_in_seconds(_vorbis);
 
-			_songBuffer = new short[_vorbisInfo.sample_rate * _vorbisInfo.channels * 2];
+			_songBuffer = new short[_vorbisInfo.sample_rate * _vorbisInfo.channels * 4];
 
 			Restart();
 		}

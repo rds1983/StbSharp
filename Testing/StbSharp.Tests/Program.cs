@@ -444,7 +444,7 @@ namespace StbSharp.Tests
 
 					for (var i = 0; i < 1; ++i)
 					{
-						nativeResult = Native.decode_vorbis_from_memory(data, out sampleRate, out channels);
+						nativeResult = StbNative.Vorbis.decode_vorbis_from_memory(data, out sampleRate, out channels);
 					}
 
 					var p = EndWatch(sw);

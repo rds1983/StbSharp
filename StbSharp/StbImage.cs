@@ -203,32 +203,41 @@ namespace StbSharp
 
 		public static Image LoadFromMemory(byte[] bytes, int req_comp = STBI_default)
 		{
-			byte* result;
+			Image image;
+			byte* result = null;
 			int x, y, comp;
-			fixed (byte* b = &bytes[0])
+
+			try
 			{
-				result = stbi_load_from_memory(b, bytes.Length, &x, &y, &comp, req_comp);
+				fixed (byte* b = bytes)
+				{
+					result = stbi_load_from_memory(b, bytes.Length, &x, &y, &comp, req_comp);
+				}
+
+				if (result == null)
+				{
+					throw new InvalidOperationException(LastError);
+				}
+
+				image = new Image
+				{
+					Width = x,
+					Height = y,
+					SourceComp = comp,
+					Comp = req_comp == STBI_default ? comp : req_comp
+				};
+
+				// Convert to array
+				image.Data = new byte[x * y * image.Comp];
+				Marshal.Copy(new IntPtr(result), image.Data, 0, image.Data.Length);
 			}
-
-			var image = new Image
+			finally
 			{
-				Width = x,
-				Height = y,
-				SourceComp = comp,
-				Comp = req_comp == STBI_default ? comp : req_comp
-			};
-
-			if (result == null)
-			{
-				throw new Exception(LastError);
+				if (result != null)
+				{
+					CRuntime.free(result);
+				}
 			}
-
-			// Convert to array
-			var data = new byte[x * y * image.Comp];
-			Marshal.Copy(new IntPtr(result), data, 0, data.Length);
-			CRuntime.free(result);
-
-			image.Data = data;
 
 			return image;
 		}

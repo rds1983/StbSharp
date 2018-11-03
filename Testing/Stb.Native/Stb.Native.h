@@ -23,10 +23,6 @@ using namespace System::Threading;
 #define STB_DXT_IMPLEMENTATION
 #include "../../Generation/StbSharp.StbDxt.Generator/stb_dxt.h"
 
-#define STB_VORBIS_NO_INLINE_DECODE
-#define STB_VORBIS_NO_FAST_SCALED_FLOAT
-#include "stb_vorbis.c"
-
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "../../Generation/StbSharp.StbTrueType.Generator/stb_truetype.h"
 
@@ -60,27 +56,6 @@ namespace StbNative {
 		{
 			int %trackRefCounter = _id;
 			return System::Threading::Interlocked::Increment(trackRefCounter);
-		}
-
-		static array<short> ^ decode_vorbis_from_memory(array<unsigned char> ^bytes, [Out] int %sampleRate, [Out] int %channels)
-		{
-			pin_ptr<unsigned char> p = &bytes[0];
-
-			int c, s;
-			short *output;
-
-			const unsigned char *data = (const unsigned char *)p;
-			int size = stb_vorbis_decode_memory(data, bytes->Length, &c, &s, &output);
-
-			array<short> ^result = gcnew array<short>(size);
-
-			Marshal::Copy(IntPtr((void *)output), result, 0, result->Length);
-			free(output);
-
-			sampleRate = s;
-			channels = c;
-
-			return result;
 		}
 
 		// TODO: Add your methods for this class here.

@@ -161,12 +161,12 @@ namespace StbSharp.MonoGame.WindowsDX.Test
 		private void LoadSong()
 		{
 			var path = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-			path = Path.Combine(path, "Adeste_Fideles.ogg");
+			path = Path.Combine(path, "Andante_cantabile_S_4_Widor1872.ogg");
 			var buffer = File.ReadAllBytes(path);
 
 			_vorbis = Vorbis.FromMemory(buffer);
 
-			_effect = new DynamicSoundEffectInstance((int)_vorbis.StbVorbisInfo.sample_rate, AudioChannels.Stereo)
+			_effect = new DynamicSoundEffectInstance(_vorbis.SampleRate, AudioChannels.Stereo)
 			{
 				Volume = 0.5f
 			};

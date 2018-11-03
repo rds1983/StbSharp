@@ -44,7 +44,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="MonoGame.Framework, Version=3.6.0.1625, Culture=neutral, PublicKeyToken=null">
+    <Reference Include="MonoGame.Framework, Version=3.7.0.1708, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ThirdParty\MonoGame.Framework.DesktopGL\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -52,6 +53,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Testing\TestOggs\Andante_cantabile_S_4_Widor1872.ogg">
+      <Link>Andante_cantabile_S_4_Widor1872.ogg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\ThirdParty\MonoGame.Framework.DesktopGL\libopenal.1.dylib">
       <Link>libopenal.1.dylib</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -107,12 +112,6 @@
     <Content Include="image.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Testing\TestOggs\Adeste_Fideles.ogg">
-      <Link>Adeste_Fideles.ogg</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\StbSharp\StbSharp.csproj">
