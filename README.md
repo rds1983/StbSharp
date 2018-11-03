@@ -15,5 +15,10 @@ However some wrapper classes and helper functions had been added.
 
 The [wiki](https://github.com/rds1983/StbSharp/wiki) contains instructions about adding StbSharp to a project and the code samples.
 
+### Building From Source
+1. git clone https://github.com/rds1983/StbSharp
+2. cd StbSharp
+3. git submodule update --init --recursive
+
 ### License
 Public Domain
