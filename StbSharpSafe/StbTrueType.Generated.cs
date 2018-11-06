@@ -2027,7 +2027,7 @@ namespace StbSharpSafe
 					}
 					if (((((x_top) >= (0)) && ((x_bottom) >= (0))) && ((x_top) < (len))) && ((x_bottom) < (len)))
 					{
-						if ((x_top) == (x_bottom))
+						if (((int)(x_top)) == ((int)(x_bottom)))
 						{
 							float height = 0;
 							int x = (int)(x_top);
