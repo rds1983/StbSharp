@@ -304,26 +304,26 @@ namespace StbSharp
 						return (int)(max - 1);
 					return (int)(n);
 				case STBIR_EDGE_REFLECT:
+				{
+					if ((n) < (0))
 					{
-						if ((n) < (0))
-						{
-							if ((n) < (max))
-								return (int)(-n);
-							else
-								return (int)(max - 1);
-						}
-
-						if ((n) >= (max))
-						{
-							int max2 = (int)(max * 2);
-							if ((n) >= (max2))
-								return (int)(0);
-							else
-								return (int)(max2 - n - 1);
-						}
-
-						return (int)(n);
+						if ((n) < (max))
+							return (int)(-n);
+						else
+							return (int)(max - 1);
 					}
+
+					if ((n) >= (max))
+					{
+						int max2 = (int)(max * 2);
+						if ((n) >= (max2))
+							return (int)(0);
+						else
+							return (int)(max2 - n - 1);
+					}
+
+					return (int)(n);
+				}
 				case STBIR_EDGE_WRAP:
 					if ((n) >= (0))
 						return (int)(n % max);
