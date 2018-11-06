@@ -1,6 +1,3 @@
-using System;
-using System.Runtime.InteropServices;
-
 namespace StbSharpSafe
 {
 	partial class StbTrueType
@@ -63,8 +60,7 @@ namespace StbSharpSafe
 			public int size;
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
-		public struct stbtt_bakedchar
+		public class stbtt_bakedchar
 		{
 			public ushort x0;
 			public ushort y0;
@@ -75,8 +71,7 @@ namespace StbSharpSafe
 			public float xadvance;
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
-		public struct stbtt_aligned_quad
+		public class stbtt_aligned_quad
 		{
 			public float x0;
 			public float y0;
@@ -88,8 +83,7 @@ namespace StbSharpSafe
 			public float t1;
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
-		public struct stbtt_packedchar
+		public class stbtt_packedchar
 		{
 			public ushort x0;
 			public ushort y0;
@@ -115,8 +109,7 @@ namespace StbSharpSafe
 
 		public class stbtt_pack_context
 		{
-			public FakePtr<byte> user_allocator_context;
-			public FakePtr<byte> pack_info;
+			public stbrp_context pack_info;
 			public int width;
 			public int height;
 			public int stride_in_bytes;
@@ -124,12 +117,11 @@ namespace StbSharpSafe
 			public uint h_oversample;
 			public uint v_oversample;
 			public FakePtr<byte> pixels;
-			public FakePtr<byte> nodes;
+			public FakePtr<stbrp_node> nodes;
 		}
 
 		public class stbtt_fontinfo
 		{
-			public FakePtr<byte> userdata;
 			public FakePtr<byte> data;
 			public int fontstart;
 			public int numGlyphs;
@@ -142,16 +134,15 @@ namespace StbSharpSafe
 			public int gpos;
 			public int index_map;
 			public int indexToLocFormat;
-			public stbtt__buf cff;
-			public stbtt__buf charstrings;
-			public stbtt__buf gsubrs;
-			public stbtt__buf subrs;
-			public stbtt__buf fontdicts;
-			public stbtt__buf fdselect;
+			public stbtt__buf cff = new stbtt__buf();
+			public stbtt__buf charstrings = new stbtt__buf();
+			public stbtt__buf gsubrs = new stbtt__buf();
+			public stbtt__buf subrs = new stbtt__buf();
+			public stbtt__buf fontdicts = new stbtt__buf();
+			public stbtt__buf fdselect = new stbtt__buf();
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
-		public struct stbtt_vertex
+		public class stbtt_vertex
 		{
 			public short x;
 			public short y;
@@ -187,20 +178,7 @@ namespace StbSharpSafe
 			public int num_vertices;
 		}
 
-		public class stbtt__hheap_chunk
-		{
-			public stbtt__hheap_chunk next;
-		}
-
-		public class stbtt__hheap
-		{
-			public stbtt__hheap_chunk head;
-			public FakePtr<byte> first_free;
-			public int num_remaining_in_head_chunk;
-		}
-
-		[StructLayout(LayoutKind.Sequential)]
-		public struct stbtt__edge
+		public class stbtt__edge
 		{
 			public float x0;
 			public float y0;
@@ -220,15 +198,13 @@ namespace StbSharpSafe
 			public float ey;
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
-		public struct stbtt__point
+		public class stbtt__point
 		{
 			public float x;
 			public float y;
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
-		public struct stbrp_context
+		public class stbrp_context
 		{
 			public int width;
 			public int height;
@@ -237,14 +213,12 @@ namespace StbSharpSafe
 			public int bottom_y;
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
-		public struct stbrp_node
+		public class stbrp_node
 		{
 			public byte x;
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
-		public struct stbrp_rect
+		public class stbrp_rect
 		{
 			public int x;
 			public int y;
@@ -281,7 +255,7 @@ namespace StbSharpSafe
 		public static uint stbtt__buf_get(stbtt__buf b, int n)
 		{
 			uint v = (uint)(0);
-			int i;
+			int i = 0;
 			for (i = (int)(0); (i) < (n); i++)
 			{ v = (uint)((v << 8) | stbtt__buf_get8(b)); }
 			return (uint)(v);
@@ -308,9 +282,9 @@ namespace StbSharpSafe
 
 		public static stbtt__buf stbtt__cff_get_index(stbtt__buf b)
 		{
-			int count;
-			int start;
-			int offsize;
+			int count = 0;
+			int start = 0;
+			int offsize = 0;
 			start = (int)(b.cursor);
 			count = (int)(stbtt__buf_get((b), (int)(2)));
 			if ((count) != 0)
@@ -341,7 +315,7 @@ namespace StbSharpSafe
 
 		public static void stbtt__cff_skip_operand(stbtt__buf b)
 		{
-			int v;
+			int v = 0;
 			int b0 = (int)(stbtt__buf_peek8(b));
 			if ((b0) == (30))
 			{
@@ -366,8 +340,8 @@ namespace StbSharpSafe
 			while ((b.cursor) < (b.size))
 			{
 				int start = (int)(b.cursor);
-				int end;
-				int op;
+				int end = 0;
+				int op = 0;
 				while ((stbtt__buf_peek8(b)) >= (28))
 				{ stbtt__cff_skip_operand(b); }
 				end = (int)(b.cursor);
@@ -382,7 +356,7 @@ namespace StbSharpSafe
 
 		public static void stbtt__dict_get_ints(stbtt__buf b, int key, int outcount, FakePtr<uint> _out_)
 		{
-			int i;
+			int i = 0;
 			stbtt__buf operands = (stbtt__buf)(stbtt__dict_get(b, (int)(key)));
 			for (i = (int)(0); ((i) < (outcount)) && ((operands.cursor) < (operands.size)); i++)
 			{ _out_[i] = (uint)(stbtt__cff_int(operands)); }
@@ -396,10 +370,10 @@ namespace StbSharpSafe
 
 		public static stbtt__buf stbtt__cff_index_get(stbtt__buf b, int i)
 		{
-			int count;
-			int offsize;
-			int start;
-			int end;
+			int count = 0;
+			int offsize = 0;
+			int start = 0;
+			int end = 0;
 			stbtt__buf_seek(b, (int)(0));
 			count = (int)(stbtt__buf_get((b), (int)(2)));
 			offsize = (int)(stbtt__buf_get8(b));
@@ -480,7 +454,7 @@ namespace StbSharpSafe
 		public static stbtt__buf stbtt__get_subrs(stbtt__buf cff, stbtt__buf fontdict)
 		{
 			uint subrsoff = (uint)(0);
-			FakePtr<uint> private_loc = new FakePtr<uint>(2);
+			FakePtr<uint> private_loc = FakePtr<uint>.CreateWithSize(2);
 			private_loc[0] = (uint)(0);
 			private_loc[1] = (uint)(0);
 
@@ -489,7 +463,7 @@ namespace StbSharpSafe
 			if ((private_loc[1] == 0) || (private_loc[0] == 0))
 				return (stbtt__buf)(stbtt__new_buf((null), (ulong)(0)));
 			pdict = (stbtt__buf)(stbtt__buf_range(cff, (int)(private_loc[1]), (int)(private_loc[0])));
-			stbtt__dict_get_ints(pdict, (int)(19), (int)(1), subrsoff);
+			stbtt__dict_get_ints(pdict, (int)(19), (int)(1), ref subrsoff);
 			if (subrsoff == 0)
 				return (stbtt__buf)(stbtt__new_buf((null), (ulong)(0)));
 			stbtt__buf_seek(cff, (int)(private_loc[1] + subrsoff));
@@ -498,10 +472,10 @@ namespace StbSharpSafe
 
 		public static int stbtt_InitFont_internal(stbtt_fontinfo info, FakePtr<byte> data, int fontstart)
 		{
-			uint cmap;
-			uint t;
-			int i;
-			int numTables;
+			uint cmap = 0;
+			uint t = 0;
+			int i = 0;
+			int numTables = 0;
 			info.data = data;
 			info.fontstart = (int)(fontstart);
 			info.cff = (stbtt__buf)(stbtt__new_buf((null), (ulong)(0)));
@@ -529,7 +503,7 @@ namespace StbSharpSafe
 				uint charstrings = (uint)(0);
 				uint fdarrayoff = (uint)(0);
 				uint fdselectoff = (uint)(0);
-				uint cff;
+				uint cff = 0;
 				cff = (uint)(stbtt__find_table(data, (uint)(fontstart), "CFF "));
 				if (cff == 0)
 					return (int)(0);
@@ -544,10 +518,10 @@ namespace StbSharpSafe
 				topdict = (stbtt__buf)(stbtt__cff_index_get((stbtt__buf)(topdictidx), (int)(0)));
 				stbtt__cff_get_index(b);
 				info.gsubrs = (stbtt__buf)(stbtt__cff_get_index(b));
-				stbtt__dict_get_ints(topdict, (int)(17), (int)(1), charstrings);
-				stbtt__dict_get_ints(topdict, (int)(0x100 | 6), (int)(1), cstype);
-				stbtt__dict_get_ints(topdict, (int)(0x100 | 36), (int)(1), fdarrayoff);
-				stbtt__dict_get_ints(topdict, (int)(0x100 | 37), (int)(1), fdselectoff);
+				stbtt__dict_get_ints(topdict, (int)(17), (int)(1), ref charstrings);
+				stbtt__dict_get_ints(topdict, (int)(0x100 | 6), (int)(1), ref cstype);
+				stbtt__dict_get_ints(topdict, (int)(0x100 | 36), (int)(1), ref fdarrayoff);
+				stbtt__dict_get_ints(topdict, (int)(0x100 | 37), (int)(1), ref fdselectoff);
 				info.subrs = (stbtt__buf)(stbtt__get_subrs((stbtt__buf)(b), (stbtt__buf)(topdict)));
 				if (cstype != 2)
 					return (int)(0);
@@ -578,17 +552,17 @@ namespace StbSharpSafe
 				switch (ttUSHORT(data + encoding_record))
 				{
 					case STBTT_PLATFORM_ID_MICROSOFT:
-					switch (ttUSHORT(data + encoding_record + 2))
-					{
-						case STBTT_MS_EID_UNICODE_BMP:
-						case STBTT_MS_EID_UNICODE_FULL:
+						switch (ttUSHORT(data + encoding_record + 2))
+						{
+							case STBTT_MS_EID_UNICODE_BMP:
+							case STBTT_MS_EID_UNICODE_FULL:
+								info.index_map = (int)(cmap + ttULONG(data + encoding_record + 4));
+								break;
+						}
+						break;
+					case STBTT_PLATFORM_ID_UNICODE:
 						info.index_map = (int)(cmap + ttULONG(data + encoding_record + 4));
 						break;
-					}
-					break;
-					case STBTT_PLATFORM_ID_UNICODE:
-					info.index_map = (int)(cmap + ttULONG(data + encoding_record + 4));
-					break;
 				}
 			}
 			if ((info.index_map) == (0))
@@ -606,7 +580,7 @@ namespace StbSharpSafe
 			{
 				int bytes = (int)(ttUSHORT(data + index_map + 2));
 				if ((unicode_codepoint) < (bytes - 6))
-					return (int)(*(data + index_map + 6 + unicode_codepoint));
+					return (int)((data + index_map + 6 + unicode_codepoint).Value);
 				return (int)(0);
 			}
 			else if ((format) == (6))
@@ -636,7 +610,7 @@ namespace StbSharpSafe
 				search -= (uint)(2);
 				while ((entrySelector) != 0)
 				{
-					ushort end;
+					ushort end = 0;
 					searchRange >>= 1;
 					end = (ushort)(ttUSHORT(data + search + searchRange * 2));
 					if ((unicode_codepoint) > (end))
@@ -645,8 +619,8 @@ namespace StbSharpSafe
 				}
 				search += (uint)(2);
 				{
-					ushort offset;
-					ushort start;
+					ushort offset = 0;
+					ushort start = 0;
 					ushort item = (ushort)((search - endCount) >> 1);
 					start = (ushort)(ttUSHORT(data + index_map + 14 + segcount * 2 + 2 + 2 * item));
 					if ((unicode_codepoint) < (start))
@@ -660,8 +634,8 @@ namespace StbSharpSafe
 			else if (((format) == (12)) || ((format) == (13)))
 			{
 				uint ngroups = (uint)(ttULONG(data + index_map + 12));
-				int low;
-				int high;
+				int low = 0;
+				int high = 0;
 				low = (int)(0);
 				high = (int)(ngroups);
 				while ((low) < (high))
@@ -688,24 +662,24 @@ namespace StbSharpSafe
 			return (int)(0);
 		}
 
-		public static int stbtt_GetCodepointShape(stbtt_fontinfo info, int unicode_codepoint, FakePtr<FakePtr<stbtt_vertex>> vertices)
+		public static int stbtt_GetCodepointShape(stbtt_fontinfo info, int unicode_codepoint, ref FakePtr<stbtt_vertex> vertices)
 		{
-			return (int)(stbtt_GetGlyphShape(info, (int)(stbtt_FindGlyphIndex(info, (int)(unicode_codepoint))), vertices));
+			return (int)(stbtt_GetGlyphShape(info, (int)(stbtt_FindGlyphIndex(info, (int)(unicode_codepoint))), ref vertices));
 		}
 
-		public static void stbtt_setvertex(FakePtr<stbtt_vertex> v, byte type, int x, int y, int cx, int cy)
+		public static void stbtt_setvertex(stbtt_vertex v, byte type, int x, int y, int cx, int cy)
 		{
-			v->type = (byte)(type);
-			v->x = (short)(x);
-			v->y = (short)(y);
-			v->cx = (short)(cx);
-			v->cy = (short)(cy);
+			v.type = (byte)(type);
+			v.x = (short)(x);
+			v.y = (short)(y);
+			v.cx = (short)(cx);
+			v.cy = (short)(cy);
 		}
 
 		public static int stbtt__GetGlyfOffset(stbtt_fontinfo info, int glyph_index)
 		{
-			int g1;
-			int g2;
+			int g1 = 0;
+			int g2 = 0;
 			if ((glyph_index) >= (info.numGlyphs))
 				return (int)(-1);
 			if ((info.indexToLocFormat) >= (2))
@@ -736,13 +710,13 @@ namespace StbSharpSafe
 				if ((g) < (0))
 					return (int)(0);
 				if ((x0) != null)
-					*x0 = (int)(ttSHORT(info.data + g + 2));
+					(x0.Value) = (int)(ttSHORT(info.data + g + 2));
 				if ((y0) != null)
-					*y0 = (int)(ttSHORT(info.data + g + 4));
+					(y0.Value) = (int)(ttSHORT(info.data + g + 4));
 				if ((x1) != null)
-					*x1 = (int)(ttSHORT(info.data + g + 6));
+					(x1.Value) = (int)(ttSHORT(info.data + g + 6));
 				if ((y1) != null)
-					*y1 = (int)(ttSHORT(info.data + g + 8));
+					(y1.Value) = (int)(ttSHORT(info.data + g + 8));
 			}
 
 			return (int)(1);
@@ -755,8 +729,8 @@ namespace StbSharpSafe
 
 		public static int stbtt_IsGlyphEmpty(stbtt_fontinfo info, int glyph_index)
 		{
-			short numberOfContours;
-			int g;
+			short numberOfContours = 0;
+			int g = 0;
 			if ((info.cff.size) != 0)
 				return (int)((stbtt__GetGlyphInfoT2(info, (int)(glyph_index), (null), (null), (null), (null))) == (0) ? 1 : 0);
 			g = (int)(stbtt__GetGlyfOffset(info, (int)(glyph_index)));
@@ -785,46 +759,46 @@ namespace StbSharpSafe
 			return (int)(num_vertices);
 		}
 
-		public static int stbtt__GetGlyphShapeTT(stbtt_fontinfo info, int glyph_index, FakePtr<FakePtr<stbtt_vertex>> pvertices)
+		public static int stbtt__GetGlyphShapeTT(stbtt_fontinfo info, int glyph_index, ref FakePtr<stbtt_vertex> pvertices)
 		{
-			short numberOfContours;
+			short numberOfContours = 0;
 			FakePtr<byte> endPtsOfContours;
 			FakePtr<byte> data = info.data;
 			FakePtr<stbtt_vertex> vertices = null;
 			int num_vertices = (int)(0);
 			int g = (int)(stbtt__GetGlyfOffset(info, (int)(glyph_index)));
-			*pvertices = (null);
+			pvertices = (null);
 			if ((g) < (0))
 				return (int)(0);
 			numberOfContours = (short)(ttSHORT(data + g));
 			if ((numberOfContours) > (0))
 			{
 				byte flags = (byte)(0);
-				byte flagcount;
-				int ins;
-				int i;
+				byte flagcount = 0;
+				int ins = 0;
+				int i = 0;
 				int j = (int)(0);
-				int m;
-				int n;
-				int next_move;
+				int m = 0;
+				int n = 0;
+				int next_move = 0;
 				int was_off = (int)(0);
-				int off;
+				int off = 0;
 				int start_off = (int)(0);
-				int x;
-				int y;
-				int cx;
-				int cy;
-				int sx;
-				int sy;
-				int scx;
-				int scy;
+				int x = 0;
+				int y = 0;
+				int cx = 0;
+				int cy = 0;
+				int sx = 0;
+				int sy = 0;
+				int scx = 0;
+				int scy = 0;
 				FakePtr<byte> points;
 				endPtsOfContours = (data + g + 10);
 				ins = (int)(ttUSHORT(data + g + 10 + numberOfContours * 2));
 				points = data + g + 10 + numberOfContours * 2 + 2 + ins;
 				n = (int)(1 + ttUSHORT(endPtsOfContours + numberOfContours * 2 - 2));
 				m = (int)(n + 2 * numberOfContours);
-				vertices = CRuntime.malloc((ulong)(m * sizeof(stbtt_vertex)));
+				vertices = FakePtr<stbtt_vertex>.CreateWithSize(m);
 				if ((vertices) == (null))
 					return (int)(0);
 				next_move = (int)(0);
@@ -834,9 +808,9 @@ namespace StbSharpSafe
 				{
 					if ((flagcount) == (0))
 					{
-						flags = (byte)(*points++);
+						flags = (byte)(points++.Value);
 						if ((flags & 8) != 0)
-							flagcount = (byte)(*points++);
+							flagcount = (byte)(points++.Value);
 					}
 					else
 						--flagcount;
@@ -848,7 +822,7 @@ namespace StbSharpSafe
 					flags = (byte)(vertices[off + i].type);
 					if ((flags & 2) != 0)
 					{
-						short dx = (short)(*points++);
+						short dx = (short)(points++.Value);
 						x += (int)((flags & 16) != 0 ? dx : -dx);
 					}
 					else
@@ -867,7 +841,7 @@ namespace StbSharpSafe
 					flags = (byte)(vertices[off + i].type);
 					if ((flags & 4) != 0)
 					{
-						short dy = (short)(*points++);
+						short dy = (short)(points++.Value);
 						y += (int)((flags & 32) != 0 ? dy : -dy);
 					}
 					else
@@ -948,21 +922,21 @@ namespace StbSharpSafe
 				vertices = null;
 				while ((more) != 0)
 				{
-					ushort flags;
-					ushort gidx;
+					ushort flags = 0;
+					ushort gidx = 0;
 					int comp_num_verts = (int)(0);
-					int i;
+					int i = 0;
 					FakePtr<stbtt_vertex> comp_verts = null;
 					FakePtr<stbtt_vertex> tmp = null;
-					FakePtr<float> mtx = new FakePtr<float>(6);
+					FakePtr<float> mtx = FakePtr<float>.CreateWithSize(6);
 					mtx[0] = (float)(1);
 					mtx[1] = (float)(0);
 					mtx[2] = (float)(0);
 					mtx[3] = (float)(1);
 					mtx[4] = (float)(0);
 					mtx[5] = (float)(0);
-					float m;
-					float n;
+					float m = 0;
+					float n = 0;
 					flags = (ushort)(ttSHORT(comp));
 					comp += 2;
 					gidx = (ushort)(ttSHORT(comp));
@@ -978,9 +952,9 @@ namespace StbSharpSafe
 						}
 						else
 						{
-							mtx[4] = (float)(*(comp));
+							mtx[4] = (float)((comp).Value);
 							comp += 1;
-							mtx[5] = (float)(*(comp));
+							mtx[5] = (float)((comp).Value);
 							comp += 1;
 						}
 					}
@@ -1014,24 +988,24 @@ namespace StbSharpSafe
 					}
 					m = (float)(CRuntime.sqrt((double)(mtx[0] * mtx[0] + mtx[1] * mtx[1])));
 					n = (float)(CRuntime.sqrt((double)(mtx[2] * mtx[2] + mtx[3] * mtx[3])));
-					comp_num_verts = (int)(stbtt_GetGlyphShape(info, (int)(gidx), comp_verts));
+					comp_num_verts = (int)(stbtt_GetGlyphShape(info, (int)(gidx), ref comp_verts));
 					if ((comp_num_verts) > (0))
 					{
 						for (i = (int)(0); (i) < (comp_num_verts); ++i)
 						{
-							FakePtr<stbtt_vertex> v = comp_verts[i];
-							short x;
-							short y;
-							x = (short)(v->x);
-							y = (short)(v->y);
-							v->x = (short)(m * (mtx[0] * x + mtx[2] * y + mtx[4]));
-							v->y = (short)(n * (mtx[1] * x + mtx[3] * y + mtx[5]));
-							x = (short)(v->cx);
-							y = (short)(v->cy);
-							v->cx = (short)(m * (mtx[0] * x + mtx[2] * y + mtx[4]));
-							v->cy = (short)(n * (mtx[1] * x + mtx[3] * y + mtx[5]));
+							stbtt_vertex v = comp_verts[i];
+							short x = 0;
+							short y = 0;
+							x = (short)(v.x);
+							y = (short)(v.y);
+							v.x = (short)(m * (mtx[0] * x + mtx[2] * y + mtx[4]));
+							v.y = (short)(n * (mtx[1] * x + mtx[3] * y + mtx[5]));
+							x = (short)(v.cx);
+							y = (short)(v.cy);
+							v.cx = (short)(m * (mtx[0] * x + mtx[2] * y + mtx[4]));
+							v.cy = (short)(n * (mtx[1] * x + mtx[3] * y + mtx[5]));
 						}
-						tmp = CRuntime.malloc((ulong)((num_vertices + comp_num_verts) * sizeof(stbtt_vertex)));
+						tmp = FakePtr<stbtt_vertex>.CreateWithSize(num_vertices + comp_num_verts);
 						if (tmp == null)
 						{
 							if ((vertices) != null)
@@ -1041,8 +1015,8 @@ namespace StbSharpSafe
 							return (int)(0);
 						}
 						if ((num_vertices) > (0))
-							CRuntime.memcpy(tmp, vertices, (ulong)(num_vertices * sizeof(stbtt_vertex)));
-						CRuntime.memcpy(tmp + num_vertices, comp_verts, (ulong)(comp_num_verts * sizeof(stbtt_vertex)));
+							CRuntime.memcpy(tmp, vertices, num_vertices);
+						CRuntime.memcpy(tmp + num_vertices, comp_verts, comp_num_verts);
 						if ((vertices) != null)
 							CRuntime.free(vertices);
 						vertices = tmp;
@@ -1059,7 +1033,7 @@ namespace StbSharpSafe
 			{
 			}
 
-			*pvertices = vertices;
+			pvertices = vertices;
 			return (int)(num_vertices);
 		}
 
@@ -1146,13 +1120,13 @@ namespace StbSharpSafe
 		public static stbtt__buf stbtt__cid_get_glyph_subrs(stbtt_fontinfo info, int glyph_index)
 		{
 			stbtt__buf fdselect = (stbtt__buf)(info.fdselect);
-			int nranges;
-			int start;
-			int end;
-			int v;
-			int fmt;
+			int nranges = 0;
+			int start = 0;
+			int end = 0;
+			int v = 0;
+			int fmt = 0;
 			int fdselector = (int)(-1);
-			int i;
+			int i = 0;
 			stbtt__buf_seek(fdselect, (int)(0));
 			fmt = (int)(stbtt__buf_get8(fdselect));
 			if ((fmt) == (0))
@@ -1188,16 +1162,16 @@ namespace StbSharpSafe
 			int maskbits = (int)(0);
 			int subr_stack_height = (int)(0);
 			int sp = (int)(0);
-			int v;
-			int i;
-			int b0;
+			int v = 0;
+			int i = 0;
+			int b0 = 0;
 			int has_subrs = (int)(0);
-			int clear_stack;
-			FakePtr<float> s = new FakePtr<float>(48);
-			stbtt__buf subr_stack = new PinnedArray<stbtt__buf>(10);
+			int clear_stack = 0;
+			FakePtr<float> s = FakePtr<float>.CreateWithSize(48);
+			FakePtr<stbtt__buf> subr_stack = FakePtr<stbtt__buf>.CreateWithSize(10);
 			stbtt__buf subrs = (stbtt__buf)(info.subrs);
 			stbtt__buf b = new stbtt__buf();
-			float f;
+			float f = 0;
 			b = (stbtt__buf)(stbtt__cff_index_get((stbtt__buf)(info.charstrings), (int)(glyph_index)));
 			while ((b.cursor) < (b.size))
 			{
@@ -1208,41 +1182,41 @@ namespace StbSharpSafe
 				{
 					case 0x13:
 					case 0x14:
-					if ((in_header) != 0)
-						maskbits += (int)(sp / 2);
-					in_header = (int)(0);
-					stbtt__buf_skip(b, (int)((maskbits + 7) / 8));
-					break;
+						if ((in_header) != 0)
+							maskbits += (int)(sp / 2);
+						in_header = (int)(0);
+						stbtt__buf_skip(b, (int)((maskbits + 7) / 8));
+						break;
 					case 0x01:
 					case 0x03:
 					case 0x12:
 					case 0x17:
-					maskbits += (int)(sp / 2);
-					break;
+						maskbits += (int)(sp / 2);
+						break;
 					case 0x15:
-					in_header = (int)(0);
-					if ((sp) < (2))
-						return (int)(0);
-					stbtt__csctx_rmove_to(c, (float)(s[sp - 2]), (float)(s[sp - 1]));
-					break;
+						in_header = (int)(0);
+						if ((sp) < (2))
+							return (int)(0);
+						stbtt__csctx_rmove_to(c, (float)(s[sp - 2]), (float)(s[sp - 1]));
+						break;
 					case 0x04:
-					in_header = (int)(0);
-					if ((sp) < (1))
-						return (int)(0);
-					stbtt__csctx_rmove_to(c, (float)(0), (float)(s[sp - 1]));
-					break;
+						in_header = (int)(0);
+						if ((sp) < (1))
+							return (int)(0);
+						stbtt__csctx_rmove_to(c, (float)(0), (float)(s[sp - 1]));
+						break;
 					case 0x16:
-					in_header = (int)(0);
-					if ((sp) < (1))
-						return (int)(0);
-					stbtt__csctx_rmove_to(c, (float)(s[sp - 1]), (float)(0));
-					break;
+						in_header = (int)(0);
+						if ((sp) < (1))
+							return (int)(0);
+						stbtt__csctx_rmove_to(c, (float)(s[sp - 1]), (float)(0));
+						break;
 					case 0x05:
-					if ((sp) < (2))
-						return (int)(0);
-					for (; (i + 1) < (sp); i += (int)(2))
-					{ stbtt__csctx_rline_to(c, (float)(s[i]), (float)(s[i + 1])); }
-					break;
+						if ((sp) < (2))
+							return (int)(0);
+						for (; (i + 1) < (sp); i += (int)(2))
+						{ stbtt__csctx_rline_to(c, (float)(s[i]), (float)(s[i + 1])); }
+						break;
 					case 0x07:
 					case 0x06:
 					{
@@ -1306,190 +1280,190 @@ namespace StbSharpSafe
 					}
 					break;
 					case 0x08:
-					if ((sp) < (6))
-						return (int)(0);
-					for (; (i + 5) < (sp); i += (int)(6))
-					{ stbtt__csctx_rccurve_to(c, (float)(s[i]), (float)(s[i + 1]), (float)(s[i + 2]), (float)(s[i + 3]), (float)(s[i + 4]), (float)(s[i + 5])); }
-					break;
+						if ((sp) < (6))
+							return (int)(0);
+						for (; (i + 5) < (sp); i += (int)(6))
+						{ stbtt__csctx_rccurve_to(c, (float)(s[i]), (float)(s[i + 1]), (float)(s[i + 2]), (float)(s[i + 3]), (float)(s[i + 4]), (float)(s[i + 5])); }
+						break;
 					case 0x18:
-					if ((sp) < (8))
-						return (int)(0);
-					for (; (i + 5) < (sp - 2); i += (int)(6))
-					{ stbtt__csctx_rccurve_to(c, (float)(s[i]), (float)(s[i + 1]), (float)(s[i + 2]), (float)(s[i + 3]), (float)(s[i + 4]), (float)(s[i + 5])); }
-					if ((i + 1) >= (sp))
-						return (int)(0);
-					stbtt__csctx_rline_to(c, (float)(s[i]), (float)(s[i + 1]));
-					break;
+						if ((sp) < (8))
+							return (int)(0);
+						for (; (i + 5) < (sp - 2); i += (int)(6))
+						{ stbtt__csctx_rccurve_to(c, (float)(s[i]), (float)(s[i + 1]), (float)(s[i + 2]), (float)(s[i + 3]), (float)(s[i + 4]), (float)(s[i + 5])); }
+						if ((i + 1) >= (sp))
+							return (int)(0);
+						stbtt__csctx_rline_to(c, (float)(s[i]), (float)(s[i + 1]));
+						break;
 					case 0x19:
-					if ((sp) < (8))
-						return (int)(0);
-					for (; (i + 1) < (sp - 6); i += (int)(2))
-					{ stbtt__csctx_rline_to(c, (float)(s[i]), (float)(s[i + 1])); }
-					if ((i + 5) >= (sp))
-						return (int)(0);
-					stbtt__csctx_rccurve_to(c, (float)(s[i]), (float)(s[i + 1]), (float)(s[i + 2]), (float)(s[i + 3]), (float)(s[i + 4]), (float)(s[i + 5]));
-					break;
+						if ((sp) < (8))
+							return (int)(0);
+						for (; (i + 1) < (sp - 6); i += (int)(2))
+						{ stbtt__csctx_rline_to(c, (float)(s[i]), (float)(s[i + 1])); }
+						if ((i + 5) >= (sp))
+							return (int)(0);
+						stbtt__csctx_rccurve_to(c, (float)(s[i]), (float)(s[i + 1]), (float)(s[i + 2]), (float)(s[i + 3]), (float)(s[i + 4]), (float)(s[i + 5]));
+						break;
 					case 0x1A:
 					case 0x1B:
-					if ((sp) < (4))
-						return (int)(0);
-					f = (float)(0.0);
-					if ((sp & 1) != 0)
-					{
-						f = (float)(s[i]);
-						i++;
-					}
-					for (; (i + 3) < (sp); i += (int)(4))
-					{
-						if ((b0) == (0x1B))
-							stbtt__csctx_rccurve_to(c, (float)(s[i]), (float)(f), (float)(s[i + 1]), (float)(s[i + 2]), (float)(s[i + 3]), (float)(0.0));
-						else
-							stbtt__csctx_rccurve_to(c, (float)(f), (float)(s[i]), (float)(s[i + 1]), (float)(s[i + 2]), (float)(0.0), (float)(s[i + 3]));
+						if ((sp) < (4))
+							return (int)(0);
 						f = (float)(0.0);
-					}
-					break;
+						if ((sp & 1) != 0)
+						{
+							f = (float)(s[i]);
+							i++;
+						}
+						for (; (i + 3) < (sp); i += (int)(4))
+						{
+							if ((b0) == (0x1B))
+								stbtt__csctx_rccurve_to(c, (float)(s[i]), (float)(f), (float)(s[i + 1]), (float)(s[i + 2]), (float)(s[i + 3]), (float)(0.0));
+							else
+								stbtt__csctx_rccurve_to(c, (float)(f), (float)(s[i]), (float)(s[i + 1]), (float)(s[i + 2]), (float)(0.0), (float)(s[i + 3]));
+							f = (float)(0.0);
+						}
+						break;
 					case 0x0A:
 					case 0x1D:
-					if ((b0) == (0x0A))
-					{
-						if (has_subrs == 0)
+						if ((b0) == (0x0A))
 						{
-							if ((info.fdselect.size) != 0)
-								subrs = (stbtt__buf)(stbtt__cid_get_glyph_subrs(info, (int)(glyph_index)));
-							has_subrs = (int)(1);
+							if (has_subrs == 0)
+							{
+								if ((info.fdselect.size) != 0)
+									subrs = (stbtt__buf)(stbtt__cid_get_glyph_subrs(info, (int)(glyph_index)));
+								has_subrs = (int)(1);
+							}
 						}
-					}
-					if ((sp) < (1))
-						return (int)(0);
-					v = (int)(s[--sp]);
-					if ((subr_stack_height) >= (10))
-						return (int)(0);
-					subr_stack[subr_stack_height++] = (stbtt__buf)(b);
-					b = (stbtt__buf)(stbtt__get_subr((stbtt__buf)((b0) == (0x0A) ? subrs : info.gsubrs), (int)(v)));
-					if ((b.size) == (0))
-						return (int)(0);
-					b.cursor = (int)(0);
-					clear_stack = (int)(0);
-					break;
+						if ((sp) < (1))
+							return (int)(0);
+						v = (int)(s[--sp]);
+						if ((subr_stack_height) >= (10))
+							return (int)(0);
+						subr_stack[subr_stack_height++] = (stbtt__buf)(b);
+						b = (stbtt__buf)(stbtt__get_subr((stbtt__buf)((b0) == (0x0A) ? subrs : info.gsubrs), (int)(v)));
+						if ((b.size) == (0))
+							return (int)(0);
+						b.cursor = (int)(0);
+						clear_stack = (int)(0);
+						break;
 					case 0x0B:
-					if (subr_stack_height <= 0)
-						return (int)(0);
-					b = (stbtt__buf)(subr_stack[--subr_stack_height]);
-					clear_stack = (int)(0);
-					break;
+						if (subr_stack_height <= 0)
+							return (int)(0);
+						b = (stbtt__buf)(subr_stack[--subr_stack_height]);
+						clear_stack = (int)(0);
+						break;
 					case 0x0E:
-					stbtt__csctx_close_shape(c);
-					return (int)(1);
+						stbtt__csctx_close_shape(c);
+						return (int)(1);
 					case 0x0C:
 					{
-						float dx1;
-						float dx2;
-						float dx3;
-						float dx4;
-						float dx5;
-						float dx6;
-						float dy1;
-						float dy2;
-						float dy3;
-						float dy4;
-						float dy5;
-						float dy6;
-						float dx;
-						float dy;
+						float dx1 = 0;
+						float dx2 = 0;
+						float dx3 = 0;
+						float dx4 = 0;
+						float dx5 = 0;
+						float dx6 = 0;
+						float dy1 = 0;
+						float dy2 = 0;
+						float dy3 = 0;
+						float dy4 = 0;
+						float dy5 = 0;
+						float dy6 = 0;
+						float dx = 0;
+						float dy = 0;
 						int b1 = (int)(stbtt__buf_get8(b));
 						switch (b1)
 						{
 							case 0x22:
-							if ((sp) < (7))
-								return (int)(0);
-							dx1 = (float)(s[0]);
-							dx2 = (float)(s[1]);
-							dy2 = (float)(s[2]);
-							dx3 = (float)(s[3]);
-							dx4 = (float)(s[4]);
-							dx5 = (float)(s[5]);
-							dx6 = (float)(s[6]);
-							stbtt__csctx_rccurve_to(c, (float)(dx1), (float)(0), (float)(dx2), (float)(dy2), (float)(dx3), (float)(0));
-							stbtt__csctx_rccurve_to(c, (float)(dx4), (float)(0), (float)(dx5), (float)(-dy2), (float)(dx6), (float)(0));
-							break;
+								if ((sp) < (7))
+									return (int)(0);
+								dx1 = (float)(s[0]);
+								dx2 = (float)(s[1]);
+								dy2 = (float)(s[2]);
+								dx3 = (float)(s[3]);
+								dx4 = (float)(s[4]);
+								dx5 = (float)(s[5]);
+								dx6 = (float)(s[6]);
+								stbtt__csctx_rccurve_to(c, (float)(dx1), (float)(0), (float)(dx2), (float)(dy2), (float)(dx3), (float)(0));
+								stbtt__csctx_rccurve_to(c, (float)(dx4), (float)(0), (float)(dx5), (float)(-dy2), (float)(dx6), (float)(0));
+								break;
 							case 0x23:
-							if ((sp) < (13))
-								return (int)(0);
-							dx1 = (float)(s[0]);
-							dy1 = (float)(s[1]);
-							dx2 = (float)(s[2]);
-							dy2 = (float)(s[3]);
-							dx3 = (float)(s[4]);
-							dy3 = (float)(s[5]);
-							dx4 = (float)(s[6]);
-							dy4 = (float)(s[7]);
-							dx5 = (float)(s[8]);
-							dy5 = (float)(s[9]);
-							dx6 = (float)(s[10]);
-							dy6 = (float)(s[11]);
-							stbtt__csctx_rccurve_to(c, (float)(dx1), (float)(dy1), (float)(dx2), (float)(dy2), (float)(dx3), (float)(dy3));
-							stbtt__csctx_rccurve_to(c, (float)(dx4), (float)(dy4), (float)(dx5), (float)(dy5), (float)(dx6), (float)(dy6));
-							break;
+								if ((sp) < (13))
+									return (int)(0);
+								dx1 = (float)(s[0]);
+								dy1 = (float)(s[1]);
+								dx2 = (float)(s[2]);
+								dy2 = (float)(s[3]);
+								dx3 = (float)(s[4]);
+								dy3 = (float)(s[5]);
+								dx4 = (float)(s[6]);
+								dy4 = (float)(s[7]);
+								dx5 = (float)(s[8]);
+								dy5 = (float)(s[9]);
+								dx6 = (float)(s[10]);
+								dy6 = (float)(s[11]);
+								stbtt__csctx_rccurve_to(c, (float)(dx1), (float)(dy1), (float)(dx2), (float)(dy2), (float)(dx3), (float)(dy3));
+								stbtt__csctx_rccurve_to(c, (float)(dx4), (float)(dy4), (float)(dx5), (float)(dy5), (float)(dx6), (float)(dy6));
+								break;
 							case 0x24:
-							if ((sp) < (9))
-								return (int)(0);
-							dx1 = (float)(s[0]);
-							dy1 = (float)(s[1]);
-							dx2 = (float)(s[2]);
-							dy2 = (float)(s[3]);
-							dx3 = (float)(s[4]);
-							dx4 = (float)(s[5]);
-							dx5 = (float)(s[6]);
-							dy5 = (float)(s[7]);
-							dx6 = (float)(s[8]);
-							stbtt__csctx_rccurve_to(c, (float)(dx1), (float)(dy1), (float)(dx2), (float)(dy2), (float)(dx3), (float)(0));
-							stbtt__csctx_rccurve_to(c, (float)(dx4), (float)(0), (float)(dx5), (float)(dy5), (float)(dx6), (float)(-(dy1 + dy2 + dy5)));
-							break;
+								if ((sp) < (9))
+									return (int)(0);
+								dx1 = (float)(s[0]);
+								dy1 = (float)(s[1]);
+								dx2 = (float)(s[2]);
+								dy2 = (float)(s[3]);
+								dx3 = (float)(s[4]);
+								dx4 = (float)(s[5]);
+								dx5 = (float)(s[6]);
+								dy5 = (float)(s[7]);
+								dx6 = (float)(s[8]);
+								stbtt__csctx_rccurve_to(c, (float)(dx1), (float)(dy1), (float)(dx2), (float)(dy2), (float)(dx3), (float)(0));
+								stbtt__csctx_rccurve_to(c, (float)(dx4), (float)(0), (float)(dx5), (float)(dy5), (float)(dx6), (float)(-(dy1 + dy2 + dy5)));
+								break;
 							case 0x25:
-							if ((sp) < (11))
-								return (int)(0);
-							dx1 = (float)(s[0]);
-							dy1 = (float)(s[1]);
-							dx2 = (float)(s[2]);
-							dy2 = (float)(s[3]);
-							dx3 = (float)(s[4]);
-							dy3 = (float)(s[5]);
-							dx4 = (float)(s[6]);
-							dy4 = (float)(s[7]);
-							dx5 = (float)(s[8]);
-							dy5 = (float)(s[9]);
-							dx6 = (float)(dy6 = (float)(s[10]));
-							dx = (float)(dx1 + dx2 + dx3 + dx4 + dx5);
-							dy = (float)(dy1 + dy2 + dy3 + dy4 + dy5);
-							if ((CRuntime.fabs((double)(dx))) > (CRuntime.fabs((double)(dy))))
-								dy6 = (float)(-dy);
-							else
-								dx6 = (float)(-dx);
-							stbtt__csctx_rccurve_to(c, (float)(dx1), (float)(dy1), (float)(dx2), (float)(dy2), (float)(dx3), (float)(dy3));
-							stbtt__csctx_rccurve_to(c, (float)(dx4), (float)(dy4), (float)(dx5), (float)(dy5), (float)(dx6), (float)(dy6));
-							break;
+								if ((sp) < (11))
+									return (int)(0);
+								dx1 = (float)(s[0]);
+								dy1 = (float)(s[1]);
+								dx2 = (float)(s[2]);
+								dy2 = (float)(s[3]);
+								dx3 = (float)(s[4]);
+								dy3 = (float)(s[5]);
+								dx4 = (float)(s[6]);
+								dy4 = (float)(s[7]);
+								dx5 = (float)(s[8]);
+								dy5 = (float)(s[9]);
+								dx6 = (float)(dy6 = (float)(s[10]));
+								dx = (float)(dx1 + dx2 + dx3 + dx4 + dx5);
+								dy = (float)(dy1 + dy2 + dy3 + dy4 + dy5);
+								if ((CRuntime.fabs((double)(dx))) > (CRuntime.fabs((double)(dy))))
+									dy6 = (float)(-dy);
+								else
+									dx6 = (float)(-dx);
+								stbtt__csctx_rccurve_to(c, (float)(dx1), (float)(dy1), (float)(dx2), (float)(dy2), (float)(dx3), (float)(dy3));
+								stbtt__csctx_rccurve_to(c, (float)(dx4), (float)(dy4), (float)(dx5), (float)(dy5), (float)(dx6), (float)(dy6));
+								break;
 							default:
-							return (int)(0);
+								return (int)(0);
 						}
 					}
 					break;
 					default:
-					if (((b0 != 255) && (b0 != 28)) && (((b0) < (32)) || ((b0) > (254))))
-						return (int)(0);
-					if ((b0) == (255))
-					{
-						f = (float)(stbtt__buf_get((b), (int)(4)) / 0x10000);
-					}
-					else
-					{
-						stbtt__buf_skip(b, (int)(-1));
-						f = (float)(stbtt__cff_int(b));
-					}
-					if ((sp) >= (48))
-						return (int)(0);
-					s[sp++] = (float)(f);
-					clear_stack = (int)(0);
-					break;
+						if (((b0 != 255) && (b0 != 28)) && (((b0) < (32)) || ((b0) > (254))))
+							return (int)(0);
+						if ((b0) == (255))
+						{
+							f = (float)(stbtt__buf_get((b), (int)(4)) / 0x10000);
+						}
+						else
+						{
+							stbtt__buf_skip(b, (int)(-1));
+							f = (float)(stbtt__cff_int(b));
+						}
+						if ((sp) >= (48))
+							return (int)(0);
+						s[sp++] = (float)(f);
+						clear_stack = (int)(0);
+						break;
 				}
 				if ((clear_stack) != 0)
 					sp = (int)(0);
@@ -1497,22 +1471,22 @@ namespace StbSharpSafe
 			return (int)(0);
 		}
 
-		public static int stbtt__GetGlyphShapeT2(stbtt_fontinfo info, int glyph_index, FakePtr<FakePtr<stbtt_vertex>> pvertices)
+		public static int stbtt__GetGlyphShapeT2(stbtt_fontinfo info, int glyph_index, ref FakePtr<stbtt_vertex> pvertices)
 		{
 			stbtt__csctx count_ctx = new stbtt__csctx();
 			count_ctx.bounds = (int)(1);
 			stbtt__csctx output_ctx = new stbtt__csctx();
 			if ((stbtt__run_charstring(info, (int)(glyph_index), count_ctx)) != 0)
 			{
-				*pvertices = CRuntime.malloc((ulong)(count_ctx.num_vertices * sizeof(stbtt_vertex)));
-				output_ctx.pvertices = *pvertices;
+				pvertices = FakePtr<stbtt_vertex>.CreateWithSize(count_ctx.num_vertices);
+				output_ctx.pvertices = pvertices;
 				if ((stbtt__run_charstring(info, (int)(glyph_index), output_ctx)) != 0)
 				{
 					return (int)(output_ctx.num_vertices);
 				}
 			}
 
-			*pvertices = (null);
+			pvertices = (null);
 			return (int)(0);
 		}
 
@@ -1522,52 +1496,47 @@ namespace StbSharpSafe
 			c.bounds = (int)(1);
 			int r = (int)(stbtt__run_charstring(info, (int)(glyph_index), c));
 			if ((x0) != null)
-				*x0 = (int)((r) != 0 ? c.min_x : 0);
+				(x0.Value) = (int)((r) != 0 ? c.min_x : 0);
 			if ((y0) != null)
-				*y0 = (int)((r) != 0 ? c.min_y : 0);
+				(y0.Value) = (int)((r) != 0 ? c.min_y : 0);
 			if ((x1) != null)
-				*x1 = (int)((r) != 0 ? c.max_x : 0);
+				(x1.Value) = (int)((r) != 0 ? c.max_x : 0);
 			if ((y1) != null)
-				*y1 = (int)((r) != 0 ? c.max_y : 0);
+				(y1.Value) = (int)((r) != 0 ? c.max_y : 0);
 			return (int)((r) != 0 ? c.num_vertices : 0);
 		}
 
-		public static int stbtt_GetGlyphShape(stbtt_fontinfo info, int glyph_index, FakePtr<FakePtr<stbtt_vertex>> pvertices)
+		public static int stbtt_GetGlyphShape(stbtt_fontinfo info, int glyph_index, ref FakePtr<stbtt_vertex> pvertices)
 		{
 			if (info.cff.size == 0)
-				return (int)(stbtt__GetGlyphShapeTT(info, (int)(glyph_index), pvertices));
+				return (int)(stbtt__GetGlyphShapeTT(info, (int)(glyph_index), ref pvertices));
 			else
-				return (int)(stbtt__GetGlyphShapeT2(info, (int)(glyph_index), pvertices));
+				return (int)(stbtt__GetGlyphShapeT2(info, (int)(glyph_index), ref pvertices));
 		}
 
-		public static void stbtt_GetGlyphHMetrics(stbtt_fontinfo info, int glyph_index, FakePtr<int> advanceWidth, FakePtr<int> leftSideBearing)
+		public static void stbtt_GetGlyphHMetrics(stbtt_fontinfo info, int glyph_index, ref int advanceWidth, ref int leftSideBearing)
 		{
 			ushort numOfLongHorMetrics = (ushort)(ttUSHORT(info.data + info.hhea + 34));
 			if ((glyph_index) < (numOfLongHorMetrics))
 			{
-				if ((advanceWidth) != null)
-					*advanceWidth = (int)(ttSHORT(info.data + info.hmtx + 4 * glyph_index));
-				if ((leftSideBearing) != null)
-					*leftSideBearing = (int)(ttSHORT(info.data + info.hmtx + 4 * glyph_index + 2));
+				advanceWidth = (int)(ttSHORT(info.data + info.hmtx + 4 * glyph_index));
+				leftSideBearing = (int)(ttSHORT(info.data + info.hmtx + 4 * glyph_index + 2));
 			}
 			else
 			{
-				if ((advanceWidth) != null)
-					*advanceWidth = (int)(ttSHORT(info.data + info.hmtx + 4 * (numOfLongHorMetrics - 1)));
-				if ((leftSideBearing) != null)
-					*leftSideBearing = (int)(ttSHORT(info.data + info.hmtx + 4 * numOfLongHorMetrics + 2 * (glyph_index - numOfLongHorMetrics)));
+				advanceWidth = (int)(ttSHORT(info.data + info.hmtx + 4 * (numOfLongHorMetrics - 1)));
+				leftSideBearing = (int)(ttSHORT(info.data + info.hmtx + 4 * numOfLongHorMetrics + 2 * (glyph_index - numOfLongHorMetrics)));
 			}
-
 		}
 
 		public static int stbtt__GetGlyphKernInfoAdvance(stbtt_fontinfo info, int glyph1, int glyph2)
 		{
 			FakePtr<byte> data = info.data + info.kern;
-			uint needle;
-			uint straw;
-			int l;
-			int r;
-			int m;
+			uint needle = 0;
+			uint straw = 0;
+			int l = 0;
+			int r = 0;
+			int m = 0;
 			if (info.kern == 0)
 				return (int)(0);
 			if ((ttUSHORT(data + 2)) < (1))
@@ -1601,13 +1570,13 @@ namespace StbSharpSafe
 					ushort glyphCount = (ushort)(ttUSHORT(coverageTable + 2));
 					int l = (int)(0);
 					int r = (int)(glyphCount - 1);
-					int m;
-					int straw;
+					int m = 0;
+					int straw = 0;
 					int needle = (int)(glyph);
 					while (l <= r)
 					{
 						FakePtr<byte> glyphArray = coverageTable + 4;
-						ushort glyphID;
+						ushort glyphID = 0;
 						m = (int)((l + r) >> 1);
 						glyphID = (ushort)(ttUSHORT(glyphArray + 2 * m));
 						straw = (int)(glyphID);
@@ -1628,9 +1597,9 @@ namespace StbSharpSafe
 					FakePtr<byte> rangeArray = coverageTable + 4;
 					int l = (int)(0);
 					int r = (int)(rangeCount - 1);
-					int m;
-					int strawStart;
-					int strawEnd;
+					int m = 0;
+					int strawStart = 0;
+					int strawEnd = 0;
 					int needle = (int)(glyph);
 					while (l <= r)
 					{
@@ -1681,9 +1650,9 @@ namespace StbSharpSafe
 					FakePtr<byte> classRangeRecords = classDefTable + 4;
 					int l = (int)(0);
 					int r = (int)(classRangeCount - 1);
-					int m;
-					int strawStart;
-					int strawEnd;
+					int m = 0;
+					int strawStart = 0;
+					int strawEnd = 0;
 					int needle = (int)(glyph);
 					while (l <= r)
 					{
@@ -1713,11 +1682,11 @@ namespace StbSharpSafe
 
 		public static int stbtt__GetGlyphGPOSInfoAdvance(stbtt_fontinfo info, int glyph1, int glyph2)
 		{
-			ushort lookupListOffset;
+			ushort lookupListOffset = 0;
 			FakePtr<byte> lookupList;
-			ushort lookupCount;
+			ushort lookupCount = 0;
 			FakePtr<byte> data;
-			int i;
+			int i = 0;
 			if (info.gpos == 0)
 				return (int)(0);
 			data = info.data + info.gpos;
@@ -1739,7 +1708,7 @@ namespace StbSharpSafe
 				{
 					case 2:
 					{
-						int sti;
+						int sti = 0;
 						for (sti = (int)(0); (sti) < (subTableCount); sti++)
 						{
 							ushort subtableOffset = (ushort)(ttUSHORT(subTableOffsets + 2 * sti));
@@ -1753,11 +1722,11 @@ namespace StbSharpSafe
 							{
 								case 1:
 								{
-									int l;
-									int r;
-									int m;
-									int straw;
-									int needle;
+									int l = 0;
+									int r = 0;
+									int m = 0;
+									int straw = 0;
+									int needle = 0;
 									ushort valueFormat1 = (ushort)(ttUSHORT(table + 4));
 									ushort valueFormat2 = (ushort)(ttUSHORT(table + 6));
 									int valueRecordPairSizeInBytes = (int)(2);
@@ -1775,7 +1744,7 @@ namespace StbSharpSafe
 									l = (int)(0);
 									while (l <= r)
 									{
-										ushort secondGlyph;
+										ushort secondGlyph = 0;
 										FakePtr<byte> pairValue;
 										m = (int)((l + r) >> 1);
 										pairValue = pairValueArray + (2 + valueRecordPairSizeInBytes) * m;
@@ -1825,7 +1794,7 @@ namespace StbSharpSafe
 						break;
 					}
 					default:
-					break;
+						break;
 				}
 			}
 			return (int)(0);
@@ -1848,19 +1817,14 @@ namespace StbSharpSafe
 			return (int)(stbtt_GetGlyphKernAdvance(info, (int)(stbtt_FindGlyphIndex(info, (int)(ch1))), (int)(stbtt_FindGlyphIndex(info, (int)(ch2)))));
 		}
 
-		public static void stbtt_GetCodepointHMetrics(stbtt_fontinfo info, int codepoint, FakePtr<int> advanceWidth, FakePtr<int> leftSideBearing)
-		{
-			stbtt_GetGlyphHMetrics(info, (int)(stbtt_FindGlyphIndex(info, (int)(codepoint))), advanceWidth, leftSideBearing);
-		}
-
 		public static void stbtt_GetFontVMetrics(stbtt_fontinfo info, FakePtr<int> ascent, FakePtr<int> descent, FakePtr<int> lineGap)
 		{
 			if ((ascent) != null)
-				*ascent = (int)(ttSHORT(info.data + info.hhea + 4));
+				(ascent.Value) = (int)(ttSHORT(info.data + info.hhea + 4));
 			if ((descent) != null)
-				*descent = (int)(ttSHORT(info.data + info.hhea + 6));
+				(descent.Value) = (int)(ttSHORT(info.data + info.hhea + 6));
 			if ((lineGap) != null)
-				*lineGap = (int)(ttSHORT(info.data + info.hhea + 8));
+				(lineGap.Value) = (int)(ttSHORT(info.data + info.hhea + 8));
 		}
 
 		public static int stbtt_GetFontVMetricsOS2(stbtt_fontinfo info, FakePtr<int> typoAscent, FakePtr<int> typoDescent, FakePtr<int> typoLineGap)
@@ -1869,20 +1833,20 @@ namespace StbSharpSafe
 			if (tab == 0)
 				return (int)(0);
 			if ((typoAscent) != null)
-				*typoAscent = (int)(ttSHORT(info.data + tab + 68));
+				(typoAscent.Value) = (int)(ttSHORT(info.data + tab + 68));
 			if ((typoDescent) != null)
-				*typoDescent = (int)(ttSHORT(info.data + tab + 70));
+				(typoDescent.Value) = (int)(ttSHORT(info.data + tab + 70));
 			if ((typoLineGap) != null)
-				*typoLineGap = (int)(ttSHORT(info.data + tab + 72));
+				(typoLineGap.Value) = (int)(ttSHORT(info.data + tab + 72));
 			return (int)(1);
 		}
 
 		public static void stbtt_GetFontBoundingBox(stbtt_fontinfo info, FakePtr<int> x0, FakePtr<int> y0, FakePtr<int> x1, FakePtr<int> y1)
 		{
-			*x0 = (int)(ttSHORT(info.data + info.head + 36));
-			*y0 = (int)(ttSHORT(info.data + info.head + 38));
-			*x1 = (int)(ttSHORT(info.data + info.head + 40));
-			*y1 = (int)(ttSHORT(info.data + info.head + 42));
+			(x0.Value) = (int)(ttSHORT(info.data + info.head + 36));
+			(y0.Value) = (int)(ttSHORT(info.data + info.head + 38));
+			(x1.Value) = (int)(ttSHORT(info.data + info.head + 40));
+			(y1.Value) = (int)(ttSHORT(info.data + info.head + 42));
 		}
 
 		public static float stbtt_ScaleForPixelHeight(stbtt_fontinfo info, float height)
@@ -1897,38 +1861,33 @@ namespace StbSharpSafe
 			return (float)(pixels / unitsPerEm);
 		}
 
-		public static void stbtt_FreeShape(stbtt_fontinfo info, FakePtr<stbtt_vertex> v)
-		{
-			CRuntime.free(v);
-		}
-
 		public static void stbtt_GetGlyphBitmapBoxSubpixel(stbtt_fontinfo font, int glyph, float scale_x, float scale_y, float shift_x, float shift_y, FakePtr<int> ix0, FakePtr<int> iy0, FakePtr<int> ix1, FakePtr<int> iy1)
 		{
 			int x0 = (int)(0);
 			int y0 = (int)(0);
-			int x1;
-			int y1;
-			if (stbtt_GetGlyphBox(font, (int)(glyph), x0, y0, x1, y1) == 0)
+			int x1 = 0;
+			int y1 = 0;
+			if (stbtt_GetGlyphBox(font, (int)(glyph), ref x0, ref y0, ref x1, ref y1) == 0)
 			{
 				if ((ix0) != null)
-					*ix0 = (int)(0);
+					(ix0.Value) = (int)(0);
 				if ((iy0) != null)
-					*iy0 = (int)(0);
+					(iy0.Value) = (int)(0);
 				if ((ix1) != null)
-					*ix1 = (int)(0);
+					(ix1.Value) = (int)(0);
 				if ((iy1) != null)
-					*iy1 = (int)(0);
+					(iy1.Value) = (int)(0);
 			}
 			else
 			{
 				if ((ix0) != null)
-					*ix0 = (int)(CRuntime.floor((double)(x0 * scale_x + shift_x)));
+					(ix0.Value) = (int)(CRuntime.floor((double)(x0 * scale_x + shift_x)));
 				if ((iy0) != null)
-					*iy0 = (int)(CRuntime.floor((double)(-y1 * scale_y + shift_y)));
+					(iy0.Value) = (int)(CRuntime.floor((double)(-y1 * scale_y + shift_y)));
 				if ((ix1) != null)
-					*ix1 = (int)(CRuntime.ceil((double)(x1 * scale_x + shift_x)));
+					(ix1.Value) = (int)(CRuntime.ceil((double)(x1 * scale_x + shift_x)));
 				if ((iy1) != null)
-					*iy1 = (int)(CRuntime.ceil((double)(-y0 * scale_y + shift_y)));
+					(iy1.Value) = (int)(CRuntime.ceil((double)(-y0 * scale_y + shift_y)));
 			}
 
 		}
@@ -1948,62 +1907,19 @@ namespace StbSharpSafe
 			stbtt_GetCodepointBitmapBoxSubpixel(font, (int)(codepoint), (float)(scale_x), (float)(scale_y), (float)(0.0f), (float)(0.0f), ix0, iy0, ix1, iy1);
 		}
 
-		public static FakePtr<byte> stbtt__hheap_alloc(stbtt__hheap hh, ulong size, FakePtr<byte> userdata)
+		public static stbtt__active_edge stbtt__new_active(FakePtr<stbtt__edge> e, int off_x, float start_point)
 		{
-			if ((hh.first_free) != null)
-			{
-				FakePtr<byte> p = hh.first_free;
-				hh.first_free = *p;
-				return p;
-			}
-			else
-			{
-				if ((hh.num_remaining_in_head_chunk) == (0))
-				{
-					int count = (int)((size) < (32) ? 2000 : (size) < (128) ? 800 : 100);
-					stbtt__hheap_chunk c = CRuntime.malloc((ulong)((ulong)sizeof(stbtt__hheap_chunk) + size * (ulong)(count)));
-					if ((c) == (null))
-						return (null);
-					c.next = hh.head;
-					hh.head = c;
-					hh.num_remaining_in_head_chunk = (int)(count);
-				}
-				--hh.num_remaining_in_head_chunk;
-				return (hh.head) + sizeof(stbtt__hheap_chunk) + size * hh.num_remaining_in_head_chunk;
-			}
-
-		}
-
-		public static void stbtt__hheap_free(stbtt__hheap hh, FakePtr<byte> p)
-		{
-			*p = hh.first_free;
-			hh.first_free = p;
-		}
-
-		public static void stbtt__hheap_cleanup(stbtt__hheap hh, FakePtr<byte> userdata)
-		{
-			stbtt__hheap_chunk c = hh.head;
-			while ((c) != null)
-			{
-				stbtt__hheap_chunk n = c.next;
-				CRuntime.free(c);
-				c = n;
-			}
-		}
-
-		public static stbtt__active_edge stbtt__new_active(stbtt__hheap hh, FakePtr<stbtt__edge> e, int off_x, float start_point, FakePtr<byte> userdata)
-		{
-			stbtt__active_edge z = stbtt__hheap_alloc(hh, (ulong)(sizeof((z))), userdata);
-			float dxdy = (float)((e->x1 - e->x0) / (e->y1 - e->y0));
+			stbtt__active_edge z = new stbtt__active_edge();
+			float dxdy = (float)((e.Value.x1 - e.Value.x0) / (e.Value.y1 - e.Value.y0));
 			if (z == null)
 				return z;
 			z.fdx = (float)(dxdy);
 			z.fdy = (float)(dxdy != 0.0f ? (1.0f / dxdy) : 0.0f);
-			z.fx = (float)(e->x0 + dxdy * (start_point - e->y0));
+			z.fx = (float)(e.Value.x0 + dxdy * (start_point - e.Value.y0));
 			z.fx -= (float)(off_x);
-			z.direction = (float)((e->invert) != 0 ? 1.0f : -1.0f);
-			z.sy = (float)(e->y0);
-			z.ey = (float)(e->y1);
+			z.direction = (float)((e.Value.invert) != 0 ? 1.0f : -1.0f);
+			z.sy = (float)(e.Value.y0);
+			z.ey = (float)(e.Value.y1);
 			z.next = null;
 			return z;
 		}
@@ -2084,10 +2000,10 @@ namespace StbSharpSafe
 					float x0 = (float)(e.fx);
 					float dx = (float)(e.fdx);
 					float xb = (float)(x0 + dx);
-					float x_top;
-					float x_bottom;
-					float sy0;
-					float sy1;
+					float x_top = 0;
+					float x_bottom = 0;
+					float sy0 = 0;
+					float sy1 = 0;
 					float dy = (float)(e.fdy);
 					if ((e.sy) > (y_top))
 					{
@@ -2113,7 +2029,7 @@ namespace StbSharpSafe
 					{
 						if ((x_top) == (x_bottom))
 						{
-							float height;
+							float height = 0;
 							int x = (int)(x_top);
 							height = (float)(sy1 - sy0);
 							scanline[x] += (float)(e.direction * (1 - ((x_top - x) + (x_bottom - x)) / 2) * height);
@@ -2121,16 +2037,16 @@ namespace StbSharpSafe
 						}
 						else
 						{
-							int x;
-							int x1;
-							int x2;
-							float y_crossing;
-							float step;
-							float sign;
-							float area;
+							int x = 0;
+							int x1 = 0;
+							int x2 = 0;
+							float y_crossing = 0;
+							float step = 0;
+							float sign = 0;
+							float area = 0;
 							if ((x_top) > (x_bottom))
 							{
-								float t;
+								float t = 0;
 								sy0 = (float)(y_bottom - (sy0 - y_top));
 								sy1 = (float)(y_bottom - (sy1 - y_top));
 								t = (float)(sy0);
@@ -2164,7 +2080,7 @@ namespace StbSharpSafe
 					}
 					else
 					{
-						int x;
+						int x = 0;
 						for (x = (int)(0); (x) < (len); ++x)
 						{
 							float y0 = (float)(y_top);
@@ -2217,18 +2133,18 @@ namespace StbSharpSafe
 			}
 		}
 
-		public static void stbtt__rasterize_sorted_edges(stbtt__bitmap result, FakePtr<stbtt__edge> e, int n, int vsubsample, int off_x, int off_y, FakePtr<byte> userdata)
+		public static void stbtt__rasterize_sorted_edges(stbtt__bitmap result, FakePtr<stbtt__edge> e, int n, int vsubsample, int off_x, int off_y)
 		{
-			stbtt__hheap hh = (stbtt__hheap)({ null, null, 0 });
+
 			stbtt__active_edge active = (null);
-			int y;
+			int y = 0;
 			int j = (int)(0);
-			int i;
-			FakePtr<float> scanline_data = new FakePtr<float>(129);
+			int i = 0;
+			FakePtr<float> scanline_data = FakePtr<float>.CreateWithSize(129);
 			FakePtr<float> scanline;
 			FakePtr<float> scanline2;
 			if ((result.w) > (64))
-				scanline = CRuntime.malloc((ulong)((result.w * 2 + 1) * sizeof(float)));
+				scanline = FakePtr<float>.CreateWithSize(result.w * 2 + 1);
 			else
 				scanline = scanline_data;
 			scanline2 = scanline + result.w;
@@ -2239,8 +2155,8 @@ namespace StbSharpSafe
 				float scan_y_top = (float)(y + 0.0f);
 				float scan_y_bottom = (float)(y + 1.0f);
 				stbtt__active_edge step = active;
-				CRuntime.memset(scanline, (int)(0), (ulong)(result.w * sizeof(float)));
-				CRuntime.memset(scanline2, (int)(0), (ulong)((result.w + 1) * sizeof(float)));
+				CRuntime.memset(scanline, (int)(0), result.w);
+				CRuntime.memset(scanline2, (int)(0), result.w + 1);
 				while ((step) != null)
 				{
 					stbtt__active_edge z = step;
@@ -2248,17 +2164,16 @@ namespace StbSharpSafe
 					{
 						step = z.next;
 						z.direction = (float)(0);
-						stbtt__hheap_free(hh, z);
 					}
 					else
 					{
 						step = ((step).next);
 					}
-				} while (e->y0 <= scan_y_bottom)
+				} while (e.Value.y0 <= scan_y_bottom)
 				{
-					if (e->y0 != e->y1)
+					if (e.Value.y0 != e.Value.y1)
 					{
-						stbtt__active_edge z = stbtt__new_active(hh, e, (int)(off_x), (float)(scan_y_top), userdata);
+						stbtt__active_edge z = stbtt__new_active(e, (int)(off_x), (float)(scan_y_top));
 						if (z != (null))
 						{
 							z.next = active;
@@ -2273,8 +2188,8 @@ namespace StbSharpSafe
 					float sum = (float)(0);
 					for (i = (int)(0); (i) < (result.w); ++i)
 					{
-						float k;
-						int m;
+						float k = 0;
+						int m = 0;
 						sum += (float)(scanline2[i]);
 						k = (float)(scanline[i] + sum);
 						k = (float)(CRuntime.fabs((double)(k)) * 255 + 0.5f);
@@ -2294,24 +2209,24 @@ namespace StbSharpSafe
 				++y;
 				++j;
 			}
-			stbtt__hheap_cleanup(hh, userdata);
+
 			if (scanline != scanline_data)
 				CRuntime.free(scanline);
 		}
 
 		public static void stbtt__sort_edges_ins_sort(FakePtr<stbtt__edge> p, int n)
 		{
-			int i;
-			int j;
+			int i = 0;
+			int j = 0;
 			for (i = (int)(1); (i) < (n); ++i)
 			{
 				stbtt__edge t = (stbtt__edge)(p[i]);
-				FakePtr<stbtt__edge> a = t;
+				FakePtr<stbtt__edge> a = new FakePtr<stbtt__edge>(t);
 				j = (int)(i);
 				while ((j) > (0))
 				{
-					FakePtr<stbtt__edge> b = p[j - 1];
-					int c = (int)(a->y0 < b->y0 ? 1 : 0);
+					FakePtr<stbtt__edge> b = p + j - 1;
+					int c = a.Value.y0 < b.Value.y0 ? 1 : 0;
 					if (c == 0)
 						break;
 					p[j] = (stbtt__edge)(p[j - 1]);
@@ -2327,19 +2242,19 @@ namespace StbSharpSafe
 			while ((n) > (12))
 			{
 				stbtt__edge t = new stbtt__edge();
-				int c01;
-				int c12;
-				int c;
-				int m;
-				int i;
-				int j;
+				int c01 = 0;
+				int c12 = 0;
+				int c = 0;
+				int m = 0;
+				int i = 0;
+				int j = 0;
 				m = (int)(n >> 1);
-				c01 = (int)(((p[0])->y0) < ((p[m])->y0) ? 1 : 0);
-				c12 = (int)(((p[m])->y0) < ((p[n - 1])->y0) ? 1 : 0);
+				c01 = (int)(((p + 0).Value.y0) < ((p + m).Value.y0) ? 1 : 0);
+				c12 = (int)(((p + m).Value.y0) < ((p + n - 1).Value.y0) ? 1 : 0);
 				if (c01 != c12)
 				{
-					int z;
-					c = (int)(((p[0])->y0) < ((p[n - 1])->y0) ? 1 : 0);
+					int z = 0;
+					c = (int)(((p + 0).Value.y0) < ((p + n - 1).Value.y0) ? 1 : 0);
 					z = (int)(((c) == (c12)) ? 0 : n - 1);
 					t = (stbtt__edge)(p[z]);
 					p[z] = (stbtt__edge)(p[m]);
@@ -2354,12 +2269,12 @@ namespace StbSharpSafe
 				{
 					for (i = (int)(i); ; ++i)
 					{
-						if (!(((p[i])->y0) < ((p[0])->y0)))
+						if (!(((p + i).Value.y0) < ((p + 0).Value.y0)))
 							break;
 					}
 					for (j = (int)(j); ; --j)
 					{
-						if (!(((p[0])->y0) < ((p[j])->y0)))
+						if (!(((p + 0).Value.y0) < ((p + j).Value.y0)))
 							break;
 					}
 					if ((i) >= (j))
@@ -2390,20 +2305,20 @@ namespace StbSharpSafe
 			stbtt__sort_edges_ins_sort(p, (int)(n));
 		}
 
-		public static void stbtt__rasterize(stbtt__bitmap result, FakePtr<stbtt__point> pts, FakePtr<int> wcount, int windings, float scale_x, float scale_y, float shift_x, float shift_y, int off_x, int off_y, int invert, FakePtr<byte> userdata)
+		public static void stbtt__rasterize(stbtt__bitmap result, FakePtr<stbtt__point> pts, FakePtr<int> wcount, int windings, float scale_x, float scale_y, float shift_x, float shift_y, int off_x, int off_y, int invert)
 		{
 			float y_scale_inv = (float)((invert) != 0 ? -scale_y : scale_y);
 			FakePtr<stbtt__edge> e;
-			int n;
-			int i;
-			int j;
-			int k;
-			int m;
+			int n = 0;
+			int i = 0;
+			int j = 0;
+			int k = 0;
+			int m = 0;
 			int vsubsample = (int)(1);
 			n = (int)(0);
 			for (i = (int)(0); (i) < (windings); ++i)
 			{ n += (int)(wcount[i]); }
-			e = CRuntime.malloc((ulong)(sizeof(stbtt__edge) * (n + 1)));
+			e = FakePtr<stbtt__edge>.CreateWithSize(n + 1);
 			if ((e) == (null))
 				return;
 			n = (int)(0);
@@ -2434,7 +2349,7 @@ namespace StbSharpSafe
 				}
 			}
 			stbtt__sort_edges(e, (int)(n));
-			stbtt__rasterize_sorted_edges(result, e, (int)(n), (int)(vsubsample), (int)(off_x), (int)(off_y), userdata);
+			stbtt__rasterize_sorted_edges(result, e, (int)(n), (int)(vsubsample), (int)(off_x), (int)(off_y));
 			CRuntime.free(e);
 		}
 
@@ -2446,7 +2361,7 @@ namespace StbSharpSafe
 			points[n].y = (float)(y);
 		}
 
-		public static int stbtt__tesselate_curve(FakePtr<stbtt__point> points, FakePtr<int> num_points, float x0, float y0, float x1, float y1, float x2, float y2, float objspace_flatness_squared, int n)
+		public static int stbtt__tesselate_curve(FakePtr<stbtt__point> points, ref int num_points, float x0, float y0, float x1, float y1, float x2, float y2, float objspace_flatness_squared, int n)
 		{
 			float mx = (float)((x0 + 2 * x1 + x2) / 4);
 			float my = (float)((y0 + 2 * y1 + y2) / 4);
@@ -2456,19 +2371,19 @@ namespace StbSharpSafe
 				return (int)(1);
 			if ((dx * dx + dy * dy) > (objspace_flatness_squared))
 			{
-				stbtt__tesselate_curve(points, num_points, (float)(x0), (float)(y0), (float)((x0 + x1) / 2.0f), (float)((y0 + y1) / 2.0f), (float)(mx), (float)(my), (float)(objspace_flatness_squared), (int)(n + 1));
-				stbtt__tesselate_curve(points, num_points, (float)(mx), (float)(my), (float)((x1 + x2) / 2.0f), (float)((y1 + y2) / 2.0f), (float)(x2), (float)(y2), (float)(objspace_flatness_squared), (int)(n + 1));
+				stbtt__tesselate_curve(points, ref num_points, (float)(x0), (float)(y0), (float)((x0 + x1) / 2.0f), (float)((y0 + y1) / 2.0f), (float)(mx), (float)(my), (float)(objspace_flatness_squared), (int)(n + 1));
+				stbtt__tesselate_curve(points, ref num_points, (float)(mx), (float)(my), (float)((x1 + x2) / 2.0f), (float)((y1 + y2) / 2.0f), (float)(x2), (float)(y2), (float)(objspace_flatness_squared), (int)(n + 1));
 			}
 			else
 			{
-				stbtt__add_point(points, (int)(*num_points), (float)(x2), (float)(y2));
-				*num_points = (int)(*num_points + 1);
+				stbtt__add_point(points, (int)(num_points), (float)(x2), (float)(y2));
+				num_points = (int)(num_points + 1);
 			}
 
 			return (int)(1);
 		}
 
-		public static void stbtt__tesselate_cubic(FakePtr<stbtt__point> points, FakePtr<int> num_points, float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, float objspace_flatness_squared, int n)
+		public static void stbtt__tesselate_cubic(FakePtr<stbtt__point> points, ref int num_points, float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, float objspace_flatness_squared, int n)
 		{
 			float dx0 = (float)(x1 - x0);
 			float dy0 = (float)(y1 - y0);
@@ -2497,35 +2412,35 @@ namespace StbSharpSafe
 				float yb = (float)((y12 + y23) / 2);
 				float mx = (float)((xa + xb) / 2);
 				float my = (float)((ya + yb) / 2);
-				stbtt__tesselate_cubic(points, num_points, (float)(x0), (float)(y0), (float)(x01), (float)(y01), (float)(xa), (float)(ya), (float)(mx), (float)(my), (float)(objspace_flatness_squared), (int)(n + 1));
-				stbtt__tesselate_cubic(points, num_points, (float)(mx), (float)(my), (float)(xb), (float)(yb), (float)(x23), (float)(y23), (float)(x3), (float)(y3), (float)(objspace_flatness_squared), (int)(n + 1));
+				stbtt__tesselate_cubic(points, ref num_points, (float)(x0), (float)(y0), (float)(x01), (float)(y01), (float)(xa), (float)(ya), (float)(mx), (float)(my), (float)(objspace_flatness_squared), (int)(n + 1));
+				stbtt__tesselate_cubic(points, ref num_points, (float)(mx), (float)(my), (float)(xb), (float)(yb), (float)(x23), (float)(y23), (float)(x3), (float)(y3), (float)(objspace_flatness_squared), (int)(n + 1));
 			}
 			else
 			{
-				stbtt__add_point(points, (int)(*num_points), (float)(x3), (float)(y3));
-				*num_points = (int)(*num_points + 1);
+				stbtt__add_point(points, (int)(num_points), (float)(x3), (float)(y3));
+				num_points = (int)(num_points + 1);
 			}
 
 		}
 
-		public static FakePtr<stbtt__point> stbtt_FlattenCurves(FakePtr<stbtt_vertex> vertices, int num_verts, float objspace_flatness, FakePtr<FakePtr<int>> contour_lengths, FakePtr<int> num_contours, FakePtr<byte> userdata)
+		public static FakePtr<stbtt__point> stbtt_FlattenCurves(FakePtr<stbtt_vertex> vertices, int num_verts, float objspace_flatness, ref FakePtr<int> contour_lengths, ref int num_contours)
 		{
 			FakePtr<stbtt__point> points = null;
 			int num_points = (int)(0);
 			float objspace_flatness_squared = (float)(objspace_flatness * objspace_flatness);
-			int i;
+			int i = 0;
 			int n = (int)(0);
 			int start = (int)(0);
-			int pass;
+			int pass = 0;
 			for (i = (int)(0); (i) < (num_verts); ++i)
 			{ if ((vertices[i].type) == (STBTT_vmove)) ++n; }
-			*num_contours = (int)(n);
+			num_contours = (int)(n);
 			if ((n) == (0))
 				return null;
-			*contour_lengths = CRuntime.malloc((ulong)(sizeof(int) * n));
-			if ((*contour_lengths) == (null))
+			contour_lengths = FakePtr<int>.CreateWithSize(n + 1);
+			if ((contour_lengths) == (null))
 			{
-				*num_contours = (int)(0);
+				num_contours = (int)(0);
 				return null;
 			}
 
@@ -2535,7 +2450,7 @@ namespace StbSharpSafe
 				float y = (float)(0);
 				if ((pass) == (1))
 				{
-					points = CRuntime.malloc((ulong)(num_points * sizeof(stbtt__point)));
+					points = FakePtr<stbtt__point>.CreateWithSize(num_points);
 					if ((points) == (null))
 						goto error;
 				}
@@ -2546,71 +2461,71 @@ namespace StbSharpSafe
 					switch (vertices[i].type)
 					{
 						case STBTT_vmove:
-						if ((n) >= (0))
-							(*contour_lengths)[n] = (int)(num_points - start);
-						++n;
-						start = (int)(num_points);
-						x = (float)(vertices[i].x);
-						y = (float)(vertices[i].y);
-						stbtt__add_point(points, (int)(num_points++), (float)(x), (float)(y));
-						break;
+							if ((n) >= (0))
+								(contour_lengths)[n] = (int)(num_points - start);
+							++n;
+							start = (int)(num_points);
+							x = (float)(vertices[i].x);
+							y = (float)(vertices[i].y);
+							stbtt__add_point(points, (int)(num_points++), (float)(x), (float)(y));
+							break;
 						case STBTT_vline:
-						x = (float)(vertices[i].x);
-						y = (float)(vertices[i].y);
-						stbtt__add_point(points, (int)(num_points++), (float)(x), (float)(y));
-						break;
+							x = (float)(vertices[i].x);
+							y = (float)(vertices[i].y);
+							stbtt__add_point(points, (int)(num_points++), (float)(x), (float)(y));
+							break;
 						case STBTT_vcurve:
-						stbtt__tesselate_curve(points, num_points, (float)(x), (float)(y), (float)(vertices[i].cx), (float)(vertices[i].cy), (float)(vertices[i].x), (float)(vertices[i].y), (float)(objspace_flatness_squared), (int)(0));
-						x = (float)(vertices[i].x);
-						y = (float)(vertices[i].y);
-						break;
+							stbtt__tesselate_curve(points, ref num_points, (float)(x), (float)(y), (float)(vertices[i].cx), (float)(vertices[i].cy), (float)(vertices[i].x), (float)(vertices[i].y), (float)(objspace_flatness_squared), (int)(0));
+							x = (float)(vertices[i].x);
+							y = (float)(vertices[i].y);
+							break;
 						case STBTT_vcubic:
-						stbtt__tesselate_cubic(points, num_points, (float)(x), (float)(y), (float)(vertices[i].cx), (float)(vertices[i].cy), (float)(vertices[i].cx1), (float)(vertices[i].cy1), (float)(vertices[i].x), (float)(vertices[i].y), (float)(objspace_flatness_squared), (int)(0));
-						x = (float)(vertices[i].x);
-						y = (float)(vertices[i].y);
-						break;
+							stbtt__tesselate_cubic(points, ref num_points, (float)(x), (float)(y), (float)(vertices[i].cx), (float)(vertices[i].cy), (float)(vertices[i].cx1), (float)(vertices[i].cy1), (float)(vertices[i].x), (float)(vertices[i].y), (float)(objspace_flatness_squared), (int)(0));
+							x = (float)(vertices[i].x);
+							y = (float)(vertices[i].y);
+							break;
 					}
-				} (*contour_lengths)[n] = (int)(num_points - start);
+				} (contour_lengths)[n] = (int)(num_points - start);
 			}
 			return points;
 			error:
 			;
 			CRuntime.free(points);
-			CRuntime.free(*contour_lengths);
-			*contour_lengths = null;
-			*num_contours = (int)(0);
+			CRuntime.free(contour_lengths);
+			contour_lengths = null;
+			num_contours = (int)(0);
 			return (null);
 		}
 
-		public static void stbtt_Rasterize(stbtt__bitmap result, float flatness_in_pixels, FakePtr<stbtt_vertex> vertices, int num_verts, float scale_x, float scale_y, float shift_x, float shift_y, int x_off, int y_off, int invert, FakePtr<byte> userdata)
+		public static void stbtt_Rasterize(stbtt__bitmap result, float flatness_in_pixels, FakePtr<stbtt_vertex> vertices, int num_verts, float scale_x, float scale_y, float shift_x, float shift_y, int x_off, int y_off, int invert)
 		{
 			float scale = (float)((scale_x) > (scale_y) ? scale_y : scale_x);
 			int winding_count = (int)(0);
 			FakePtr<int> winding_lengths = (null);
-			FakePtr<stbtt__point> windings = stbtt_FlattenCurves(vertices, (int)(num_verts), (float)(flatness_in_pixels / scale), winding_lengths, winding_count, userdata);
+			FakePtr<stbtt__point> windings = stbtt_FlattenCurves(vertices, (int)(num_verts), (float)(flatness_in_pixels / scale), ref winding_lengths, ref winding_count);
 			if ((windings) != null)
 			{
-				stbtt__rasterize(result, windings, winding_lengths, (int)(winding_count), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(x_off), (int)(y_off), (int)(invert), userdata);
+				stbtt__rasterize(result, windings, winding_lengths, (int)(winding_count), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(x_off), (int)(y_off), (int)(invert));
 				CRuntime.free(winding_lengths);
 				CRuntime.free(windings);
 			}
 
 		}
 
-		public static void stbtt_FreeBitmap(FakePtr<byte> bitmap, FakePtr<byte> userdata)
+		public static void stbtt_FreeBitmap(FakePtr<byte> bitmap)
 		{
 			CRuntime.free(bitmap);
 		}
 
 		public static FakePtr<byte> stbtt_GetGlyphBitmapSubpixel(stbtt_fontinfo info, float scale_x, float scale_y, float shift_x, float shift_y, int glyph, FakePtr<int> width, FakePtr<int> height, FakePtr<int> xoff, FakePtr<int> yoff)
 		{
-			int ix0;
-			int iy0;
-			int ix1;
-			int iy1;
+			int ix0 = 0;
+			int iy0 = 0;
+			int ix1 = 0;
+			int iy1 = 0;
 			stbtt__bitmap gbm = new stbtt__bitmap();
-			FakePtr<stbtt_vertex> vertices;
-			int num_verts = (int)(stbtt_GetGlyphShape(info, (int)(glyph), vertices));
+			FakePtr<stbtt_vertex> vertices = FakePtr<stbtt_vertex>.Create();
+			int num_verts = (int)(stbtt_GetGlyphShape(info, (int)(glyph), ref vertices));
 			if ((scale_x) == (0))
 				scale_x = (float)(scale_y);
 			if ((scale_y) == (0))
@@ -2623,25 +2538,25 @@ namespace StbSharpSafe
 				scale_y = (float)(scale_x);
 			}
 
-			stbtt_GetGlyphBitmapBoxSubpixel(info, (int)(glyph), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), ix0, iy0, ix1, iy1);
+			stbtt_GetGlyphBitmapBoxSubpixel(info, (int)(glyph), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), ref ix0, ref iy0, ref ix1, ref iy1);
 			gbm.w = (int)(ix1 - ix0);
 			gbm.h = (int)(iy1 - iy0);
 			gbm.pixels = (null);
 			if ((width) != null)
-				*width = (int)(gbm.w);
+				(width.Value) = (int)(gbm.w);
 			if ((height) != null)
-				*height = (int)(gbm.h);
+				(height.Value) = (int)(gbm.h);
 			if ((xoff) != null)
-				*xoff = (int)(ix0);
+				(xoff.Value) = (int)(ix0);
 			if ((yoff) != null)
-				*yoff = (int)(iy0);
+				(yoff.Value) = (int)(iy0);
 			if (((gbm.w) != 0) && ((gbm.h) != 0))
 			{
-				gbm.pixels = CRuntime.malloc((ulong)(gbm.w * gbm.h));
+				gbm.pixels = FakePtr<byte>.CreateWithSize(gbm.w * gbm.h);
 				if ((gbm.pixels) != null)
 				{
 					gbm.stride = (int)(gbm.w);
-					stbtt_Rasterize(gbm, (float)(0.35f), vertices, (int)(num_verts), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(ix0), (int)(iy0), (int)(1), info.userdata);
+					stbtt_Rasterize(gbm, (float)(0.35f), vertices, (int)(num_verts), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(ix0), (int)(iy0), (int)(1));
 				}
 			}
 
@@ -2656,18 +2571,20 @@ namespace StbSharpSafe
 
 		public static void stbtt_MakeGlyphBitmapSubpixel(stbtt_fontinfo info, FakePtr<byte> output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int glyph)
 		{
-			int ix0;
-			int iy0;
-			FakePtr<stbtt_vertex> vertices;
-			int num_verts = (int)(stbtt_GetGlyphShape(info, (int)(glyph), vertices));
+			int ix0 = 0;
+			int iy0 = 0;
+			int ix1 = 0;
+			int iy1 = 0;
+			FakePtr<stbtt_vertex> vertices = FakePtr<stbtt_vertex>.Create();
+			int num_verts = (int)(stbtt_GetGlyphShape(info, (int)(glyph), ref vertices));
 			stbtt__bitmap gbm = new stbtt__bitmap();
-			stbtt_GetGlyphBitmapBoxSubpixel(info, (int)(glyph), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), ix0, iy0, null, null);
+			stbtt_GetGlyphBitmapBoxSubpixel(info, (int)(glyph), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), ref ix0, ref iy0, ref ix1, ref iy1);
 			gbm.pixels = output;
 			gbm.w = (int)(out_w);
 			gbm.h = (int)(out_h);
 			gbm.stride = (int)(out_stride);
 			if (((gbm.w) != 0) && ((gbm.h) != 0))
-				stbtt_Rasterize(gbm, (float)(0.35f), vertices, (int)(num_verts), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(ix0), (int)(iy0), (int)(1), info.userdata);
+				stbtt_Rasterize(gbm, (float)(0.35f), vertices, (int)(num_verts), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(ix0), (int)(iy0), (int)(1));
 			CRuntime.free(vertices);
 		}
 
@@ -2703,32 +2620,31 @@ namespace StbSharpSafe
 
 		public static int stbtt_BakeFontBitmap_internal(FakePtr<byte> data, int offset, float pixel_height, FakePtr<byte> pixels, int pw, int ph, int first_char, int num_chars, FakePtr<stbtt_bakedchar> chardata)
 		{
-			float scale;
-			int x;
-			int y;
-			int bottom_y;
-			int i;
+			float scale = 0;
+			int x = 0;
+			int y = 0;
+			int bottom_y = 0;
+			int i = 0;
 			stbtt_fontinfo f = new stbtt_fontinfo();
-			f.userdata = (null);
 			if (stbtt_InitFont(f, data, (int)(offset)) == 0)
 				return (int)(-1);
-			CRuntime.memset(pixels, (int)(0), (ulong)(pw * ph));
+			CRuntime.memset(pixels, (byte)(0), (ulong)(pw * ph));
 			x = (int)(y = (int)(1));
 			bottom_y = (int)(1);
 			scale = (float)(stbtt_ScaleForPixelHeight(f, (float)(pixel_height)));
 			for (i = (int)(0); (i) < (num_chars); ++i)
 			{
-				int advance;
-				int lsb;
-				int x0;
-				int y0;
-				int x1;
-				int y1;
-				int gw;
-				int gh;
+				int advance = 0;
+				int lsb = 0;
+				int x0 = 0;
+				int y0 = 0;
+				int x1 = 0;
+				int y1 = 0;
+				int gw = 0;
+				int gh = 0;
 				int g = (int)(stbtt_FindGlyphIndex(f, (int)(first_char + i)));
-				stbtt_GetGlyphHMetrics(f, (int)(g), advance, lsb);
-				stbtt_GetGlyphBitmapBox(f, (int)(g), (float)(scale), (float)(scale), x0, y0, x1, y1);
+				stbtt_GetGlyphHMetrics(f, (int)(g), ref advance, ref lsb);
+				stbtt_GetGlyphBitmapBox(f, (int)(g), (float)(scale), (float)(scale), ref x0, ref y0, ref x1, ref y1);
 				gw = (int)(x1 - x0);
 				gh = (int)(y1 - y0);
 				if ((x + gw + 1) >= (pw))
@@ -2759,66 +2675,63 @@ namespace StbSharpSafe
 			float ipw = (float)(1.0f / pw);
 			float iph = (float)(1.0f / ph);
 			FakePtr<stbtt_bakedchar> b = chardata + char_index;
-			int round_x = (int)(CRuntime.floor((double)((*xpos + b->xoff) + 0.5f)));
-			int round_y = (int)(CRuntime.floor((double)((*ypos + b->yoff) + 0.5f)));
-			q->x0 = (float)(round_x + d3d_bias);
-			q->y0 = (float)(round_y + d3d_bias);
-			q->x1 = (float)(round_x + b->x1 - b->x0 + d3d_bias);
-			q->y1 = (float)(round_y + b->y1 - b->y0 + d3d_bias);
-			q->s0 = (float)(b->x0 * ipw);
-			q->t0 = (float)(b->y0 * iph);
-			q->s1 = (float)(b->x1 * ipw);
-			q->t1 = (float)(b->y1 * iph);
-			*xpos += (float)(b->xadvance);
+			int round_x = (int)(CRuntime.floor((double)(((xpos.Value) + b.Value.xoff) + 0.5f)));
+			int round_y = (int)(CRuntime.floor((double)(((ypos.Value) + b.Value.yoff) + 0.5f)));
+			q.Value.x0 = (float)(round_x + d3d_bias);
+			q.Value.y0 = (float)(round_y + d3d_bias);
+			q.Value.x1 = (float)(round_x + b.Value.x1 - b.Value.x0 + d3d_bias);
+			q.Value.y1 = (float)(round_y + b.Value.y1 - b.Value.y0 + d3d_bias);
+			q.Value.s0 = (float)(b.Value.x0 * ipw);
+			q.Value.t0 = (float)(b.Value.y0 * iph);
+			q.Value.s1 = (float)(b.Value.x1 * ipw);
+			q.Value.t1 = (float)(b.Value.y1 * iph);
+			(xpos.Value) += (float)(b.Value.xadvance);
 		}
 
-		public static void stbrp_init_target(FakePtr<stbrp_context> con, int pw, int ph, FakePtr<stbrp_node> nodes, int num_nodes)
+		public static void stbrp_init_target(stbrp_context con, int pw, int ph, FakePtr<stbrp_node> nodes, int num_nodes)
 		{
-			con->width = (int)(pw);
-			con->height = (int)(ph);
-			con->x = (int)(0);
-			con->y = (int)(0);
-			con->bottom_y = (int)(0);
+			con.width = (int)(pw);
+			con.height = (int)(ph);
+			con.x = (int)(0);
+			con.y = (int)(0);
+			con.bottom_y = (int)(0);
 		}
 
-		public static void stbrp_pack_rects(FakePtr<stbrp_context> con, FakePtr<stbrp_rect> rects, int num_rects)
+		public static void stbrp_pack_rects(stbrp_context con, FakePtr<stbrp_rect> rects, int num_rects)
 		{
-			int i;
+			int i = 0;
 			for (i = (int)(0); (i) < (num_rects); ++i)
 			{
-				if ((con->x + rects[i].w) > (con->width))
+				if ((con.x + rects[i].w) > (con.width))
 				{
-					con->x = (int)(0);
-					con->y = (int)(con->bottom_y);
+					con.x = (int)(0);
+					con.y = (int)(con.bottom_y);
 				}
-				if ((con->y + rects[i].h) > (con->height))
+				if ((con.y + rects[i].h) > (con.height))
 					break;
-				rects[i].x = (int)(con->x);
-				rects[i].y = (int)(con->y);
+				rects[i].x = (int)(con.x);
+				rects[i].y = (int)(con.y);
 				rects[i].was_packed = (int)(1);
-				con->x += (int)(rects[i].w);
-				if ((con->y + rects[i].h) > (con->bottom_y))
-					con->bottom_y = (int)(con->y + rects[i].h);
+				con.x += (int)(rects[i].w);
+				if ((con.y + rects[i].h) > (con.bottom_y))
+					con.bottom_y = (int)(con.y + rects[i].h);
 			}
 			for (; (i) < (num_rects); ++i)
 			{ rects[i].was_packed = (int)(0); }
 		}
 
-		public static int stbtt_PackBegin(stbtt_pack_context spc, FakePtr<byte> pixels, int pw, int ph, int stride_in_bytes, int padding, FakePtr<byte> alloc_context)
+		public static int stbtt_PackBegin(stbtt_pack_context spc, FakePtr<byte> pixels, int pw, int ph, int stride_in_bytes, int padding)
 		{
-			FakePtr<stbrp_context> context = CRuntime.malloc((ulong)(sizeof(stbrp_context)));
+			stbrp_context context = new stbrp_context();
 			int num_nodes = (int)(pw - padding);
-			FakePtr<stbrp_node> nodes = CRuntime.malloc((ulong)(sizeof(stbrp_node) * num_nodes));
+			FakePtr<stbrp_node> nodes = FakePtr<stbrp_node>.CreateWithSize(num_nodes);
 			if (((context) == (null)) || ((nodes) == (null)))
 			{
-				if (context != (null))
-					CRuntime.free(context);
 				if (nodes != (null))
 					CRuntime.free(nodes);
 				return (int)(0);
 			}
 
-			spc.user_allocator_context = alloc_context;
 			spc.width = (int)(pw);
 			spc.height = (int)(ph);
 			spc.pixels = pixels;
@@ -2830,14 +2743,13 @@ namespace StbSharpSafe
 			spc.v_oversample = (uint)(1);
 			stbrp_init_target(context, (int)(pw - padding), (int)(ph - padding), nodes, (int)(num_nodes));
 			if ((pixels) != null)
-				CRuntime.memset(pixels, (int)(0), (ulong)(pw * ph));
+				CRuntime.memset(pixels, (byte)(0), (ulong)(pw * ph));
 			return (int)(1);
 		}
 
 		public static void stbtt_PackEnd(stbtt_pack_context spc)
 		{
 			CRuntime.free(spc.nodes);
-			CRuntime.free(spc.pack_info);
 		}
 
 		public static void stbtt_PackSetOversampling(stbtt_pack_context spc, uint h_oversample, uint v_oversample)
@@ -2850,58 +2762,58 @@ namespace StbSharpSafe
 
 		public static void stbtt__h_prefilter(FakePtr<byte> pixels, int w, int h, int stride_in_bytes, uint kernel_width)
 		{
-			FakePtr<byte> buffer = new FakePtr<byte>(8);
+			FakePtr<byte> buffer = FakePtr<byte>.CreateWithSize(8);
 			int safe_w = (int)(w - kernel_width);
-			int j;
-			CRuntime.memset(buffer, (int)(0), (ulong)(8));
+			int j = 0;
+			CRuntime.memset(buffer, (byte)(0), (ulong)(8));
 			for (j = (int)(0); (j) < (h); ++j)
 			{
-				int i;
-				uint total;
-				CRuntime.memset(buffer, (int)(0), (ulong)(kernel_width));
+				int i = 0;
+				uint total = 0;
+				CRuntime.memset(buffer, (byte)(0), (ulong)(kernel_width));
 				total = (uint)(0);
 				switch (kernel_width)
 				{
 					case 2:
-					for (i = (int)(0); i <= safe_w; ++i)
-					{
-						total += (uint)(pixels[i] - buffer[i & (8 - 1)]);
-						buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i]);
-						pixels[i] = (byte)(total / 2);
-					}
-					break;
+						for (i = (int)(0); i <= safe_w; ++i)
+						{
+							total += (uint)(pixels[i] - buffer[i & (8 - 1)]);
+							buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i]);
+							pixels[i] = (byte)(total / 2);
+						}
+						break;
 					case 3:
-					for (i = (int)(0); i <= safe_w; ++i)
-					{
-						total += (uint)(pixels[i] - buffer[i & (8 - 1)]);
-						buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i]);
-						pixels[i] = (byte)(total / 3);
-					}
-					break;
+						for (i = (int)(0); i <= safe_w; ++i)
+						{
+							total += (uint)(pixels[i] - buffer[i & (8 - 1)]);
+							buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i]);
+							pixels[i] = (byte)(total / 3);
+						}
+						break;
 					case 4:
-					for (i = (int)(0); i <= safe_w; ++i)
-					{
-						total += (uint)(pixels[i] - buffer[i & (8 - 1)]);
-						buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i]);
-						pixels[i] = (byte)(total / 4);
-					}
-					break;
+						for (i = (int)(0); i <= safe_w; ++i)
+						{
+							total += (uint)(pixels[i] - buffer[i & (8 - 1)]);
+							buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i]);
+							pixels[i] = (byte)(total / 4);
+						}
+						break;
 					case 5:
-					for (i = (int)(0); i <= safe_w; ++i)
-					{
-						total += (uint)(pixels[i] - buffer[i & (8 - 1)]);
-						buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i]);
-						pixels[i] = (byte)(total / 5);
-					}
-					break;
+						for (i = (int)(0); i <= safe_w; ++i)
+						{
+							total += (uint)(pixels[i] - buffer[i & (8 - 1)]);
+							buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i]);
+							pixels[i] = (byte)(total / 5);
+						}
+						break;
 					default:
-					for (i = (int)(0); i <= safe_w; ++i)
-					{
-						total += (uint)(pixels[i] - buffer[i & (8 - 1)]);
-						buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i]);
-						pixels[i] = (byte)(total / kernel_width);
-					}
-					break;
+						for (i = (int)(0); i <= safe_w; ++i)
+						{
+							total += (uint)(pixels[i] - buffer[i & (8 - 1)]);
+							buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i]);
+							pixels[i] = (byte)(total / kernel_width);
+						}
+						break;
 				}
 				for (; (i) < (w); ++i)
 				{
@@ -2914,58 +2826,58 @@ namespace StbSharpSafe
 
 		public static void stbtt__v_prefilter(FakePtr<byte> pixels, int w, int h, int stride_in_bytes, uint kernel_width)
 		{
-			FakePtr<byte> buffer = new FakePtr<byte>(8);
+			FakePtr<byte> buffer = FakePtr<byte>.CreateWithSize(8);
 			int safe_h = (int)(h - kernel_width);
-			int j;
-			CRuntime.memset(buffer, (int)(0), (ulong)(8));
+			int j = 0;
+			CRuntime.memset(buffer, (byte)(0), (ulong)(8));
 			for (j = (int)(0); (j) < (w); ++j)
 			{
-				int i;
-				uint total;
-				CRuntime.memset(buffer, (int)(0), (ulong)(kernel_width));
+				int i = 0;
+				uint total = 0;
+				CRuntime.memset(buffer, (byte)(0), (ulong)(kernel_width));
 				total = (uint)(0);
 				switch (kernel_width)
 				{
 					case 2:
-					for (i = (int)(0); i <= safe_h; ++i)
-					{
-						total += (uint)(pixels[i * stride_in_bytes] - buffer[i & (8 - 1)]);
-						buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i * stride_in_bytes]);
-						pixels[i * stride_in_bytes] = (byte)(total / 2);
-					}
-					break;
+						for (i = (int)(0); i <= safe_h; ++i)
+						{
+							total += (uint)(pixels[i * stride_in_bytes] - buffer[i & (8 - 1)]);
+							buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i * stride_in_bytes]);
+							pixels[i * stride_in_bytes] = (byte)(total / 2);
+						}
+						break;
 					case 3:
-					for (i = (int)(0); i <= safe_h; ++i)
-					{
-						total += (uint)(pixels[i * stride_in_bytes] - buffer[i & (8 - 1)]);
-						buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i * stride_in_bytes]);
-						pixels[i * stride_in_bytes] = (byte)(total / 3);
-					}
-					break;
+						for (i = (int)(0); i <= safe_h; ++i)
+						{
+							total += (uint)(pixels[i * stride_in_bytes] - buffer[i & (8 - 1)]);
+							buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i * stride_in_bytes]);
+							pixels[i * stride_in_bytes] = (byte)(total / 3);
+						}
+						break;
 					case 4:
-					for (i = (int)(0); i <= safe_h; ++i)
-					{
-						total += (uint)(pixels[i * stride_in_bytes] - buffer[i & (8 - 1)]);
-						buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i * stride_in_bytes]);
-						pixels[i * stride_in_bytes] = (byte)(total / 4);
-					}
-					break;
+						for (i = (int)(0); i <= safe_h; ++i)
+						{
+							total += (uint)(pixels[i * stride_in_bytes] - buffer[i & (8 - 1)]);
+							buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i * stride_in_bytes]);
+							pixels[i * stride_in_bytes] = (byte)(total / 4);
+						}
+						break;
 					case 5:
-					for (i = (int)(0); i <= safe_h; ++i)
-					{
-						total += (uint)(pixels[i * stride_in_bytes] - buffer[i & (8 - 1)]);
-						buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i * stride_in_bytes]);
-						pixels[i * stride_in_bytes] = (byte)(total / 5);
-					}
-					break;
+						for (i = (int)(0); i <= safe_h; ++i)
+						{
+							total += (uint)(pixels[i * stride_in_bytes] - buffer[i & (8 - 1)]);
+							buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i * stride_in_bytes]);
+							pixels[i * stride_in_bytes] = (byte)(total / 5);
+						}
+						break;
 					default:
-					for (i = (int)(0); i <= safe_h; ++i)
-					{
-						total += (uint)(pixels[i * stride_in_bytes] - buffer[i & (8 - 1)]);
-						buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i * stride_in_bytes]);
-						pixels[i * stride_in_bytes] = (byte)(total / kernel_width);
-					}
-					break;
+						for (i = (int)(0); i <= safe_h; ++i)
+						{
+							total += (uint)(pixels[i * stride_in_bytes] - buffer[i & (8 - 1)]);
+							buffer[(i + kernel_width) & (8 - 1)] = (byte)(pixels[i * stride_in_bytes]);
+							pixels[i * stride_in_bytes] = (byte)(total / kernel_width);
+						}
+						break;
 				}
 				for (; (i) < (h); ++i)
 				{
@@ -2983,11 +2895,11 @@ namespace StbSharpSafe
 			return (float)(-(oversample - 1) / (2.0f * oversample));
 		}
 
-		public static int stbtt_PackFontRangesGatherRects(stbtt_pack_context spc, stbtt_fontinfo info, stbtt_pack_range ranges, int num_ranges, FakePtr<stbrp_rect> rects)
+		public static int stbtt_PackFontRangesGatherRects(stbtt_pack_context spc, stbtt_fontinfo info, FakePtr<stbtt_pack_range> ranges, int num_ranges, FakePtr<stbrp_rect> rects)
 		{
-			int i;
-			int j;
-			int k;
+			int i = 0;
+			int j = 0;
+			int k = 0;
 			k = (int)(0);
 			for (i = (int)(0); (i) < (num_ranges); ++i)
 			{
@@ -2997,13 +2909,13 @@ namespace StbSharpSafe
 				ranges[i].v_oversample = (byte)(spc.v_oversample);
 				for (j = (int)(0); (j) < (ranges[i].num_chars); ++j)
 				{
-					int x0;
-					int y0;
-					int x1;
-					int y1;
+					int x0 = 0;
+					int y0 = 0;
+					int x1 = 0;
+					int y1 = 0;
 					int codepoint = (int)((ranges[i].array_of_unicode_codepoints) == (null) ? ranges[i].first_unicode_codepoint_in_range + j : ranges[i].array_of_unicode_codepoints[j]);
 					int glyph = (int)(stbtt_FindGlyphIndex(info, (int)(codepoint)));
-					stbtt_GetGlyphBitmapBoxSubpixel(info, (int)(glyph), (float)(scale * spc.h_oversample), (float)(scale * spc.v_oversample), (float)(0), (float)(0), x0, y0, x1, y1);
+					stbtt_GetGlyphBitmapBoxSubpixel(info, (int)(glyph), (float)(scale * spc.h_oversample), (float)(scale * spc.v_oversample), (float)(0), (float)(0), ref x0, ref y0, ref x1, ref y1);
 					rects[k].w = (int)(x1 - x0 + spc.padding + spc.h_oversample - 1);
 					rects[k].h = (int)(y1 - y0 + spc.padding + spc.v_oversample - 1);
 					++k;
@@ -3019,15 +2931,15 @@ namespace StbSharpSafe
 				stbtt__h_prefilter(output, (int)(out_w), (int)(out_h), (int)(out_stride), (uint)(prefilter_x));
 			if ((prefilter_y) > (1))
 				stbtt__v_prefilter(output, (int)(out_w), (int)(out_h), (int)(out_stride), (uint)(prefilter_y));
-			*sub_x = (float)(stbtt__oversample_shift((int)(prefilter_x)));
-			*sub_y = (float)(stbtt__oversample_shift((int)(prefilter_y)));
+			(sub_x.Value) = (float)(stbtt__oversample_shift((int)(prefilter_x)));
+			(sub_y.Value) = (float)(stbtt__oversample_shift((int)(prefilter_y)));
 		}
 
-		public static int stbtt_PackFontRangesRenderIntoRects(stbtt_pack_context spc, stbtt_fontinfo info, stbtt_pack_range ranges, int num_ranges, FakePtr<stbrp_rect> rects)
+		public static int stbtt_PackFontRangesRenderIntoRects(stbtt_pack_context spc, stbtt_fontinfo info, FakePtr<stbtt_pack_range> ranges, int num_ranges, FakePtr<stbrp_rect> rects)
 		{
-			int i;
-			int j;
-			int k;
+			int i = 0;
+			int j = 0;
+			int k = 0;
 			int return_value = (int)(1);
 			int old_h_over = (int)(spc.h_oversample);
 			int old_v_over = (int)(spc.v_oversample);
@@ -3036,10 +2948,10 @@ namespace StbSharpSafe
 			{
 				float fh = (float)(ranges[i].font_size);
 				float scale = (float)((fh) > (0) ? stbtt_ScaleForPixelHeight(info, (float)(fh)) : stbtt_ScaleForMappingEmToPixels(info, (float)(-fh)));
-				float recip_h;
-				float recip_v;
-				float sub_x;
-				float sub_y;
+				float recip_h = 0;
+				float recip_v = 0;
+				float sub_x = 0;
+				float sub_y = 0;
 				spc.h_oversample = (uint)(ranges[i].h_oversample);
 				spc.v_oversample = (uint)(ranges[i].v_oversample);
 				recip_h = (float)(1.0f / spc.h_oversample);
@@ -3048,39 +2960,39 @@ namespace StbSharpSafe
 				sub_y = (float)(stbtt__oversample_shift((int)(spc.v_oversample)));
 				for (j = (int)(0); (j) < (ranges[i].num_chars); ++j)
 				{
-					FakePtr<stbrp_rect> r = rects[k];
-					if ((r->was_packed) != 0)
+					FakePtr<stbrp_rect> r = rects + k;
+					if ((r.Value.was_packed) != 0)
 					{
-						FakePtr<stbtt_packedchar> bc = ranges[i].chardata_for_range[j];
-						int advance;
-						int lsb;
-						int x0;
-						int y0;
-						int x1;
-						int y1;
+						FakePtr<stbtt_packedchar> bc = ranges[i].chardata_for_range + j;
+						int advance = 0;
+						int lsb = 0;
+						int x0 = 0;
+						int y0 = 0;
+						int x1 = 0;
+						int y1 = 0;
 						int codepoint = (int)((ranges[i].array_of_unicode_codepoints) == (null) ? ranges[i].first_unicode_codepoint_in_range + j : ranges[i].array_of_unicode_codepoints[j]);
 						int glyph = (int)(stbtt_FindGlyphIndex(info, (int)(codepoint)));
 						int pad = (int)(spc.padding);
-						r->x += (int)(pad);
-						r->y += (int)(pad);
-						r->w -= (int)(pad);
-						r->h -= (int)(pad);
-						stbtt_GetGlyphHMetrics(info, (int)(glyph), advance, lsb);
-						stbtt_GetGlyphBitmapBox(info, (int)(glyph), (float)(scale * spc.h_oversample), (float)(scale * spc.v_oversample), x0, y0, x1, y1);
-						stbtt_MakeGlyphBitmapSubpixel(info, spc.pixels + r->x + r->y * spc.stride_in_bytes, (int)(r->w - spc.h_oversample + 1), (int)(r->h - spc.v_oversample + 1), (int)(spc.stride_in_bytes), (float)(scale * spc.h_oversample), (float)(scale * spc.v_oversample), (float)(0), (float)(0), (int)(glyph));
+						r.Value.x += (int)(pad);
+						r.Value.y += (int)(pad);
+						r.Value.w -= (int)(pad);
+						r.Value.h -= (int)(pad);
+						stbtt_GetGlyphHMetrics(info, (int)(glyph), ref advance, ref lsb);
+						stbtt_GetGlyphBitmapBox(info, (int)(glyph), (float)(scale * spc.h_oversample), (float)(scale * spc.v_oversample), ref x0, ref y0, ref x1, ref y1);
+						stbtt_MakeGlyphBitmapSubpixel(info, spc.pixels + r.Value.x + r.Value.y * spc.stride_in_bytes, (int)(r.Value.w - spc.h_oversample + 1), (int)(r.Value.h - spc.v_oversample + 1), (int)(spc.stride_in_bytes), (float)(scale * spc.h_oversample), (float)(scale * spc.v_oversample), (float)(0), (float)(0), (int)(glyph));
 						if ((spc.h_oversample) > (1))
-							stbtt__h_prefilter(spc.pixels + r->x + r->y * spc.stride_in_bytes, (int)(r->w), (int)(r->h), (int)(spc.stride_in_bytes), (uint)(spc.h_oversample));
+							stbtt__h_prefilter(spc.pixels + r.Value.x + r.Value.y * spc.stride_in_bytes, (int)(r.Value.w), (int)(r.Value.h), (int)(spc.stride_in_bytes), (uint)(spc.h_oversample));
 						if ((spc.v_oversample) > (1))
-							stbtt__v_prefilter(spc.pixels + r->x + r->y * spc.stride_in_bytes, (int)(r->w), (int)(r->h), (int)(spc.stride_in_bytes), (uint)(spc.v_oversample));
-						bc->x0 = (ushort)(r->x);
-						bc->y0 = (ushort)(r->y);
-						bc->x1 = (ushort)(r->x + r->w);
-						bc->y1 = (ushort)(r->y + r->h);
-						bc->xadvance = (float)(scale * advance);
-						bc->xoff = (float)(x0 * recip_h + sub_x);
-						bc->yoff = (float)(y0 * recip_v + sub_y);
-						bc->xoff2 = (float)((x0 + r->w) * recip_h + sub_x);
-						bc->yoff2 = (float)((y0 + r->h) * recip_v + sub_y);
+							stbtt__v_prefilter(spc.pixels + r.Value.x + r.Value.y * spc.stride_in_bytes, (int)(r.Value.w), (int)(r.Value.h), (int)(spc.stride_in_bytes), (uint)(spc.v_oversample));
+						bc.Value.x0 = (ushort)(r.Value.x);
+						bc.Value.y0 = (ushort)(r.Value.y);
+						bc.Value.x1 = (ushort)(r.Value.x + r.Value.w);
+						bc.Value.y1 = (ushort)(r.Value.y + r.Value.h);
+						bc.Value.xadvance = (float)(scale * advance);
+						bc.Value.xoff = (float)(x0 * recip_h + sub_x);
+						bc.Value.yoff = (float)(y0 * recip_v + sub_y);
+						bc.Value.xoff2 = (float)((x0 + r.Value.w) * recip_h + sub_x);
+						bc.Value.yoff2 = (float)((y0 + r.Value.h) * recip_v + sub_y);
 					}
 					else
 					{
@@ -3099,23 +3011,27 @@ namespace StbSharpSafe
 			stbrp_pack_rects(spc.pack_info, rects, (int)(num_rects));
 		}
 
-		public static int stbtt_PackFontRanges(stbtt_pack_context spc, FakePtr<byte> fontdata, int font_index, stbtt_pack_range ranges, int num_ranges)
+		public static int stbtt_PackFontRanges(stbtt_pack_context spc, FakePtr<byte> fontdata, int font_index, FakePtr<stbtt_pack_range> ranges, int num_ranges)
 		{
 			stbtt_fontinfo info = new stbtt_fontinfo();
-			int i;
-			int j;
-			int n;
+			int i = 0;
+			int j = 0;
+			int n = 0;
 			int return_value = (int)(1);
 			FakePtr<stbrp_rect> rects;
 			for (i = (int)(0); (i) < (num_ranges); ++i)
-			{ for (j = (int)(0); (j) < (ranges[i].num_chars); ++j) { ranges[i].chardata_for_range[j].x0 = (ushort)(ranges[i].chardata_for_range[j].y0 = (ushort)(ranges[i].chardata_for_range[j].x1 = (ushort)(ranges[i].chardata_for_range[j].y1 = (ushort)(0)))); } }
+			{
+				for (j = (int)(0); (j) < (ranges[i].num_chars); ++j)
+				{
+					ranges[i].chardata_for_range[j].x0 = (ushort)(ranges[i].chardata_for_range[j].y0 = (ushort)(ranges[i].chardata_for_range[j].x1 = (ushort)(ranges[i].chardata_for_range[j].y1 = (ushort)(0))));
+				}
+			}
 			n = (int)(0);
 			for (i = (int)(0); (i) < (num_ranges); ++i)
 			{ n += (int)(ranges[i].num_chars); }
-			rects = CRuntime.malloc((ulong)(sizeof(stbrp_rect) * n));
+			rects = FakePtr<stbrp_rect>.CreateWithSize(n);
 			if ((rects) == (null))
 				return (int)(0);
-			info.userdata = spc.user_allocator_context;
 			stbtt_InitFont(info, fontdata, (int)(stbtt_GetFontOffsetForIndex(fontdata, (int)(font_index))));
 			n = (int)(stbtt_PackFontRangesGatherRects(spc, info, ranges, (int)(num_ranges), rects));
 			stbtt_PackFontRangesPackRects(spc, rects, (int)(n));
@@ -3132,7 +3048,10 @@ namespace StbSharpSafe
 			range.num_chars = (int)(num_chars_in_range);
 			range.chardata_for_range = chardata_for_range;
 			range.font_size = (float)(font_size);
-			return (int)(stbtt_PackFontRanges(spc, fontdata, (int)(font_index), range, (int)(1)));
+
+			FakePtr<stbtt_pack_range> rangePtr = FakePtr<stbtt_pack_range>.Create();
+			rangePtr.Value = range;
+			return (int)(stbtt_PackFontRanges(spc, fontdata, (int)(font_index), rangePtr, (int)(1)));
 		}
 
 		public static void stbtt_GetPackedQuad(FakePtr<stbtt_packedchar> chardata, int pw, int ph, int char_index, FakePtr<float> xpos, FakePtr<float> ypos, FakePtr<stbtt_aligned_quad> q, int align_to_integer)
@@ -3142,26 +3061,26 @@ namespace StbSharpSafe
 			FakePtr<stbtt_packedchar> b = chardata + char_index;
 			if ((align_to_integer) != 0)
 			{
-				float x = (float)(CRuntime.floor((double)((*xpos + b->xoff) + 0.5f)));
-				float y = (float)(CRuntime.floor((double)((*ypos + b->yoff) + 0.5f)));
-				q->x0 = (float)(x);
-				q->y0 = (float)(y);
-				q->x1 = (float)(x + b->xoff2 - b->xoff);
-				q->y1 = (float)(y + b->yoff2 - b->yoff);
+				float x = (float)(CRuntime.floor((double)(((xpos.Value) + b.Value.xoff) + 0.5f)));
+				float y = (float)(CRuntime.floor((double)(((ypos.Value) + b.Value.yoff) + 0.5f)));
+				q.Value.x0 = (float)(x);
+				q.Value.y0 = (float)(y);
+				q.Value.x1 = (float)(x + b.Value.xoff2 - b.Value.xoff);
+				q.Value.y1 = (float)(y + b.Value.yoff2 - b.Value.yoff);
 			}
 			else
 			{
-				q->x0 = (float)(*xpos + b->xoff);
-				q->y0 = (float)(*ypos + b->yoff);
-				q->x1 = (float)(*xpos + b->xoff2);
-				q->y1 = (float)(*ypos + b->yoff2);
+				q.Value.x0 = (float)((xpos.Value) + b.Value.xoff);
+				q.Value.y0 = (float)((ypos.Value) + b.Value.yoff);
+				q.Value.x1 = (float)((xpos.Value) + b.Value.xoff2);
+				q.Value.y1 = (float)((ypos.Value) + b.Value.yoff2);
 			}
 
-			q->s0 = (float)(b->x0 * ipw);
-			q->t0 = (float)(b->y0 * iph);
-			q->s1 = (float)(b->x1 * ipw);
-			q->t1 = (float)(b->y1 * iph);
-			*xpos += (float)(b->xadvance);
+			q.Value.s0 = (float)(b.Value.x0 * ipw);
+			q.Value.t0 = (float)(b.Value.y0 * iph);
+			q.Value.s1 = (float)(b.Value.x1 * ipw);
+			q.Value.t1 = (float)(b.Value.y1 * iph);
+			(xpos.Value) += (float)(b.Value.xadvance);
 		}
 
 		public static int stbtt__ray_intersect_bezier(FakePtr<float> orig, FakePtr<float> ray, FakePtr<float> q0, FakePtr<float> q1, FakePtr<float> q2, FakePtr<float> hits)
@@ -3239,13 +3158,13 @@ namespace StbSharpSafe
 
 		public static int stbtt__compute_crossings_x(float x, float y, int nverts, FakePtr<stbtt_vertex> verts)
 		{
-			int i;
-			FakePtr<float> orig = new FakePtr<float>(2);
-			FakePtr<float> ray = new FakePtr<float>(2);
+			int i = 0;
+			FakePtr<float> orig = FakePtr<float>.CreateWithSize(2);
+			FakePtr<float> ray = FakePtr<float>.CreateWithSize(2);
 			ray[0] = (float)(1);
 			ray[1] = (float)(0);
 
-			float y_frac;
+			float y_frac = 0;
 			int winding = (int)(0);
 			orig[0] = (float)(x);
 			orig[1] = (float)(y);
@@ -3283,10 +3202,10 @@ namespace StbSharpSafe
 					int by = (int)((y0) < ((y1) < (y2) ? (y2) : (y1)) ? ((y1) < (y2) ? (y2) : (y1)) : (y0));
 					if ((((y) > (ay)) && ((y) < (by))) && ((x) > (ax)))
 					{
-						FakePtr<float> q0 = new FakePtr<float>(2);
-						FakePtr<float> q1 = new FakePtr<float>(2);
-						FakePtr<float> q2 = new FakePtr<float>(2);
-						FakePtr<float> hits = new FakePtr<float>(4);
+						FakePtr<float> q0 = FakePtr<float>.CreateWithSize(2);
+						FakePtr<float> q1 = FakePtr<float>.CreateWithSize(2);
+						FakePtr<float> q2 = FakePtr<float>.CreateWithSize(2);
+						FakePtr<float> hits = FakePtr<float>.CreateWithSize(4);
 						q0[0] = (float)(x0);
 						q0[1] = (float)(y0);
 						q1[0] = (float)(x1);
@@ -3365,12 +3284,12 @@ namespace StbSharpSafe
 		{
 			float scale_x = (float)(scale);
 			float scale_y = (float)(scale);
-			int ix0;
-			int iy0;
-			int ix1;
-			int iy1;
-			int w;
-			int h;
+			int ix0 = 0;
+			int iy0 = 0;
+			int ix1 = 0;
+			int iy1 = 0;
+			int w = 0;
+			int h = 0;
 			FakePtr<byte> data;
 			if ((scale_x) == (0))
 				scale_x = (float)(scale_y);
@@ -3381,7 +3300,7 @@ namespace StbSharpSafe
 				scale_y = (float)(scale_x);
 			}
 
-			stbtt_GetGlyphBitmapBoxSubpixel(info, (int)(glyph), (float)(scale), (float)(scale), (float)(0.0f), (float)(0.0f), ix0, iy0, ix1, iy1);
+			stbtt_GetGlyphBitmapBoxSubpixel(info, (int)(glyph), (float)(scale), (float)(scale), (float)(0.0f), (float)(0.0f), ref ix0, ref iy0, ref ix1, ref iy1);
 			if (((ix0) == (ix1)) || ((iy0) == (iy1)))
 				return (null);
 			ix0 -= (int)(padding);
@@ -3391,24 +3310,24 @@ namespace StbSharpSafe
 			w = (int)(ix1 - ix0);
 			h = (int)(iy1 - iy0);
 			if ((width) != null)
-				*width = (int)(w);
+				(width.Value) = (int)(w);
 			if ((height) != null)
-				*height = (int)(h);
+				(height.Value) = (int)(h);
 			if ((xoff) != null)
-				*xoff = (int)(ix0);
+				(xoff.Value) = (int)(ix0);
 			if ((yoff) != null)
-				*yoff = (int)(iy0);
+				(yoff.Value) = (int)(iy0);
 			scale_y = (float)(-scale_y);
 			{
-				int x;
-				int y;
-				int i;
-				int j;
+				int x = 0;
+				int y = 0;
+				int i = 0;
+				int j = 0;
 				FakePtr<float> precompute;
-				FakePtr<stbtt_vertex> verts;
-				int num_verts = (int)(stbtt_GetGlyphShape(info, (int)(glyph), verts));
-				data = CRuntime.malloc((ulong)(w * h));
-				precompute = CRuntime.malloc((ulong)(num_verts * sizeof(float)));
+				FakePtr<stbtt_vertex> verts = FakePtr<stbtt_vertex>.Create();
+				int num_verts = (int)(stbtt_GetGlyphShape(info, (int)(glyph), ref verts));
+				data = FakePtr<byte>.CreateWithSize(w * h);
+				precompute = FakePtr<float>.CreateWithSize(num_verts);
 				for (i = (int)(0), j = (int)(num_verts - 1); (i) < (num_verts); j = (int)(i++))
 				{
 					if ((verts[i].type) == (STBTT_vline))
@@ -3443,7 +3362,7 @@ namespace StbSharpSafe
 				{
 					for (x = (int)(ix0); (x) < (ix1); ++x)
 					{
-						float val;
+						float val = 0;
 						float min_dist = (float)(999999.0f);
 						float sx = (float)(x + 0.5f);
 						float sy = (float)(y + 0.5f);
@@ -3492,11 +3411,11 @@ namespace StbSharpSafe
 									float by = (float)(y0 - 2 * y1 + y2);
 									float mx = (float)(x0 - sx);
 									float my = (float)(y0 - sy);
-									FakePtr<float> res = new FakePtr<float>(3);
-									float px;
-									float py;
-									float t;
-									float it;
+									FakePtr<float> res = FakePtr<float>.CreateWithSize(3);
+									float px = 0;
+									float py = 0;
+									float t = 0;
+									float it = 0;
 									float a_inv = (float)(precompute[i]);
 									if ((a_inv) == (0.0))
 									{
@@ -3586,12 +3505,12 @@ namespace StbSharpSafe
 			return stbtt_GetGlyphSDF(info, (float)(scale), (int)(stbtt_FindGlyphIndex(info, (int)(codepoint))), (int)(padding), (byte)(onedge_value), (float)(pixel_dist_scale), width, height, xoff, yoff);
 		}
 
-		public static void stbtt_FreeSDF(FakePtr<byte> bitmap, FakePtr<byte> userdata)
+		public static void stbtt_FreeSDF(FakePtr<byte> bitmap)
 		{
 			CRuntime.free(bitmap);
 		}
 
-		public static int stbtt__CompareUTF8toUTF16_bigendian_prefix(FakePtr<byte> s1, int len1, FakePtr<byte> s2, int len2)
+		public static int stbtt__CompareUTF8toUTF16_bigendian_prefix(FakePtr<sbyte> s1, int len1, FakePtr<byte> s2, int len2)
 		{
 			int i = (int)(0);
 			while ((len2) != 0)
@@ -3615,7 +3534,7 @@ namespace StbSharpSafe
 				}
 				else if (((ch) >= (0xd800)) && ((ch) < (0xdc00)))
 				{
-					uint c;
+					uint c = 0;
 					ushort ch2 = (ushort)(s2[2] * 256 + s2[3]);
 					if ((i + 3) >= (len1))
 						return (int)(-1);
@@ -3652,136 +3571,6 @@ namespace StbSharpSafe
 			return (int)(i);
 		}
 
-		public static int stbtt_CompareUTF8toUTF16_bigendian_internal(FakePtr<sbyte> s1, int len1, FakePtr<sbyte> s2, int len2)
-		{
-			return (int)((len1) == (stbtt__CompareUTF8toUTF16_bigendian_prefix(s1, (int)(len1), s2, (int)(len2))) ? 1 : 0);
-		}
-
-		public static FakePtr<sbyte> stbtt_GetFontNameString(stbtt_fontinfo font, FakePtr<int> length, int platformID, int encodingID, int languageID, int nameID)
-		{
-			int i;
-			int count;
-			int stringOffset;
-			FakePtr<byte> fc = font.data;
-			uint offset = (uint)(font.fontstart);
-			uint nm = (uint)(stbtt__find_table(fc, (uint)(offset), "name"));
-			if (nm == 0)
-				return (null);
-			count = (int)(ttUSHORT(fc + nm + 2));
-			stringOffset = (int)(nm + ttUSHORT(fc + nm + 4));
-			for (i = (int)(0); (i) < (count); ++i)
-			{
-				uint loc = (uint)(nm + 6 + 12 * i);
-				if (((((platformID) == (ttUSHORT(fc + loc + 0))) && ((encodingID) == (ttUSHORT(fc + loc + 2)))) && ((languageID) == (ttUSHORT(fc + loc + 4)))) && ((nameID) == (ttUSHORT(fc + loc + 6))))
-				{
-					*length = (int)(ttUSHORT(fc + loc + 8));
-					return (fc + stringOffset + ttUSHORT(fc + loc + 10));
-				}
-			}
-			return (null);
-		}
-
-		public static int stbtt__matchpair(FakePtr<byte> fc, uint nm, FakePtr<byte> name, int nlen, int target_id, int next_id)
-		{
-			int i;
-			int count = (int)(ttUSHORT(fc + nm + 2));
-			int stringOffset = (int)(nm + ttUSHORT(fc + nm + 4));
-			for (i = (int)(0); (i) < (count); ++i)
-			{
-				uint loc = (uint)(nm + 6 + 12 * i);
-				int id = (int)(ttUSHORT(fc + loc + 6));
-				if ((id) == (target_id))
-				{
-					int platform = (int)(ttUSHORT(fc + loc + 0));
-					int encoding = (int)(ttUSHORT(fc + loc + 2));
-					int language = (int)(ttUSHORT(fc + loc + 4));
-					if ((((platform) == (0)) || (((platform) == (3)) && ((encoding) == (1)))) || (((platform) == (3)) && ((encoding) == (10))))
-					{
-						int slen = (int)(ttUSHORT(fc + loc + 8));
-						int off = (int)(ttUSHORT(fc + loc + 10));
-						int matchlen = (int)(stbtt__CompareUTF8toUTF16_bigendian_prefix(name, (int)(nlen), fc + stringOffset + off, (int)(slen)));
-						if ((matchlen) >= (0))
-						{
-							if ((((((i + 1) < (count)) && ((ttUSHORT(fc + loc + 12 + 6)) == (next_id))) && ((ttUSHORT(fc + loc + 12)) == (platform))) && ((ttUSHORT(fc + loc + 12 + 2)) == (encoding))) && ((ttUSHORT(fc + loc + 12 + 4)) == (language)))
-							{
-								slen = (int)(ttUSHORT(fc + loc + 12 + 8));
-								off = (int)(ttUSHORT(fc + loc + 12 + 10));
-								if ((slen) == (0))
-								{
-									if ((matchlen) == (nlen))
-										return (int)(1);
-								}
-								else if (((matchlen) < (nlen)) && ((name[matchlen]) == (' ')))
-								{
-									++matchlen;
-									if ((stbtt_CompareUTF8toUTF16_bigendian_internal((name + matchlen), (int)(nlen - matchlen), (fc + stringOffset + off), (int)(slen))) != 0)
-										return (int)(1);
-								}
-							}
-							else
-							{
-								if ((matchlen) == (nlen))
-									return (int)(1);
-							}
-						}
-					}
-				}
-			}
-			return (int)(0);
-		}
-
-		public static int stbtt__matches(FakePtr<byte> fc, uint offset, FakePtr<byte> name, int flags)
-		{
-			int nlen = (int)(CRuntime.strlen(name));
-			uint nm;
-			uint hd;
-			if (stbtt__isfont(fc + offset) == 0)
-				return (int)(0);
-			if ((flags) != 0)
-			{
-				hd = (uint)(stbtt__find_table(fc, (uint)(offset), "head"));
-				if ((ttUSHORT(fc + hd + 44) & 7) != (flags & 7))
-					return (int)(0);
-			}
-
-			nm = (uint)(stbtt__find_table(fc, (uint)(offset), "name"));
-			if (nm == 0)
-				return (int)(0);
-			if ((flags) != 0)
-			{
-				if ((stbtt__matchpair(fc, (uint)(nm), name, (int)(nlen), (int)(16), (int)(-1))) != 0)
-					return (int)(1);
-				if ((stbtt__matchpair(fc, (uint)(nm), name, (int)(nlen), (int)(1), (int)(-1))) != 0)
-					return (int)(1);
-				if ((stbtt__matchpair(fc, (uint)(nm), name, (int)(nlen), (int)(3), (int)(-1))) != 0)
-					return (int)(1);
-			}
-			else
-			{
-				if ((stbtt__matchpair(fc, (uint)(nm), name, (int)(nlen), (int)(16), (int)(17))) != 0)
-					return (int)(1);
-				if ((stbtt__matchpair(fc, (uint)(nm), name, (int)(nlen), (int)(1), (int)(2))) != 0)
-					return (int)(1);
-				if ((stbtt__matchpair(fc, (uint)(nm), name, (int)(nlen), (int)(3), (int)(-1))) != 0)
-					return (int)(1);
-			}
-
-			return (int)(0);
-		}
-
-		public static int stbtt_FindMatchingFont_internal(FakePtr<byte> font_collection, FakePtr<sbyte> name_utf8, int flags)
-		{
-			int i;
-			for (i = (int)(0); ; ++i)
-			{
-				int off = (int)(stbtt_GetFontOffsetForIndex(font_collection, (int)(i)));
-				if ((off) < (0))
-					return (int)(off);
-				if ((stbtt__matches(font_collection, (uint)(off), name_utf8, (int)(flags))) != 0)
-					return (int)(off);
-			}
-		}
-
 		public static int stbtt_BakeFontBitmap(FakePtr<byte> data, int offset, float pixel_height, FakePtr<byte> pixels, int pw, int ph, int first_char, int num_chars, FakePtr<stbtt_bakedchar> chardata)
 		{
 			return (int)(stbtt_BakeFontBitmap_internal(data, (int)(offset), (float)(pixel_height), pixels, (int)(pw), (int)(ph), (int)(first_char), (int)(num_chars), chardata));
@@ -3800,16 +3589,6 @@ namespace StbSharpSafe
 		public static int stbtt_InitFont(stbtt_fontinfo info, FakePtr<byte> data, int offset)
 		{
 			return (int)(stbtt_InitFont_internal(info, data, (int)(offset)));
-		}
-
-		public static int stbtt_FindMatchingFont(FakePtr<byte> fontdata, FakePtr<sbyte> name, int flags)
-		{
-			return (int)(stbtt_FindMatchingFont_internal(fontdata, name, (int)(flags)));
-		}
-
-		public static int stbtt_CompareUTF8toUTF16_bigendian(FakePtr<sbyte> s1, int len1, FakePtr<sbyte> s2, int len2)
-		{
-			return (int)(stbtt_CompareUTF8toUTF16_bigendian_internal(s1, (int)(len1), s2, (int)(len2)));
 		}
 	}
 }

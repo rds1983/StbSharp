@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace StbSharpSafe
 {
@@ -11,109 +10,66 @@ namespace StbSharpSafe
 		public const long DBL_MANT_MASK = 0x000fffffffffffffL;
 		public const long DBL_EXP_CLR_MASK = DBL_SGN_MASK | DBL_MANT_MASK;
 
-		public static void* malloc(ulong size)
+		public static void memcpy<T>(FakePtr<T> a, FakePtr<T> b, long size) where T : new()
 		{
-			return malloc((long) size);
-		}
-
-		public static void* malloc(long size)
-		{
-			var ptr = Marshal.AllocHGlobal((int) size);
-
-			return ptr.ToPointer();
-		}
-
-		public static void memcpy(void* a, void* b, long size)
-		{
-			var ap = (byte*) a;
-			var bp = (byte*) b;
 			for (long i = 0; i < size; ++i)
 			{
-				*ap++ = *bp++;
+				a[i] = b[i];
 			}
 		}
 
-		public static void memcpy(void* a, void* b, ulong size)
+		public static void memcpy<T>(FakePtr<T> a, FakePtr<T> b, ulong size) where T : new()
 		{
-			memcpy(a, b, (long) size);
+			memcpy(a, b, (long)size);
 		}
 
-		public static void memmove(void* a, void* b, long size)
+		public static void memmove<T>(FakePtr<T> a, FakePtr<T> b, long size) where T : new()
 		{
-			void* temp = null;
-
-			try
-			{
-				temp = malloc(size);
-				memcpy(temp, b, size);
-				memcpy(a, temp, size);
-			}
-
-			finally
-			{
-				if (temp != null)
-				{
-					free(temp);
-				}
-			}
+			FakePtr<T> temp = FakePtr<T>.CreateWithSize(size);
+			memcpy(temp, b, size);
+			memcpy(a, temp, size);
 		}
 
-		public static void memmove(void* a, void* b, ulong size)
+		public static void memmove<T>(FakePtr<T> a, FakePtr<T> b, ulong size) where T : new()
 		{
-			memmove(a, b, (long) size);
+			memmove(a, b, (long)size);
 		}
 
-		public static int memcmp(void* a, void* b, long size)
+		public static int memcmp<T>(FakePtr<T> a, FakePtr<T> b, long size) where T : new()
 		{
 			var result = 0;
-			var ap = (byte*) a;
-			var bp = (byte*) b;
 			for (long i = 0; i < size; ++i)
 			{
-				if (*ap != *bp)
+				if (!a[i].Equals(b[i]))
 				{
 					result += 1;
 				}
-
-				ap++;
-				bp++;
 			}
 
 			return result;
 		}
 
-		public static int memcmp(void* a, void* b, ulong size)
+		public static int memcmp<T>(FakePtr<T> a, FakePtr<T> b, ulong size) where T : new()
 		{
-			return memcmp(a, b, (long) size);
+			return memcmp(a, b, (long)size);
 		}
 
-		public static int memcmp(byte* a, byte[] b, ulong size)
+		public static void free<T>(FakePtr<T> ptr) where T : new()
 		{
-			fixed (void* bptr = b)
-			{
-				return memcmp(a, bptr, (long) size);
-			}
+			// Do nothing
 		}
 
-		public static void free(void* a)
+		public static void memset<T>(FakePtr<T> a, T value, long size) where T : new()
 		{
-			var ptr = new IntPtr(a);
-			Marshal.FreeHGlobal(ptr);
-		}
-
-		public static void memset(void* ptr, int value, long size)
-		{
-			byte* bptr = (byte*) ptr;
-			var bval = (byte) value;
 			for (long i = 0; i < size; ++i)
 			{
-				*bptr++ = bval;
+				a[i] = value;
 			}
 		}
 
-		public static void memset(void* ptr, int value, ulong size)
+		public static void memset<T>(FakePtr<T> a, T value, ulong size) where T : new()
 		{
-			memset(ptr, value, (long) size);
+			memset(a, value, (long)size);
 		}
 
 		public static uint _lrotl(uint x, int y)
@@ -121,61 +77,9 @@ namespace StbSharpSafe
 			return (x << y) | (x >> (32 - y));
 		}
 
-		public static void* realloc(void* a, long newSize)
-		{
-			if (a == null)
-			{
-				return malloc(newSize);
-			}
-
-			var ptr = new IntPtr(a);
-			var result = Marshal.ReAllocHGlobal(ptr, new IntPtr(newSize));
-
-			return result.ToPointer();
-		}
-
-		public static void* realloc(void* a, ulong newSize)
-		{
-			return realloc(a, (long) newSize);
-		}
-
 		public static int abs(int v)
 		{
 			return Math.Abs(v);
-		}
-
-		/// <summary>
-		/// This code had been borrowed from here: https://github.com/MachineCognitis/C.math.NET
-		/// </summary>
-		/// <param name="number"></param>
-		/// <param name="exponent"></param>
-		/// <returns></returns>
-		public static double frexp(double number, int* exponent)
-		{
-			var bits = BitConverter.DoubleToInt64Bits(number);
-			var exp = (int) ((bits & DBL_EXP_MASK) >> DBL_MANT_BITS);
-			*exponent = 0;
-
-			if (exp == 0x7ff || number == 0D)
-				number += number;
-			else
-			{
-				// Not zero and finite.
-				*exponent = exp - 1022;
-				if (exp == 0)
-				{
-					// Subnormal, scale number so that it is in [1, 2).
-					number *= BitConverter.Int64BitsToDouble(0x4350000000000000L); // 2^54
-					bits = BitConverter.DoubleToInt64Bits(number);
-					exp = (int) ((bits & DBL_EXP_MASK) >> DBL_MANT_BITS);
-					*exponent = exp - 1022 - 54;
-				}
-
-				// Set exponent to -1 so that number is in [0.5, 1).
-				number = BitConverter.Int64BitsToDouble((bits & DBL_EXP_CLR_MASK) | 0x3fe0000000000000L);
-			}
-
-			return number;
 		}
 
 		public static double pow(double a, double b)
@@ -185,7 +89,7 @@ namespace StbSharpSafe
 
 		public static float fabs(double a)
 		{
-			return (float) Math.Abs(a);
+			return (float)Math.Abs(a);
 		}
 
 		public static double ceil(double a)
@@ -229,67 +133,6 @@ namespace StbSharpSafe
 			return number * Math.Pow(2, exponent);
 		}
 
-		public delegate int QSortComparer(void* a, void* b);
-
-		private static void qsortSwap(byte* data, long size, long pos1, long pos2)
-		{
-			var a = data + size * pos1;
-			var b = data + size * pos2;
-
-			for (long k = 0; k < size; ++k)
-			{
-				var tmp = *a;
-				*a = *b;
-				*b = tmp;
-
-				a++;
-				b++;
-			}
-		}
-
-		private static long qsortPartition(byte* data, long size, QSortComparer comparer, long left, long right)
-		{
-			void* pivot = data + size * left;
-			var i = left - 1;
-			var j = right + 1;
-			for (;;)
-			{
-				do
-				{
-					++i;
-				} while (comparer(data + size * i, pivot) < 0);
-
-				do
-				{
-					--j;
-				} while (comparer(data + size * j, pivot) > 0);
-
-				if (i >= j)
-				{
-					return j;
-				}
-
-				qsortSwap(data, size, i, j);
-			}
-		}
-
-
-		private static void qsortInternal(byte* data, long size, QSortComparer comparer, long left, long right)
-		{
-			if (left < right)
-			{
-				var p = qsortPartition(data, size, comparer, left, right);
-
-				qsortInternal(data, size, comparer, left, p);
-				qsortInternal(data, size, comparer, p + 1, right);
-			}
-		}
-
-		public static void qsort(void* data, ulong count, ulong size, QSortComparer comparer)
-		{
-			qsortInternal((byte*) data, (long) size, comparer, 0, (long) count - 1);
-		}
-
 		public static double sqrt(double val)
 		{
 			return Math.Sqrt(val);
@@ -300,17 +143,19 @@ namespace StbSharpSafe
 			return x % y;
 		}
 
-		public static ulong strlen(sbyte* str)
+		public static ulong strlen(FakePtr<sbyte> str)
 		{
-			ulong res = 0;
-			var ptr = str;
-
-			while (*ptr != '\0')
+			ulong result = 0;
+			for (int i = 0; ;)
 			{
-				ptr++;
+				if (str[i] == '\0')
+				{
+					result = (ulong)i;
+					break;
+				}
 			}
 
-			return ((ulong) ptr - (ulong) str - 1);
+			return result;
 		}
 	}
 }
