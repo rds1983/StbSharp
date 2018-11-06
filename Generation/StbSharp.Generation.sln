@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StbSharp.StbTrueType.Genera
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StbSharp.StbVorbis.Generator", "StbSharp.StbVorbis.Generator\StbSharp.StbVorbis.Generator.csproj", "{EFF134D7-5AA1-4280-B32D-37E5CC6C620D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StbSharpSafe.StbTrueType.Generator", "StbSharpSafe.StbTrueType.Generator\StbSharpSafe.StbTrueType.Generator.csproj", "{700FC44A-8BDD-41AB-AA30-74E6DE0761F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,16 @@ Global
 		{EFF134D7-5AA1-4280-B32D-37E5CC6C620D}.Release|Mixed Platforms.Build.0 = Release|x64
 		{EFF134D7-5AA1-4280-B32D-37E5CC6C620D}.Release|x64.ActiveCfg = Release|x64
 		{EFF134D7-5AA1-4280-B32D-37E5CC6C620D}.Release|x64.Build.0 = Release|x64
+		{700FC44A-8BDD-41AB-AA30-74E6DE0761F3}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{700FC44A-8BDD-41AB-AA30-74E6DE0761F3}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
+		{700FC44A-8BDD-41AB-AA30-74E6DE0761F3}.Debug|Mixed Platforms.Build.0 = Debug|x64
+		{700FC44A-8BDD-41AB-AA30-74E6DE0761F3}.Debug|x64.ActiveCfg = Debug|x64
+		{700FC44A-8BDD-41AB-AA30-74E6DE0761F3}.Debug|x64.Build.0 = Debug|x64
+		{700FC44A-8BDD-41AB-AA30-74E6DE0761F3}.Release|Any CPU.ActiveCfg = Release|x64
+		{700FC44A-8BDD-41AB-AA30-74E6DE0761F3}.Release|Mixed Platforms.ActiveCfg = Release|x64
+		{700FC44A-8BDD-41AB-AA30-74E6DE0761F3}.Release|Mixed Platforms.Build.0 = Release|x64
+		{700FC44A-8BDD-41AB-AA30-74E6DE0761F3}.Release|x64.ActiveCfg = Release|x64
+		{700FC44A-8BDD-41AB-AA30-74E6DE0761F3}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
