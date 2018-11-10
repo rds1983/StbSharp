@@ -53,11 +53,11 @@ namespace StbSharp
 		public class stbi__jpeg
 		{
 			public stbi__context s;
-			public readonly stbi__huffman* huff_dc = (stbi__huffman*) stbi__malloc(4 * sizeof(stbi__huffman));
-			public readonly stbi__huffman* huff_ac = (stbi__huffman*) stbi__malloc(4 * sizeof(stbi__huffman));
-			public readonly ushort*[] dequant;
+			public readonly stbi__huffman[] huff_dc = new stbi__huffman[4];
+			public readonly stbi__huffman[] huff_ac = new stbi__huffman[4];
+			public readonly ushort[][] dequant;
 
-			public readonly short*[] fast_ac;
+			public readonly short[][] fast_ac;
 
 // sizes for components, interleaved MCUs
 			public int img_h_max, img_v_max;
@@ -83,7 +83,7 @@ namespace StbSharp
 			public int rgb;
 
 			public int scan_n;
-			public int* order = (int*) stbi__malloc(4 * sizeof(int));
+			public int[] order = new int[4];
 			public int restart_interval, todo;
 
 // kernels
@@ -104,16 +104,16 @@ namespace StbSharp
 					img_comp[i] = new img_comp();
 				}
 
-				fast_ac = new short *[4];
+				fast_ac = new short[4][];
 				for (var i = 0; i < fast_ac.Length; ++i)
 				{
-					fast_ac[i] = (short*) stbi__malloc((1 << STBI__ZFAST_BITS) * sizeof(short));
+					fast_ac[i] = new short[1 << STBI__ZFAST_BITS];
 				}
 
-				dequant = new ushort *[4];
+				dequant = new ushort [4][];
 				for (var i = 0; i < dequant.Length; ++i)
 				{
-					dequant[i] = (ushort*) stbi__malloc(64 * sizeof(ushort));
+					dequant[i] = new ushort[64];
 				}
 			}
 		};

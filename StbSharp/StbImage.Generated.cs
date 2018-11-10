@@ -32,15 +32,14 @@ namespace StbSharp
 			public int channel_order;
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
-		public struct stbi__huffman
+		public class stbi__huffman
 		{
-			public fixed byte fast[1 << 9];
-			public fixed ushort code[256];
-			public fixed byte values[256];
-			public fixed byte size[257];
-			public fixed uint maxcode[18];
-			public fixed int delta[17];
+			public byte[] fast = new byte[1 << 9];
+			public ushort[] code = new ushort[256];
+			public byte[] values = new byte[256];
+			public byte[] size = new byte[257];
+			public uint[] maxcode = new uint[18];
+			public int[] delta = new int[17];
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
@@ -840,7 +839,7 @@ namespace StbSharp
 			return good;
 		}
 
-		public static int stbi__build_huffman(stbi__huffman* h, int* count)
+		public static int stbi__build_huffman(stbi__huffman h, int* count)
 		{
 			int i;
 			int j;
@@ -850,43 +849,46 @@ namespace StbSharp
 			{
 				for (j = (int)(0); (j) < (count[i]); ++j)
 				{
-					h->size[k++] = ((byte)(i + 1));
+					h.size[k++] = ((byte)(i + 1));
 				}
 			}
 
-			h->size[k] = (byte)(0);
+			h.size[k] = (byte)(0);
 			code = (int)(0);
 			k = (int)(0);
 			for (j = (int)(1); j <= 16; ++j)
 			{
-				h->delta[j] = (int)(k - code);
-				if ((h->size[k]) == (j))
+				h.delta[j] = (int)(k - code);
+				if ((h.size[k]) == (j))
 				{
-					while ((h->size[k]) == (j))
+					while ((h.size[k]) == (j))
 					{
-						h->code[k++] = ((ushort)(code++));
+						h.code[k++] = ((ushort)(code++));
 					}
 
 					if ((code - 1) >= (1 << j))
 						return (int)(stbi__err("bad code lengths"));
 				}
 
-				h->maxcode[j] = (uint)(code << (16 - j));
+				h.maxcode[j] = (uint)(code << (16 - j));
 				code <<= 1;
 			}
 
-			h->maxcode[j] = (uint)(0xffffffff);
-			CRuntime.memset(h->fast, (int)(255), (ulong)(1 << 9));
+			h.maxcode[j] = (uint)(0xffffffff);
+			for (i = 0; i < h.fast.Length; ++i)
+			{
+				h.fast[i] = 255;
+			}
 			for (i = (int)(0); (i) < (k); ++i)
 			{
-				int s = (int)(h->size[i]);
+				int s = (int)(h.size[i]);
 				if (s <= 9)
 				{
-					int c = (int)(h->code[i] << (9 - s));
+					int c = (int)(h.code[i] << (9 - s));
 					int m = (int)(1 << (9 - s));
 					for (j = (int)(0); (j) < (m); ++j)
 					{
-						h->fast[c + j] = ((byte)(i));
+						h.fast[c + j] = ((byte)(i));
 					}
 				}
 			}
@@ -894,19 +896,19 @@ namespace StbSharp
 			return (int)(1);
 		}
 
-		public static void stbi__build_fast_ac(short* fast_ac, stbi__huffman* h)
+		public static void stbi__build_fast_ac(short[] fast_ac, stbi__huffman h)
 		{
 			int i;
 			for (i = (int)(0); (i) < (1 << 9); ++i)
 			{
-				byte fast = (byte)(h->fast[i]);
+				byte fast = (byte)(h.fast[i]);
 				fast_ac[i] = (short)(0);
 				if ((fast) < (255))
 				{
-					int rs = (int)(h->values[fast]);
+					int rs = (int)(h.values[fast]);
 					int run = (int)((rs >> 4) & 15);
 					int magbits = (int)(rs & 15);
-					int len = (int)(h->size[fast]);
+					int len = (int)(h.size[fast]);
 					if (((magbits) != 0) && (len + magbits <= 9))
 					{
 						int k = (int)(((i << len) & ((1 << 9) - 1)) >> (9 - magbits));
@@ -946,7 +948,7 @@ namespace StbSharp
 			} while (j.code_bits <= 24);
 		}
 
-		public static int stbi__jpeg_huff_decode(stbi__jpeg j, stbi__huffman* h)
+		public static int stbi__jpeg_huff_decode(stbi__jpeg j, stbi__huffman h)
 		{
 			uint temp;
 			int c;
@@ -954,21 +956,21 @@ namespace StbSharp
 			if ((j.code_bits) < (16))
 				stbi__grow_buffer_unsafe(j);
 			c = (int)((j.code_buffer >> (32 - 9)) & ((1 << 9) - 1));
-			k = (int)(h->fast[c]);
+			k = (int)(h.fast[c]);
 			if ((k) < (255))
 			{
-				int s = (int)(h->size[k]);
+				int s = (int)(h.size[k]);
 				if ((s) > (j.code_bits))
 					return (int)(-1);
 				j.code_buffer <<= s;
 				j.code_bits -= (int)(s);
-				return (int)(h->values[k]);
+				return (int)(h.values[k]);
 			}
 
 			temp = (uint)(j.code_buffer >> 16);
 			for (k = (int)(9 + 1); ; ++k)
 			{
-				if ((temp) < (h->maxcode[k]))
+				if ((temp) < (h.maxcode[k]))
 					break;
 			}
 
@@ -980,10 +982,10 @@ namespace StbSharp
 
 			if ((k) > (j.code_bits))
 				return (int)(-1);
-			c = (int)(((j.code_buffer >> (32 - k)) & stbi__bmask[k]) + h->delta[k]);
+			c = (int)(((j.code_buffer >> (32 - k)) & stbi__bmask[k]) + h.delta[k]);
 			j.code_bits -= (int)(k);
 			j.code_buffer <<= k;
-			return (int)(h->values[c]);
+			return (int)(h.values[c]);
 		}
 
 		public static int stbi__extend_receive(stbi__jpeg j, int n)
@@ -1023,8 +1025,8 @@ namespace StbSharp
 			return (int)(k & 0x80000000);
 		}
 
-		public static int stbi__jpeg_decode_block(stbi__jpeg j, short* data, stbi__huffman* hdc, stbi__huffman* hac,
-			short* fac, int b, ushort* dequant)
+		public static int stbi__jpeg_decode_block(stbi__jpeg j, short* data, stbi__huffman hdc, stbi__huffman hac,
+			short[] fac, int b, ushort[] dequant)
 		{
 			int diff;
 			int dc;
@@ -1085,7 +1087,7 @@ namespace StbSharp
 			return (int)(1);
 		}
 
-		public static int stbi__jpeg_decode_block_prog_dc(stbi__jpeg j, short* data, stbi__huffman* hdc, int b)
+		public static int stbi__jpeg_decode_block_prog_dc(stbi__jpeg j, short* data, stbi__huffman hdc, int b)
 		{
 			int diff;
 			int dc;
@@ -1112,7 +1114,7 @@ namespace StbSharp
 			return (int)(1);
 		}
 
-		public static int stbi__jpeg_decode_block_prog_ac(stbi__jpeg j, short* data, stbi__huffman* hac, short* fac)
+		public static int stbi__jpeg_decode_block_prog_ac(stbi__jpeg j, short* data, stbi__huffman hac, short[] fac)
 		{
 			int k;
 			if ((j.spec_start) == (0))
@@ -1476,9 +1478,9 @@ namespace StbSharp
 						{
 							int ha = (int)(z.img_comp[n].ha);
 							if (
-								stbi__jpeg_decode_block(z, data, (stbi__huffman*)z.huff_dc + z.img_comp[n].hd,
-									(stbi__huffman*)z.huff_ac + ha,
-									z.fast_ac[ha], (int)(n), (ushort*)z.dequant[z.img_comp[n].tq]) ==
+								stbi__jpeg_decode_block(z, data, z.huff_dc[z.img_comp[n].hd],
+									z.huff_ac[ha],
+									z.fast_ac[ha], (int)(n), z.dequant[z.img_comp[n].tq]) ==
 								0)
 								return (int)(0);
 							z.idct_block_kernel(z.img_comp[n].data + z.img_comp[n].w2 * j * 8 + i * 8,
@@ -1520,9 +1522,9 @@ namespace StbSharp
 										int ha = (int)(z.img_comp[n].ha);
 										if (
 											stbi__jpeg_decode_block(z, data,
-												(stbi__huffman*)z.huff_dc + z.img_comp[n].hd,
-												(stbi__huffman*)z.huff_ac + ha, z.fast_ac[ha], (int)(n),
-												(ushort*)z.dequant[z.img_comp[n].tq]) == 0)
+												z.huff_dc[z.img_comp[n].hd],
+												z.huff_ac[ha], z.fast_ac[ha], (int)(n),
+												z.dequant[z.img_comp[n].tq]) == 0)
 											return (int)(0);
 										z.idct_block_kernel(z.img_comp[n].data + z.img_comp[n].w2 * y2 + x2,
 											(int)(z.img_comp[n].w2), data);
@@ -1561,14 +1563,13 @@ namespace StbSharp
 							if ((z.spec_start) == (0))
 							{
 								if (stbi__jpeg_decode_block_prog_dc(z, data,
-										(stbi__huffman*)z.huff_dc + z.img_comp[n].hd, (int)(n)) == 0)
+										z.huff_dc[z.img_comp[n].hd], (int)(n)) == 0)
 									return (int)(0);
 							}
 							else
 							{
 								int ha = (int)(z.img_comp[n].ha);
-								if (stbi__jpeg_decode_block_prog_ac(z, data, (stbi__huffman*)z.huff_ac + ha,
-										z.fast_ac[ha]) == 0)
+								if (stbi__jpeg_decode_block_prog_ac(z, data, z.huff_ac[ha], z.fast_ac[ha]) == 0)
 									return (int)(0);
 							}
 
@@ -1607,7 +1608,7 @@ namespace StbSharp
 										int y2 = (int)(j * z.img_comp[n].v + y);
 										short* data = z.img_comp[n].coeff + 64 * (x2 + y2 * z.img_comp[n].coeff_w);
 										if (stbi__jpeg_decode_block_prog_dc(z, data,
-												(stbi__huffman*)z.huff_dc + z.img_comp[n].hd, (int)(n)) == 0)
+												z.huff_dc[z.img_comp[n].hd], (int)(n)) == 0)
 											return (int)(0);
 									}
 								}
@@ -1630,7 +1631,7 @@ namespace StbSharp
 
 		}
 
-		public static void stbi__jpeg_dequantize(short* data, ushort* dequant)
+		public static void stbi__jpeg_dequantize(short* data, ushort[] dequant)
 		{
 			int i;
 			for (i = (int)(0); (i) < (64); ++i)
@@ -1655,7 +1656,7 @@ namespace StbSharp
 						for (i = (int)(0); (i) < (w); ++i)
 						{
 							short* data = z.img_comp[n].coeff + 64 * (i + j * z.img_comp[n].coeff_w);
-							stbi__jpeg_dequantize(data, (ushort*)z.dequant[z.img_comp[n].tq]);
+							stbi__jpeg_dequantize(data, z.dequant[z.img_comp[n].tq]);
 							z.idct_block_kernel(z.img_comp[n].data + z.img_comp[n].w2 * j * 8 + i * 8,
 								(int)(z.img_comp[n].w2), data);
 						}
@@ -1704,7 +1705,7 @@ namespace StbSharp
 					L = (int)(stbi__get16be(z.s) - 2);
 					while ((L) > (0))
 					{
-						byte* v;
+						byte[] v;
 						int* sizes = stackalloc int[16];
 						int i;
 						int n = (int)(0);
@@ -1722,17 +1723,17 @@ namespace StbSharp
 						L -= (int)(17);
 						if ((tc) == (0))
 						{
-							if (stbi__build_huffman((stbi__huffman*)z.huff_dc + th, sizes) == 0)
+							if (stbi__build_huffman(z.huff_dc[th], sizes) == 0)
 								return (int)(0);
-							stbi__huffman* h = (stbi__huffman*)z.huff_dc + th;
-							v = h->values;
+							stbi__huffman h = z.huff_dc[th];
+							v = h.values;
 						}
 						else
 						{
-							if (stbi__build_huffman((stbi__huffman*)z.huff_ac + th, sizes) == 0)
+							if (stbi__build_huffman(z.huff_ac[th], sizes) == 0)
 								return (int)(0);
-							stbi__huffman* h = (stbi__huffman*)z.huff_ac + th;
-							v = h->values;
+							stbi__huffman h = z.huff_ac[th];
+							v = h.values;
 						}
 
 						for (i = (int)(0); (i) < (n); ++i)
@@ -1741,7 +1742,7 @@ namespace StbSharp
 						}
 
 						if (tc != 0)
-							stbi__build_fast_ac(z.fast_ac[th], (stbi__huffman*)z.huff_ac + th);
+							stbi__build_fast_ac(z.fast_ac[th], z.huff_ac[th]);
 						L -= (int)(n);
 					}
 
