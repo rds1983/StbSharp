@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace StbSharp
+namespace StbTrueTypeSharp
 {
 	unsafe partial class StbTrueType
 	{
@@ -9,19 +9,23 @@ namespace StbSharp
 		public const int STBTT_vline = 2;
 		public const int STBTT_vcurve = 3;
 		public const int STBTT_vcubic = 4;
+
 		public const int STBTT_PLATFORM_ID_UNICODE = 0;
 		public const int STBTT_PLATFORM_ID_MAC = 1;
 		public const int STBTT_PLATFORM_ID_ISO = 2;
 		public const int STBTT_PLATFORM_ID_MICROSOFT = 3;
+
 		public const int STBTT_UNICODE_EID_UNICODE_1_0 = 0;
 		public const int STBTT_UNICODE_EID_UNICODE_1_1 = 1;
 		public const int STBTT_UNICODE_EID_ISO_10646 = 2;
 		public const int STBTT_UNICODE_EID_UNICODE_2_0_BMP = 3;
 		public const int STBTT_UNICODE_EID_UNICODE_2_0_FULL = 4;
+
 		public const int STBTT_MS_EID_SYMBOL = 0;
 		public const int STBTT_MS_EID_UNICODE_BMP = 1;
 		public const int STBTT_MS_EID_SHIFTJIS = 2;
 		public const int STBTT_MS_EID_UNICODE_FULL = 10;
+
 		public const int STBTT_MAC_EID_ROMAN = 0;
 		public const int STBTT_MAC_EID_ARABIC = 4;
 		public const int STBTT_MAC_EID_JAPANESE = 1;
@@ -30,6 +34,7 @@ namespace StbSharp
 		public const int STBTT_MAC_EID_GREEK = 6;
 		public const int STBTT_MAC_EID_KOREAN = 3;
 		public const int STBTT_MAC_EID_RUSSIAN = 7;
+
 		public const int STBTT_MS_LANG_ENGLISH = 0x0409;
 		public const int STBTT_MS_LANG_ITALIAN = 0x0410;
 		public const int STBTT_MS_LANG_CHINESE = 0x0804;
@@ -42,6 +47,7 @@ namespace StbSharp
 		public const int STBTT_MS_LANG_SPANISH = 0x0409;
 		public const int STBTT_MS_LANG_HEBREW = 0x040d;
 		public const int STBTT_MS_LANG_SWEDISH = 0x041D;
+
 		public const int STBTT_MAC_LANG_ENGLISH = 0;
 		public const int STBTT_MAC_LANG_JAPANESE = 11;
 		public const int STBTT_MAC_LANG_ARABIC = 12;
@@ -56,8 +62,9 @@ namespace StbSharp
 		public const int STBTT_MAC_LANG_CHINESE_SIMPLIFIED = 33;
 		public const int STBTT_MAC_LANG_ITALIAN = 3;
 		public const int STBTT_MAC_LANG_CHINESE_TRAD = 19;
+
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt__buf
+		public struct stbtt__buf
 		{
 			public byte* data;
 			public int cursor;
@@ -65,7 +72,7 @@ namespace StbSharp
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt_bakedchar
+		public struct stbtt_bakedchar
 		{
 			public ushort x0;
 			public ushort y0;
@@ -77,7 +84,7 @@ namespace StbSharp
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt_aligned_quad
+		public struct stbtt_aligned_quad
 		{
 			public float x0;
 			public float y0;
@@ -90,7 +97,7 @@ namespace StbSharp
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt_packedchar
+		public struct stbtt_packedchar
 		{
 			public ushort x0;
 			public ushort y0;
@@ -104,7 +111,7 @@ namespace StbSharp
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt_pack_range
+		public struct stbtt_pack_range
 		{
 			public float font_size;
 			public int first_unicode_codepoint_in_range;
@@ -115,8 +122,7 @@ namespace StbSharp
 			public byte v_oversample;
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt_pack_context
+		public class stbtt_pack_context
 		{
 			public void* user_allocator_context;
 			public void* pack_info;
@@ -124,14 +130,14 @@ namespace StbSharp
 			public int height;
 			public int stride_in_bytes;
 			public int padding;
+			public int skip_missing;
 			public uint h_oversample;
 			public uint v_oversample;
 			public byte* pixels;
 			public void* nodes;
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt_fontinfo
+		public class stbtt_fontinfo
 		{
 			public void* userdata;
 			public byte* data;
@@ -146,16 +152,16 @@ namespace StbSharp
 			public int gpos;
 			public int index_map;
 			public int indexToLocFormat;
-			public stbtt__buf cff;
-			public stbtt__buf charstrings;
-			public stbtt__buf gsubrs;
-			public stbtt__buf subrs;
-			public stbtt__buf fontdicts;
-			public stbtt__buf fdselect;
+			public stbtt__buf cff = new stbtt__buf();
+			public stbtt__buf charstrings = new stbtt__buf();
+			public stbtt__buf gsubrs = new stbtt__buf();
+			public stbtt__buf subrs = new stbtt__buf();
+			public stbtt__buf fontdicts = new stbtt__buf();
+			public stbtt__buf fdselect = new stbtt__buf();
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt_vertex
+		public struct stbtt_vertex
 		{
 			public short x;
 			public short y;
@@ -168,7 +174,7 @@ namespace StbSharp
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt__bitmap
+		public struct stbtt__bitmap
 		{
 			public int w;
 			public int h;
@@ -177,7 +183,7 @@ namespace StbSharp
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt__csctx
+		public struct stbtt__csctx
 		{
 			public int bounds;
 			public int started;
@@ -194,13 +200,13 @@ namespace StbSharp
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt__hheap_chunk
+		public struct stbtt__hheap_chunk
 		{
 			public stbtt__hheap_chunk* next;
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt__hheap
+		public struct stbtt__hheap
 		{
 			public stbtt__hheap_chunk* head;
 			public void* first_free;
@@ -208,7 +214,7 @@ namespace StbSharp
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt__edge
+		public struct stbtt__edge
 		{
 			public float x0;
 			public float y0;
@@ -218,7 +224,7 @@ namespace StbSharp
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt__active_edge
+		public struct stbtt__active_edge
 		{
 			public stbtt__active_edge* next;
 			public float fx;
@@ -230,14 +236,14 @@ namespace StbSharp
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbtt__point
+		public struct stbtt__point
 		{
 			public float x;
 			public float y;
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbrp_context
+		public struct stbrp_context
 		{
 			public int width;
 			public int height;
@@ -247,13 +253,13 @@ namespace StbSharp
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbrp_node
+		public struct stbrp_node
 		{
 			public byte x;
 		}
 
 		[StructLayout(LayoutKind.Sequential)]
-		public unsafe partial struct stbrp_rect
+		public struct stbrp_rect
 		{
 			public int x;
 			public int y;
@@ -290,7 +296,7 @@ namespace StbSharp
 		public static uint stbtt__buf_get(stbtt__buf* b, int n)
 		{
 			uint v = (uint)(0);
-			int i;
+			int i = 0;
 			for (i = (int)(0); (i) < (n); i++)
 			{
 				v = (uint)((v << 8) | stbtt__buf_get8(b));
@@ -319,9 +325,9 @@ namespace StbSharp
 
 		public static stbtt__buf stbtt__cff_get_index(stbtt__buf* b)
 		{
-			int count;
-			int start;
-			int offsize;
+			int count = 0;
+			int start = 0;
+			int offsize = 0;
 			start = (int)(b->cursor);
 			count = (int)(stbtt__buf_get((b), (int)(2)));
 			if ((count) != 0)
@@ -352,7 +358,7 @@ namespace StbSharp
 
 		public static void stbtt__cff_skip_operand(stbtt__buf* b)
 		{
-			int v;
+			int v = 0;
 			int b0 = (int)(stbtt__buf_peek8(b));
 			if ((b0) == (30))
 			{
@@ -377,8 +383,8 @@ namespace StbSharp
 			while ((b->cursor) < (b->size))
 			{
 				int start = (int)(b->cursor);
-				int end;
-				int op;
+				int end = 0;
+				int op = 0;
 				while ((stbtt__buf_peek8(b)) >= (28))
 				{
 					stbtt__cff_skip_operand(b);
@@ -395,7 +401,7 @@ namespace StbSharp
 
 		public static void stbtt__dict_get_ints(stbtt__buf* b, int key, int outcount, uint* _out_)
 		{
-			int i;
+			int i = 0;
 			stbtt__buf operands = (stbtt__buf)(stbtt__dict_get(b, (int)(key)));
 			for (i = (int)(0); ((i) < (outcount)) && ((operands.cursor) < (operands.size)); i++)
 			{
@@ -411,10 +417,10 @@ namespace StbSharp
 
 		public static stbtt__buf stbtt__cff_index_get(stbtt__buf b, int i)
 		{
-			int count;
-			int offsize;
-			int start;
-			int end;
+			int count = 0;
+			int offsize = 0;
+			int start = 0;
+			int end = 0;
 			stbtt__buf_seek(&b, (int)(0));
 			count = (int)(stbtt__buf_get((&b), (int)(2)));
 			offsize = (int)(stbtt__buf_get8(&b));
@@ -511,28 +517,28 @@ namespace StbSharp
 			return (stbtt__buf)(stbtt__cff_get_index(&cff));
 		}
 
-		public static int stbtt_InitFont_internal(stbtt_fontinfo* info, byte* data, int fontstart)
+		public static int stbtt_InitFont_internal(stbtt_fontinfo info, byte* data, int fontstart)
 		{
-			uint cmap;
-			uint t;
-			int i;
-			int numTables;
-			info->data = data;
-			info->fontstart = (int)(fontstart);
-			info->cff = (stbtt__buf)(stbtt__new_buf((null), (ulong)(0)));
+			uint cmap = 0;
+			uint t = 0;
+			int i = 0;
+			int numTables = 0;
+			info.data = data;
+			info.fontstart = (int)(fontstart);
+			info.cff = (stbtt__buf)(stbtt__new_buf((null), (ulong)(0)));
 			cmap = (uint)(stbtt__find_table(data, (uint)(fontstart), "cmap"));
-			info->loca = (int)(stbtt__find_table(data, (uint)(fontstart), "loca"));
-			info->head = (int)(stbtt__find_table(data, (uint)(fontstart), "head"));
-			info->glyf = (int)(stbtt__find_table(data, (uint)(fontstart), "glyf"));
-			info->hhea = (int)(stbtt__find_table(data, (uint)(fontstart), "hhea"));
-			info->hmtx = (int)(stbtt__find_table(data, (uint)(fontstart), "hmtx"));
-			info->kern = (int)(stbtt__find_table(data, (uint)(fontstart), "kern"));
-			info->gpos = (int)(stbtt__find_table(data, (uint)(fontstart), "GPOS"));
-			if ((((cmap == 0) || (info->head == 0)) || (info->hhea == 0)) || (info->hmtx == 0))
+			info.loca = (int)(stbtt__find_table(data, (uint)(fontstart), "loca"));
+			info.head = (int)(stbtt__find_table(data, (uint)(fontstart), "head"));
+			info.glyf = (int)(stbtt__find_table(data, (uint)(fontstart), "glyf"));
+			info.hhea = (int)(stbtt__find_table(data, (uint)(fontstart), "hhea"));
+			info.hmtx = (int)(stbtt__find_table(data, (uint)(fontstart), "hmtx"));
+			info.kern = (int)(stbtt__find_table(data, (uint)(fontstart), "kern"));
+			info.gpos = (int)(stbtt__find_table(data, (uint)(fontstart), "GPOS"));
+			if ((((cmap == 0) || (info.head == 0)) || (info.hhea == 0)) || (info.hmtx == 0))
 				return (int)(0);
-			if ((info->glyf) != 0)
+			if ((info.glyf) != 0)
 			{
-				if (info->loca == 0)
+				if (info.loca == 0)
 					return (int)(0);
 			}
 			else
@@ -544,26 +550,26 @@ namespace StbSharp
 				uint charstrings = (uint)(0);
 				uint fdarrayoff = (uint)(0);
 				uint fdselectoff = (uint)(0);
-				uint cff;
+				uint cff = 0;
 				cff = (uint)(stbtt__find_table(data, (uint)(fontstart), "CFF "));
 				if (cff == 0)
 					return (int)(0);
-				info->fontdicts = (stbtt__buf)(stbtt__new_buf((null), (ulong)(0)));
-				info->fdselect = (stbtt__buf)(stbtt__new_buf((null), (ulong)(0)));
-				info->cff = (stbtt__buf)(stbtt__new_buf(data + cff, (ulong)(512 * 1024 * 1024)));
-				b = (stbtt__buf)(info->cff);
+				info.fontdicts = (stbtt__buf)(stbtt__new_buf((null), (ulong)(0)));
+				info.fdselect = (stbtt__buf)(stbtt__new_buf((null), (ulong)(0)));
+				info.cff = (stbtt__buf)(stbtt__new_buf(data + cff, (ulong)(512 * 1024 * 1024)));
+				b = (stbtt__buf)(info.cff);
 				stbtt__buf_skip(&b, (int)(2));
 				stbtt__buf_seek(&b, (int)(stbtt__buf_get8(&b)));
 				stbtt__cff_get_index(&b);
 				topdictidx = (stbtt__buf)(stbtt__cff_get_index(&b));
 				topdict = (stbtt__buf)(stbtt__cff_index_get((stbtt__buf)(topdictidx), (int)(0)));
 				stbtt__cff_get_index(&b);
-				info->gsubrs = (stbtt__buf)(stbtt__cff_get_index(&b));
+				info.gsubrs = (stbtt__buf)(stbtt__cff_get_index(&b));
 				stbtt__dict_get_ints(&topdict, (int)(17), (int)(1), &charstrings);
 				stbtt__dict_get_ints(&topdict, (int)(0x100 | 6), (int)(1), &cstype);
 				stbtt__dict_get_ints(&topdict, (int)(0x100 | 36), (int)(1), &fdarrayoff);
 				stbtt__dict_get_ints(&topdict, (int)(0x100 | 37), (int)(1), &fdselectoff);
-				info->subrs = (stbtt__buf)(stbtt__get_subrs((stbtt__buf)(b), (stbtt__buf)(topdict)));
+				info.subrs = (stbtt__buf)(stbtt__get_subrs((stbtt__buf)(b), (stbtt__buf)(topdict)));
 				if (cstype != 2)
 					return (int)(0);
 				if ((charstrings) == (0))
@@ -573,20 +579,20 @@ namespace StbSharp
 					if (fdselectoff == 0)
 						return (int)(0);
 					stbtt__buf_seek(&b, (int)(fdarrayoff));
-					info->fontdicts = (stbtt__buf)(stbtt__cff_get_index(&b));
-					info->fdselect = (stbtt__buf)(stbtt__buf_range(&b, (int)(fdselectoff), (int)(b.size - fdselectoff)));
+					info.fontdicts = (stbtt__buf)(stbtt__cff_get_index(&b));
+					info.fdselect = (stbtt__buf)(stbtt__buf_range(&b, (int)(fdselectoff), (int)(b.size - fdselectoff)));
 				}
 				stbtt__buf_seek(&b, (int)(charstrings));
-				info->charstrings = (stbtt__buf)(stbtt__cff_get_index(&b));
+				info.charstrings = (stbtt__buf)(stbtt__cff_get_index(&b));
 			}
 
 			t = (uint)(stbtt__find_table(data, (uint)(fontstart), "maxp"));
 			if ((t) != 0)
-				info->numGlyphs = (int)(ttUSHORT(data + t + 4));
+				info.numGlyphs = (int)(ttUSHORT(data + t + 4));
 			else
-				info->numGlyphs = (int)(0xffff);
+				info.numGlyphs = (int)(0xffff);
 			numTables = (int)(ttUSHORT(data + cmap + 2));
-			info->index_map = (int)(0);
+			info.index_map = (int)(0);
 			for (i = (int)(0); (i) < (numTables); ++i)
 			{
 				uint encoding_record = (uint)(cmap + 4 + 8 * i);
@@ -597,25 +603,25 @@ namespace StbSharp
 						{
 							case STBTT_MS_EID_UNICODE_BMP:
 							case STBTT_MS_EID_UNICODE_FULL:
-								info->index_map = (int)(cmap + ttULONG(data + encoding_record + 4));
+								info.index_map = (int)(cmap + ttULONG(data + encoding_record + 4));
 								break;
 						}
 						break;
 					case STBTT_PLATFORM_ID_UNICODE:
-						info->index_map = (int)(cmap + ttULONG(data + encoding_record + 4));
+						info.index_map = (int)(cmap + ttULONG(data + encoding_record + 4));
 						break;
 				}
 			}
-			if ((info->index_map) == (0))
+			if ((info.index_map) == (0))
 				return (int)(0);
-			info->indexToLocFormat = (int)(ttUSHORT(data + info->head + 50));
+			info.indexToLocFormat = (int)(ttUSHORT(data + info.head + 50));
 			return (int)(1);
 		}
 
-		public static int stbtt_FindGlyphIndex(stbtt_fontinfo* info, int unicode_codepoint)
+		public static int stbtt_FindGlyphIndex(stbtt_fontinfo info, int unicode_codepoint)
 		{
-			byte* data = info->data;
-			uint index_map = (uint)(info->index_map);
+			byte* data = info.data;
+			uint index_map = (uint)(info.index_map);
 			ushort format = (ushort)(ttUSHORT(data + index_map + 0));
 			if ((format) == (0))
 			{
@@ -651,7 +657,7 @@ namespace StbSharp
 				search -= (uint)(2);
 				while ((entrySelector) != 0)
 				{
-					ushort end;
+					ushort end = 0;
 					searchRange >>= 1;
 					end = (ushort)(ttUSHORT(data + search + searchRange * 2));
 					if ((unicode_codepoint) > (end))
@@ -660,8 +666,8 @@ namespace StbSharp
 				}
 				search += (uint)(2);
 				{
-					ushort offset;
-					ushort start;
+					ushort offset = 0;
+					ushort start = 0;
 					ushort item = (ushort)((search - endCount) >> 1);
 					start = (ushort)(ttUSHORT(data + index_map + 14 + segcount * 2 + 2 + 2 * item));
 					if ((unicode_codepoint) < (start))
@@ -675,8 +681,8 @@ namespace StbSharp
 			else if (((format) == (12)) || ((format) == (13)))
 			{
 				uint ngroups = (uint)(ttULONG(data + index_map + 12));
-				int low;
-				int high;
+				int low = 0;
+				int high = 0;
 				low = (int)(0);
 				high = ((int)(ngroups));
 				while ((low) < (high))
@@ -703,7 +709,7 @@ namespace StbSharp
 			return (int)(0);
 		}
 
-		public static int stbtt_GetCodepointShape(stbtt_fontinfo* info, int unicode_codepoint, stbtt_vertex** vertices)
+		public static int stbtt_GetCodepointShape(stbtt_fontinfo info, int unicode_codepoint, stbtt_vertex** vertices)
 		{
 			return (int)(stbtt_GetGlyphShape(info, (int)(stbtt_FindGlyphIndex(info, (int)(unicode_codepoint))), vertices));
 		}
@@ -717,31 +723,31 @@ namespace StbSharp
 			v->cy = ((short)(cy));
 		}
 
-		public static int stbtt__GetGlyfOffset(stbtt_fontinfo* info, int glyph_index)
+		public static int stbtt__GetGlyfOffset(stbtt_fontinfo info, int glyph_index)
 		{
-			int g1;
-			int g2;
-			if ((glyph_index) >= (info->numGlyphs))
+			int g1 = 0;
+			int g2 = 0;
+			if ((glyph_index) >= (info.numGlyphs))
 				return (int)(-1);
-			if ((info->indexToLocFormat) >= (2))
+			if ((info.indexToLocFormat) >= (2))
 				return (int)(-1);
-			if ((info->indexToLocFormat) == (0))
+			if ((info.indexToLocFormat) == (0))
 			{
-				g1 = (int)(info->glyf + ttUSHORT(info->data + info->loca + glyph_index * 2) * 2);
-				g2 = (int)(info->glyf + ttUSHORT(info->data + info->loca + glyph_index * 2 + 2) * 2);
+				g1 = (int)(info.glyf + ttUSHORT(info.data + info.loca + glyph_index * 2) * 2);
+				g2 = (int)(info.glyf + ttUSHORT(info.data + info.loca + glyph_index * 2 + 2) * 2);
 			}
 			else
 			{
-				g1 = (int)(info->glyf + ttULONG(info->data + info->loca + glyph_index * 4));
-				g2 = (int)(info->glyf + ttULONG(info->data + info->loca + glyph_index * 4 + 4));
+				g1 = (int)(info.glyf + ttULONG(info.data + info.loca + glyph_index * 4));
+				g2 = (int)(info.glyf + ttULONG(info.data + info.loca + glyph_index * 4 + 4));
 			}
 
 			return (int)((g1) == (g2) ? -1 : g1);
 		}
 
-		public static int stbtt_GetGlyphBox(stbtt_fontinfo* info, int glyph_index, int* x0, int* y0, int* x1, int* y1)
+		public static int stbtt_GetGlyphBox(stbtt_fontinfo info, int glyph_index, int* x0, int* y0, int* x1, int* y1)
 		{
-			if ((info->cff.size) != 0)
+			if ((info.cff.size) != 0)
 			{
 				stbtt__GetGlyphInfoT2(info, (int)(glyph_index), x0, y0, x1, y1);
 			}
@@ -751,33 +757,33 @@ namespace StbSharp
 				if ((g) < (0))
 					return (int)(0);
 				if ((x0) != null)
-					*x0 = (int)(ttSHORT(info->data + g + 2));
+					*x0 = (int)(ttSHORT(info.data + g + 2));
 				if ((y0) != null)
-					*y0 = (int)(ttSHORT(info->data + g + 4));
+					*y0 = (int)(ttSHORT(info.data + g + 4));
 				if ((x1) != null)
-					*x1 = (int)(ttSHORT(info->data + g + 6));
+					*x1 = (int)(ttSHORT(info.data + g + 6));
 				if ((y1) != null)
-					*y1 = (int)(ttSHORT(info->data + g + 8));
+					*y1 = (int)(ttSHORT(info.data + g + 8));
 			}
 
 			return (int)(1);
 		}
 
-		public static int stbtt_GetCodepointBox(stbtt_fontinfo* info, int codepoint, int* x0, int* y0, int* x1, int* y1)
+		public static int stbtt_GetCodepointBox(stbtt_fontinfo info, int codepoint, int* x0, int* y0, int* x1, int* y1)
 		{
 			return (int)(stbtt_GetGlyphBox(info, (int)(stbtt_FindGlyphIndex(info, (int)(codepoint))), x0, y0, x1, y1));
 		}
 
-		public static int stbtt_IsGlyphEmpty(stbtt_fontinfo* info, int glyph_index)
+		public static int stbtt_IsGlyphEmpty(stbtt_fontinfo info, int glyph_index)
 		{
-			short numberOfContours;
-			int g;
-			if ((info->cff.size) != 0)
+			short numberOfContours = 0;
+			int g = 0;
+			if ((info.cff.size) != 0)
 				return (int)((stbtt__GetGlyphInfoT2(info, (int)(glyph_index), (null), (null), (null), (null))) == (0) ? 1 : 0);
 			g = (int)(stbtt__GetGlyfOffset(info, (int)(glyph_index)));
 			if ((g) < (0))
 				return (int)(1);
-			numberOfContours = (short)(ttSHORT(info->data + g));
+			numberOfContours = (short)(ttSHORT(info.data + g));
 			return (int)((numberOfContours) == (0) ? 1 : 0);
 		}
 
@@ -800,11 +806,11 @@ namespace StbSharp
 			return (int)(num_vertices);
 		}
 
-		public static int stbtt__GetGlyphShapeTT(stbtt_fontinfo* info, int glyph_index, stbtt_vertex** pvertices)
+		public static int stbtt__GetGlyphShapeTT(stbtt_fontinfo info, int glyph_index, stbtt_vertex** pvertices)
 		{
-			short numberOfContours;
+			short numberOfContours = 0;
 			byte* endPtsOfContours;
-			byte* data = info->data;
+			byte* data = info.data;
 			stbtt_vertex* vertices = null;
 			int num_vertices = (int)(0);
 			int g = (int)(stbtt__GetGlyfOffset(info, (int)(glyph_index)));
@@ -815,24 +821,24 @@ namespace StbSharp
 			if ((numberOfContours) > (0))
 			{
 				byte flags = (byte)(0);
-				byte flagcount;
-				int ins;
-				int i;
+				byte flagcount = 0;
+				int ins = 0;
+				int i = 0;
 				int j = (int)(0);
-				int m;
-				int n;
-				int next_move;
+				int m = 0;
+				int n = 0;
+				int next_move = 0;
 				int was_off = (int)(0);
-				int off;
+				int off = 0;
 				int start_off = (int)(0);
-				int x;
-				int y;
-				int cx;
-				int cy;
-				int sx;
-				int sy;
-				int scx;
-				int scy;
+				int x = 0;
+				int y = 0;
+				int cx = 0;
+				int cy = 0;
+				int sx = 0;
+				int sy = 0;
+				int scx = 0;
+				int scy = 0;
 				byte* points;
 				endPtsOfContours = (data + g + 10);
 				ins = (int)(ttUSHORT(data + g + 10 + numberOfContours * 2));
@@ -963,10 +969,10 @@ namespace StbSharp
 				vertices = null;
 				while ((more) != 0)
 				{
-					ushort flags;
-					ushort gidx;
+					ushort flags = 0;
+					ushort gidx = 0;
 					int comp_num_verts = (int)(0);
-					int i;
+					int i = 0;
 					stbtt_vertex* comp_verts = null;
 					stbtt_vertex* tmp = null;
 					float* mtx = stackalloc float[6];
@@ -976,8 +982,8 @@ namespace StbSharp
 					mtx[3] = (float)(1);
 					mtx[4] = (float)(0);
 					mtx[5] = (float)(0);
-					float m;
-					float n;
+					float m = 0;
+					float n = 0;
 					flags = (ushort)(ttSHORT(comp));
 					comp += 2;
 					gidx = (ushort)(ttSHORT(comp));
@@ -1035,8 +1041,8 @@ namespace StbSharp
 						for (i = (int)(0); (i) < (comp_num_verts); ++i)
 						{
 							stbtt_vertex* v = &comp_verts[i];
-							short x;
-							short y;
+							short x = 0;
+							short y = 0;
 							x = (short)(v->x);
 							y = (short)(v->y);
 							v->x = ((short)(m * (mtx[0] * x + mtx[2] * y + mtx[4])));
@@ -1158,16 +1164,16 @@ namespace StbSharp
 			return (stbtt__buf)(stbtt__cff_index_get((stbtt__buf)(idx), (int)(n)));
 		}
 
-		public static stbtt__buf stbtt__cid_get_glyph_subrs(stbtt_fontinfo* info, int glyph_index)
+		public static stbtt__buf stbtt__cid_get_glyph_subrs(stbtt_fontinfo info, int glyph_index)
 		{
-			stbtt__buf fdselect = (stbtt__buf)(info->fdselect);
-			int nranges;
-			int start;
-			int end;
-			int v;
-			int fmt;
+			stbtt__buf fdselect = (stbtt__buf)(info.fdselect);
+			int nranges = 0;
+			int start = 0;
+			int end = 0;
+			int v = 0;
+			int fmt = 0;
 			int fdselector = (int)(-1);
-			int i;
+			int i = 0;
 			stbtt__buf_seek(&fdselect, (int)(0));
 			fmt = (int)(stbtt__buf_get8(&fdselect));
 			if ((fmt) == (0))
@@ -1194,26 +1200,26 @@ namespace StbSharp
 
 			if ((fdselector) == (-1))
 				stbtt__new_buf((null), (ulong)(0));
-			return (stbtt__buf)(stbtt__get_subrs((stbtt__buf)(info->cff), (stbtt__buf)(stbtt__cff_index_get((stbtt__buf)(info->fontdicts), (int)(fdselector)))));
+			return (stbtt__buf)(stbtt__get_subrs((stbtt__buf)(info.cff), (stbtt__buf)(stbtt__cff_index_get((stbtt__buf)(info.fontdicts), (int)(fdselector)))));
 		}
 
-		public static int stbtt__run_charstring(stbtt_fontinfo* info, int glyph_index, stbtt__csctx* c)
+		public static int stbtt__run_charstring(stbtt_fontinfo info, int glyph_index, stbtt__csctx* c)
 		{
 			int in_header = (int)(1);
 			int maskbits = (int)(0);
 			int subr_stack_height = (int)(0);
 			int sp = (int)(0);
-			int v;
-			int i;
-			int b0;
+			int v = 0;
+			int i = 0;
+			int b0 = 0;
 			int has_subrs = (int)(0);
-			int clear_stack;
+			int clear_stack = 0;
 			float* s = stackalloc float[48];
 			stbtt__buf* subr_stack = stackalloc stbtt__buf[10];
-			stbtt__buf subrs = (stbtt__buf)(info->subrs);
+			stbtt__buf subrs = (stbtt__buf)(info.subrs);
 			stbtt__buf b = new stbtt__buf();
-			float f;
-			b = (stbtt__buf)(stbtt__cff_index_get((stbtt__buf)(info->charstrings), (int)(glyph_index)));
+			float f = 0;
+			b = (stbtt__buf)(stbtt__cff_index_get((stbtt__buf)(info.charstrings), (int)(glyph_index)));
 			while ((b.cursor) < (b.size))
 			{
 				i = (int)(0);
@@ -1262,66 +1268,46 @@ namespace StbSharp
 						break;
 					case 0x07:
 					case 0x06:
-					{
-						int gotoVlineTo = (int)(0);
-						if ((b0) == (0x07))
-						{
-							if ((sp) < (1))
-								return (int)(0);
-							gotoVlineTo = (int)(1);
-						}
 						if ((sp) < (1))
 							return (int)(0);
+						int goto_vlineto = (int)((b0) == (0x07) ? 1 : 0);
 						for (; ; )
 						{
-							if (gotoVlineTo == 0)
+							if ((goto_vlineto) == (0))
 							{
 								if ((i) >= (sp))
 									break;
 								stbtt__csctx_rline_to(c, (float)(s[i]), (float)(0));
 								i++;
 							}
-							else
-							{
-								gotoVlineTo = (int)(0);
-							}
+							goto_vlineto = (int)(0);
 							if ((i) >= (sp))
 								break;
 							stbtt__csctx_rline_to(c, (float)(0), (float)(s[i]));
 							i++;
 						}
-					}
-					break;
+						break;
 					case 0x1F:
 					case 0x1E:
-					{
-						int gotoHcurveTo = (int)(0);
-						if ((b0) == (0x1F))
-						{
-							if ((sp) < (4))
-								return (int)(0);
-							gotoHcurveTo = (int)(1);
-						}
+						if ((sp) < (4))
+							return (int)(0);
+						int goto_hvcurveto = (int)((b0) == (0x1F) ? 1 : 0);
 						for (; ; )
 						{
-							if (gotoHcurveTo == 0)
+							if ((goto_hvcurveto) == (0))
 							{
 								if ((i + 3) >= (sp))
 									break;
 								stbtt__csctx_rccurve_to(c, (float)(0), (float)(s[i]), (float)(s[i + 1]), (float)(s[i + 2]), (float)(s[i + 3]), (float)(((sp - i) == (5)) ? s[i + 4] : 0.0f));
 								i += (int)(4);
 							}
-							else
-							{
-								gotoHcurveTo = (int)(0);
-							}
+							goto_hvcurveto = (int)(0);
 							if ((i + 3) >= (sp))
 								break;
 							stbtt__csctx_rccurve_to(c, (float)(s[i]), (float)(0), (float)(s[i + 1]), (float)(s[i + 2]), (float)(((sp - i) == (5)) ? s[i + 4] : 0.0f), (float)(s[i + 3]));
 							i += (int)(4);
 						}
-					}
-					break;
+						break;
 					case 0x08:
 						if ((sp) < (6))
 							return (int)(0);
@@ -1377,7 +1363,7 @@ namespace StbSharp
 						{
 							if (has_subrs == 0)
 							{
-								if ((info->fdselect.size) != 0)
+								if ((info.fdselect.size) != 0)
 									subrs = (stbtt__buf)(stbtt__cid_get_glyph_subrs(info, (int)(glyph_index)));
 								has_subrs = (int)(1);
 							}
@@ -1388,7 +1374,7 @@ namespace StbSharp
 						if ((subr_stack_height) >= (10))
 							return (int)(0);
 						subr_stack[subr_stack_height++] = (stbtt__buf)(b);
-						b = (stbtt__buf)(stbtt__get_subr((stbtt__buf)((b0) == (0x0A) ? subrs : info->gsubrs), (int)(v)));
+						b = (stbtt__buf)(stbtt__get_subr((stbtt__buf)((b0) == (0x0A) ? subrs : info.gsubrs), (int)(v)));
 						if ((b.size) == (0))
 							return (int)(0);
 						b.cursor = (int)(0);
@@ -1405,20 +1391,20 @@ namespace StbSharp
 						return (int)(1);
 					case 0x0C:
 					{
-						float dx1;
-						float dx2;
-						float dx3;
-						float dx4;
-						float dx5;
-						float dx6;
-						float dy1;
-						float dy2;
-						float dy3;
-						float dy4;
-						float dy5;
-						float dy6;
-						float dx;
-						float dy;
+						float dx1 = 0;
+						float dx2 = 0;
+						float dx3 = 0;
+						float dx4 = 0;
+						float dx5 = 0;
+						float dx6 = 0;
+						float dy1 = 0;
+						float dy2 = 0;
+						float dy3 = 0;
+						float dy4 = 0;
+						float dy5 = 0;
+						float dy6 = 0;
+						float dx = 0;
+						float dy = 0;
 						int b1 = (int)(stbtt__buf_get8(&b));
 						switch (b1)
 						{
@@ -1501,7 +1487,7 @@ namespace StbSharp
 							return (int)(0);
 						if ((b0) == (255))
 						{
-							f = (float)((float)(stbtt__buf_get((&b), (int)(4))) / 0x10000);
+							f = (float)((float)((int)(stbtt__buf_get((&b), (int)(4)))) / 0x10000);
 						}
 						else
 						{
@@ -1520,7 +1506,7 @@ namespace StbSharp
 			return (int)(0);
 		}
 
-		public static int stbtt__GetGlyphShapeT2(stbtt_fontinfo* info, int glyph_index, stbtt_vertex** pvertices)
+		public static int stbtt__GetGlyphShapeT2(stbtt_fontinfo info, int glyph_index, stbtt_vertex** pvertices)
 		{
 			stbtt__csctx count_ctx = new stbtt__csctx();
 			count_ctx.bounds = (int)(1);
@@ -1539,7 +1525,7 @@ namespace StbSharp
 			return (int)(0);
 		}
 
-		public static int stbtt__GetGlyphInfoT2(stbtt_fontinfo* info, int glyph_index, int* x0, int* y0, int* x1, int* y1)
+		public static int stbtt__GetGlyphInfoT2(stbtt_fontinfo info, int glyph_index, int* x0, int* y0, int* x1, int* y1)
 		{
 			stbtt__csctx c = new stbtt__csctx();
 			c.bounds = (int)(1);
@@ -1555,43 +1541,43 @@ namespace StbSharp
 			return (int)((r) != 0 ? c.num_vertices : 0);
 		}
 
-		public static int stbtt_GetGlyphShape(stbtt_fontinfo* info, int glyph_index, stbtt_vertex** pvertices)
+		public static int stbtt_GetGlyphShape(stbtt_fontinfo info, int glyph_index, stbtt_vertex** pvertices)
 		{
-			if (info->cff.size == 0)
+			if (info.cff.size == 0)
 				return (int)(stbtt__GetGlyphShapeTT(info, (int)(glyph_index), pvertices));
 			else
 				return (int)(stbtt__GetGlyphShapeT2(info, (int)(glyph_index), pvertices));
 		}
 
-		public static void stbtt_GetGlyphHMetrics(stbtt_fontinfo* info, int glyph_index, int* advanceWidth, int* leftSideBearing)
+		public static void stbtt_GetGlyphHMetrics(stbtt_fontinfo info, int glyph_index, int* advanceWidth, int* leftSideBearing)
 		{
-			ushort numOfLongHorMetrics = (ushort)(ttUSHORT(info->data + info->hhea + 34));
+			ushort numOfLongHorMetrics = (ushort)(ttUSHORT(info.data + info.hhea + 34));
 			if ((glyph_index) < (numOfLongHorMetrics))
 			{
 				if ((advanceWidth) != null)
-					*advanceWidth = (int)(ttSHORT(info->data + info->hmtx + 4 * glyph_index));
+					*advanceWidth = (int)(ttSHORT(info.data + info.hmtx + 4 * glyph_index));
 				if ((leftSideBearing) != null)
-					*leftSideBearing = (int)(ttSHORT(info->data + info->hmtx + 4 * glyph_index + 2));
+					*leftSideBearing = (int)(ttSHORT(info.data + info.hmtx + 4 * glyph_index + 2));
 			}
 			else
 			{
 				if ((advanceWidth) != null)
-					*advanceWidth = (int)(ttSHORT(info->data + info->hmtx + 4 * (numOfLongHorMetrics - 1)));
+					*advanceWidth = (int)(ttSHORT(info.data + info.hmtx + 4 * (numOfLongHorMetrics - 1)));
 				if ((leftSideBearing) != null)
-					*leftSideBearing = (int)(ttSHORT(info->data + info->hmtx + 4 * numOfLongHorMetrics + 2 * (glyph_index - numOfLongHorMetrics)));
+					*leftSideBearing = (int)(ttSHORT(info.data + info.hmtx + 4 * numOfLongHorMetrics + 2 * (glyph_index - numOfLongHorMetrics)));
 			}
 
 		}
 
-		public static int stbtt__GetGlyphKernInfoAdvance(stbtt_fontinfo* info, int glyph1, int glyph2)
+		public static int stbtt__GetGlyphKernInfoAdvance(stbtt_fontinfo info, int glyph1, int glyph2)
 		{
-			byte* data = info->data + info->kern;
-			uint needle;
-			uint straw;
-			int l;
-			int r;
-			int m;
-			if (info->kern == 0)
+			byte* data = info.data + info.kern;
+			uint needle = 0;
+			uint straw = 0;
+			int l = 0;
+			int r = 0;
+			int m = 0;
+			if (info.kern == 0)
 				return (int)(0);
 			if ((ttUSHORT(data + 2)) < (1))
 				return (int)(0);
@@ -1624,13 +1610,13 @@ namespace StbSharp
 					ushort glyphCount = (ushort)(ttUSHORT(coverageTable + 2));
 					int l = (int)(0);
 					int r = (int)(glyphCount - 1);
-					int m;
-					int straw;
+					int m = 0;
+					int straw = 0;
 					int needle = (int)(glyph);
 					while (l <= r)
 					{
 						byte* glyphArray = coverageTable + 4;
-						ushort glyphID;
+						ushort glyphID = 0;
 						m = (int)((l + r) >> 1);
 						glyphID = (ushort)(ttUSHORT(glyphArray + 2 * m));
 						straw = (int)(glyphID);
@@ -1651,9 +1637,9 @@ namespace StbSharp
 					byte* rangeArray = coverageTable + 4;
 					int l = (int)(0);
 					int r = (int)(rangeCount - 1);
-					int m;
-					int strawStart;
-					int strawEnd;
+					int m = 0;
+					int strawStart = 0;
+					int strawEnd = 0;
 					int needle = (int)(glyph);
 					while (l <= r)
 					{
@@ -1704,9 +1690,9 @@ namespace StbSharp
 					byte* classRangeRecords = classDefTable + 4;
 					int l = (int)(0);
 					int r = (int)(classRangeCount - 1);
-					int m;
-					int strawStart;
-					int strawEnd;
+					int m = 0;
+					int strawStart = 0;
+					int strawEnd = 0;
 					int needle = (int)(glyph);
 					while (l <= r)
 					{
@@ -1734,16 +1720,16 @@ namespace StbSharp
 			return (int)(-1);
 		}
 
-		public static int stbtt__GetGlyphGPOSInfoAdvance(stbtt_fontinfo* info, int glyph1, int glyph2)
+		public static int stbtt__GetGlyphGPOSInfoAdvance(stbtt_fontinfo info, int glyph1, int glyph2)
 		{
-			ushort lookupListOffset;
+			ushort lookupListOffset = 0;
 			byte* lookupList;
-			ushort lookupCount;
+			ushort lookupCount = 0;
 			byte* data;
-			int i;
-			if (info->gpos == 0)
+			int i = 0;
+			if (info.gpos == 0)
 				return (int)(0);
-			data = info->data + info->gpos;
+			data = info.data + info.gpos;
 			if (ttUSHORT(data + 0) != 1)
 				return (int)(0);
 			if (ttUSHORT(data + 2) != 0)
@@ -1762,7 +1748,7 @@ namespace StbSharp
 				{
 					case 2:
 					{
-						int sti;
+						int sti = 0;
 						for (sti = (int)(0); (sti) < (subTableCount); sti++)
 						{
 							ushort subtableOffset = (ushort)(ttUSHORT(subTableOffsets + 2 * sti));
@@ -1776,11 +1762,11 @@ namespace StbSharp
 							{
 								case 1:
 								{
-									int l;
-									int r;
-									int m;
-									int straw;
-									int needle;
+									int l = 0;
+									int r = 0;
+									int m = 0;
+									int straw = 0;
+									int needle = 0;
 									ushort valueFormat1 = (ushort)(ttUSHORT(table + 4));
 									ushort valueFormat2 = (ushort)(ttUSHORT(table + 6));
 									int valueRecordPairSizeInBytes = (int)(2);
@@ -1798,7 +1784,7 @@ namespace StbSharp
 									l = (int)(0);
 									while (l <= r)
 									{
-										ushort secondGlyph;
+										ushort secondGlyph = 0;
 										byte* pairValue;
 										m = (int)((l + r) >> 1);
 										pairValue = pairValueArray + (2 + valueRecordPairSizeInBytes) * m;
@@ -1854,83 +1840,83 @@ namespace StbSharp
 			return (int)(0);
 		}
 
-		public static int stbtt_GetGlyphKernAdvance(stbtt_fontinfo* info, int g1, int g2)
+		public static int stbtt_GetGlyphKernAdvance(stbtt_fontinfo info, int g1, int g2)
 		{
 			int xAdvance = (int)(0);
-			if ((info->gpos) != 0)
+			if ((info.gpos) != 0)
 				xAdvance += (int)(stbtt__GetGlyphGPOSInfoAdvance(info, (int)(g1), (int)(g2)));
-			if ((info->kern) != 0)
+			if ((info.kern) != 0)
 				xAdvance += (int)(stbtt__GetGlyphKernInfoAdvance(info, (int)(g1), (int)(g2)));
 			return (int)(xAdvance);
 		}
 
-		public static int stbtt_GetCodepointKernAdvance(stbtt_fontinfo* info, int ch1, int ch2)
+		public static int stbtt_GetCodepointKernAdvance(stbtt_fontinfo info, int ch1, int ch2)
 		{
-			if ((info->kern == 0) && (info->gpos == 0))
+			if ((info.kern == 0) && (info.gpos == 0))
 				return (int)(0);
 			return (int)(stbtt_GetGlyphKernAdvance(info, (int)(stbtt_FindGlyphIndex(info, (int)(ch1))), (int)(stbtt_FindGlyphIndex(info, (int)(ch2)))));
 		}
 
-		public static void stbtt_GetCodepointHMetrics(stbtt_fontinfo* info, int codepoint, int* advanceWidth, int* leftSideBearing)
+		public static void stbtt_GetCodepointHMetrics(stbtt_fontinfo info, int codepoint, int* advanceWidth, int* leftSideBearing)
 		{
 			stbtt_GetGlyphHMetrics(info, (int)(stbtt_FindGlyphIndex(info, (int)(codepoint))), advanceWidth, leftSideBearing);
 		}
 
-		public static void stbtt_GetFontVMetrics(stbtt_fontinfo* info, int* ascent, int* descent, int* lineGap)
+		public static void stbtt_GetFontVMetrics(stbtt_fontinfo info, int* ascent, int* descent, int* lineGap)
 		{
 			if ((ascent) != null)
-				*ascent = (int)(ttSHORT(info->data + info->hhea + 4));
+				*ascent = (int)(ttSHORT(info.data + info.hhea + 4));
 			if ((descent) != null)
-				*descent = (int)(ttSHORT(info->data + info->hhea + 6));
+				*descent = (int)(ttSHORT(info.data + info.hhea + 6));
 			if ((lineGap) != null)
-				*lineGap = (int)(ttSHORT(info->data + info->hhea + 8));
+				*lineGap = (int)(ttSHORT(info.data + info.hhea + 8));
 		}
 
-		public static int stbtt_GetFontVMetricsOS2(stbtt_fontinfo* info, int* typoAscent, int* typoDescent, int* typoLineGap)
+		public static int stbtt_GetFontVMetricsOS2(stbtt_fontinfo info, int* typoAscent, int* typoDescent, int* typoLineGap)
 		{
-			int tab = (int)(stbtt__find_table(info->data, (uint)(info->fontstart), "OS/2"));
+			int tab = (int)(stbtt__find_table(info.data, (uint)(info.fontstart), "OS/2"));
 			if (tab == 0)
 				return (int)(0);
 			if ((typoAscent) != null)
-				*typoAscent = (int)(ttSHORT(info->data + tab + 68));
+				*typoAscent = (int)(ttSHORT(info.data + tab + 68));
 			if ((typoDescent) != null)
-				*typoDescent = (int)(ttSHORT(info->data + tab + 70));
+				*typoDescent = (int)(ttSHORT(info.data + tab + 70));
 			if ((typoLineGap) != null)
-				*typoLineGap = (int)(ttSHORT(info->data + tab + 72));
+				*typoLineGap = (int)(ttSHORT(info.data + tab + 72));
 			return (int)(1);
 		}
 
-		public static void stbtt_GetFontBoundingBox(stbtt_fontinfo* info, int* x0, int* y0, int* x1, int* y1)
+		public static void stbtt_GetFontBoundingBox(stbtt_fontinfo info, int* x0, int* y0, int* x1, int* y1)
 		{
-			*x0 = (int)(ttSHORT(info->data + info->head + 36));
-			*y0 = (int)(ttSHORT(info->data + info->head + 38));
-			*x1 = (int)(ttSHORT(info->data + info->head + 40));
-			*y1 = (int)(ttSHORT(info->data + info->head + 42));
+			*x0 = (int)(ttSHORT(info.data + info.head + 36));
+			*y0 = (int)(ttSHORT(info.data + info.head + 38));
+			*x1 = (int)(ttSHORT(info.data + info.head + 40));
+			*y1 = (int)(ttSHORT(info.data + info.head + 42));
 		}
 
-		public static float stbtt_ScaleForPixelHeight(stbtt_fontinfo* info, float height)
+		public static float stbtt_ScaleForPixelHeight(stbtt_fontinfo info, float height)
 		{
-			int fheight = (int)(ttSHORT(info->data + info->hhea + 4) - ttSHORT(info->data + info->hhea + 6));
+			int fheight = (int)(ttSHORT(info.data + info.hhea + 4) - ttSHORT(info.data + info.hhea + 6));
 			return (float)(height / fheight);
 		}
 
-		public static float stbtt_ScaleForMappingEmToPixels(stbtt_fontinfo* info, float pixels)
+		public static float stbtt_ScaleForMappingEmToPixels(stbtt_fontinfo info, float pixels)
 		{
-			int unitsPerEm = (int)(ttUSHORT(info->data + info->head + 18));
+			int unitsPerEm = (int)(ttUSHORT(info.data + info.head + 18));
 			return (float)(pixels / unitsPerEm);
 		}
 
-		public static void stbtt_FreeShape(stbtt_fontinfo* info, stbtt_vertex* v)
+		public static void stbtt_FreeShape(stbtt_fontinfo info, stbtt_vertex* v)
 		{
 			CRuntime.free(v);
 		}
 
-		public static void stbtt_GetGlyphBitmapBoxSubpixel(stbtt_fontinfo* font, int glyph, float scale_x, float scale_y, float shift_x, float shift_y, int* ix0, int* iy0, int* ix1, int* iy1)
+		public static void stbtt_GetGlyphBitmapBoxSubpixel(stbtt_fontinfo font, int glyph, float scale_x, float scale_y, float shift_x, float shift_y, int* ix0, int* iy0, int* ix1, int* iy1)
 		{
 			int x0 = (int)(0);
 			int y0 = (int)(0);
-			int x1;
-			int y1;
+			int x1 = 0;
+			int y1 = 0;
 			if (stbtt_GetGlyphBox(font, (int)(glyph), &x0, &y0, &x1, &y1) == 0)
 			{
 				if ((ix0) != null)
@@ -1956,17 +1942,17 @@ namespace StbSharp
 
 		}
 
-		public static void stbtt_GetGlyphBitmapBox(stbtt_fontinfo* font, int glyph, float scale_x, float scale_y, int* ix0, int* iy0, int* ix1, int* iy1)
+		public static void stbtt_GetGlyphBitmapBox(stbtt_fontinfo font, int glyph, float scale_x, float scale_y, int* ix0, int* iy0, int* ix1, int* iy1)
 		{
 			stbtt_GetGlyphBitmapBoxSubpixel(font, (int)(glyph), (float)(scale_x), (float)(scale_y), (float)(0.0f), (float)(0.0f), ix0, iy0, ix1, iy1);
 		}
 
-		public static void stbtt_GetCodepointBitmapBoxSubpixel(stbtt_fontinfo* font, int codepoint, float scale_x, float scale_y, float shift_x, float shift_y, int* ix0, int* iy0, int* ix1, int* iy1)
+		public static void stbtt_GetCodepointBitmapBoxSubpixel(stbtt_fontinfo font, int codepoint, float scale_x, float scale_y, float shift_x, float shift_y, int* ix0, int* iy0, int* ix1, int* iy1)
 		{
 			stbtt_GetGlyphBitmapBoxSubpixel(font, (int)(stbtt_FindGlyphIndex(font, (int)(codepoint))), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), ix0, iy0, ix1, iy1);
 		}
 
-		public static void stbtt_GetCodepointBitmapBox(stbtt_fontinfo* font, int codepoint, float scale_x, float scale_y, int* ix0, int* iy0, int* ix1, int* iy1)
+		public static void stbtt_GetCodepointBitmapBox(stbtt_fontinfo font, int codepoint, float scale_x, float scale_y, int* ix0, int* iy0, int* ix1, int* iy1)
 		{
 			stbtt_GetCodepointBitmapBoxSubpixel(font, (int)(codepoint), (float)(scale_x), (float)(scale_y), (float)(0.0f), (float)(0.0f), ix0, iy0, ix1, iy1);
 		}
@@ -2107,10 +2093,10 @@ namespace StbSharp
 					float x0 = (float)(e->fx);
 					float dx = (float)(e->fdx);
 					float xb = (float)(x0 + dx);
-					float x_top;
-					float x_bottom;
-					float sy0;
-					float sy1;
+					float x_top = 0;
+					float x_bottom = 0;
+					float sy0 = 0;
+					float sy1 = 0;
 					float dy = (float)(e->fdy);
 					if ((e->sy) > (y_top))
 					{
@@ -2136,7 +2122,7 @@ namespace StbSharp
 					{
 						if (((int)(x_top)) == ((int)(x_bottom)))
 						{
-							float height;
+							float height = 0;
 							int x = (int)(x_top);
 							height = (float)(sy1 - sy0);
 							scanline[x] += (float)(e->direction * (1 - ((x_top - x) + (x_bottom - x)) / 2) * height);
@@ -2144,16 +2130,16 @@ namespace StbSharp
 						}
 						else
 						{
-							int x;
-							int x1;
-							int x2;
-							float y_crossing;
-							float step;
-							float sign;
-							float area;
+							int x = 0;
+							int x1 = 0;
+							int x2 = 0;
+							float y_crossing = 0;
+							float step = 0;
+							float sign = 0;
+							float area = 0;
 							if ((x_top) > (x_bottom))
 							{
-								float t;
+								float t = 0;
 								sy0 = (float)(y_bottom - (sy0 - y_top));
 								sy1 = (float)(y_bottom - (sy1 - y_top));
 								t = (float)(sy0);
@@ -2187,7 +2173,7 @@ namespace StbSharp
 					}
 					else
 					{
-						int x;
+						int x = 0;
 						for (x = (int)(0); (x) < (len); ++x)
 						{
 							float y0 = (float)(y_top);
@@ -2244,9 +2230,9 @@ namespace StbSharp
 		{
 			stbtt__hheap hh;
 			stbtt__active_edge* active = (null);
-			int y;
+			int y = 0;
 			int j = (int)(0);
-			int i;
+			int i = 0;
 			float* scanline_data = stackalloc float[129];
 			float* scanline;
 			float* scanline2;
@@ -2284,6 +2270,13 @@ namespace StbSharp
 						stbtt__active_edge* z = stbtt__new_active(&hh, e, (int)(off_x), (float)(scan_y_top), userdata);
 						if (z != (null))
 						{
+							if (((j) == (0)) && (off_y != 0))
+							{
+								if ((z->ey) < (scan_y_top))
+								{
+									z->ey = (float)(scan_y_top);
+								}
+							}
 							z->next = active;
 							active = z;
 						}
@@ -2296,8 +2289,8 @@ namespace StbSharp
 					float sum = (float)(0);
 					for (i = (int)(0); (i) < (result->w); ++i)
 					{
-						float k;
-						int m;
+						float k = 0;
+						int m = 0;
 						sum += (float)(scanline2[i]);
 						k = (float)(scanline[i] + sum);
 						k = (float)((float)(CRuntime.fabs((double)(k))) * 255 + 0.5f);
@@ -2324,8 +2317,8 @@ namespace StbSharp
 
 		public static void stbtt__sort_edges_ins_sort(stbtt__edge* p, int n)
 		{
-			int i;
-			int j;
+			int i = 0;
+			int j = 0;
 			for (i = (int)(1); (i) < (n); ++i)
 			{
 				stbtt__edge t = (stbtt__edge)(p[i]);
@@ -2350,18 +2343,18 @@ namespace StbSharp
 			while ((n) > (12))
 			{
 				stbtt__edge t = new stbtt__edge();
-				int c01;
-				int c12;
-				int c;
-				int m;
-				int i;
-				int j;
+				int c01 = 0;
+				int c12 = 0;
+				int c = 0;
+				int m = 0;
+				int i = 0;
+				int j = 0;
 				m = (int)(n >> 1);
 				c01 = (int)(((&p[0])->y0) < ((&p[m])->y0) ? 1 : 0);
 				c12 = (int)(((&p[m])->y0) < ((&p[n - 1])->y0) ? 1 : 0);
 				if (c01 != c12)
 				{
-					int z;
+					int z = 0;
 					c = (int)(((&p[0])->y0) < ((&p[n - 1])->y0) ? 1 : 0);
 					z = (int)(((c) == (c12)) ? 0 : n - 1);
 					t = (stbtt__edge)(p[z]);
@@ -2417,11 +2410,11 @@ namespace StbSharp
 		{
 			float y_scale_inv = (float)((invert) != 0 ? -scale_y : scale_y);
 			stbtt__edge* e;
-			int n;
-			int i;
-			int j;
-			int k;
-			int m;
+			int n = 0;
+			int i = 0;
+			int j = 0;
+			int k = 0;
+			int m = 0;
 			int vsubsample = (int)(1);
 			n = (int)(0);
 			for (i = (int)(0); (i) < (windings); ++i)
@@ -2538,10 +2531,10 @@ namespace StbSharp
 			stbtt__point* points = null;
 			int num_points = (int)(0);
 			float objspace_flatness_squared = (float)(objspace_flatness * objspace_flatness);
-			int i;
+			int i = 0;
 			int n = (int)(0);
 			int start = (int)(0);
-			int pass;
+			int pass = 0;
 			for (i = (int)(0); (i) < (num_verts); ++i)
 			{
 				if ((vertices[i].type) == (STBTT_vmove))
@@ -2601,7 +2594,7 @@ namespace StbSharp
 				} (*contour_lengths)[n] = (int)(num_points - start);
 			}
 			return points;
-			error:
+		error:
 			;
 			CRuntime.free(points);
 			CRuntime.free(*contour_lengths);
@@ -2630,12 +2623,12 @@ namespace StbSharp
 			CRuntime.free(bitmap);
 		}
 
-		public static byte* stbtt_GetGlyphBitmapSubpixel(stbtt_fontinfo* info, float scale_x, float scale_y, float shift_x, float shift_y, int glyph, int* width, int* height, int* xoff, int* yoff)
+		public static byte* stbtt_GetGlyphBitmapSubpixel(stbtt_fontinfo info, float scale_x, float scale_y, float shift_x, float shift_y, int glyph, int* width, int* height, int* xoff, int* yoff)
 		{
-			int ix0;
-			int iy0;
-			int ix1;
-			int iy1;
+			int ix0 = 0;
+			int iy0 = 0;
+			int ix1 = 0;
+			int iy1 = 0;
 			stbtt__bitmap gbm = new stbtt__bitmap();
 			stbtt_vertex* vertices;
 			int num_verts = (int)(stbtt_GetGlyphShape(info, (int)(glyph), &vertices));
@@ -2669,7 +2662,7 @@ namespace StbSharp
 				if ((gbm.pixels) != null)
 				{
 					gbm.stride = (int)(gbm.w);
-					stbtt_Rasterize(&gbm, (float)(0.35f), vertices, (int)(num_verts), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(ix0), (int)(iy0), (int)(1), info->userdata);
+					stbtt_Rasterize(&gbm, (float)(0.35f), vertices, (int)(num_verts), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(ix0), (int)(iy0), (int)(1), info.userdata);
 				}
 			}
 
@@ -2677,15 +2670,15 @@ namespace StbSharp
 			return gbm.pixels;
 		}
 
-		public static byte* stbtt_GetGlyphBitmap(stbtt_fontinfo* info, float scale_x, float scale_y, int glyph, int* width, int* height, int* xoff, int* yoff)
+		public static byte* stbtt_GetGlyphBitmap(stbtt_fontinfo info, float scale_x, float scale_y, int glyph, int* width, int* height, int* xoff, int* yoff)
 		{
 			return stbtt_GetGlyphBitmapSubpixel(info, (float)(scale_x), (float)(scale_y), (float)(0.0f), (float)(0.0f), (int)(glyph), width, height, xoff, yoff);
 		}
 
-		public static void stbtt_MakeGlyphBitmapSubpixel(stbtt_fontinfo* info, byte* output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int glyph)
+		public static void stbtt_MakeGlyphBitmapSubpixel(stbtt_fontinfo info, byte* output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int glyph)
 		{
-			int ix0;
-			int iy0;
+			int ix0 = 0;
+			int iy0 = 0;
 			stbtt_vertex* vertices;
 			int num_verts = (int)(stbtt_GetGlyphShape(info, (int)(glyph), &vertices));
 			stbtt__bitmap gbm = new stbtt__bitmap();
@@ -2695,68 +2688,68 @@ namespace StbSharp
 			gbm.h = (int)(out_h);
 			gbm.stride = (int)(out_stride);
 			if (((gbm.w) != 0) && ((gbm.h) != 0))
-				stbtt_Rasterize(&gbm, (float)(0.35f), vertices, (int)(num_verts), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(ix0), (int)(iy0), (int)(1), info->userdata);
+				stbtt_Rasterize(&gbm, (float)(0.35f), vertices, (int)(num_verts), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(ix0), (int)(iy0), (int)(1), info.userdata);
 			CRuntime.free(vertices);
 		}
 
-		public static void stbtt_MakeGlyphBitmap(stbtt_fontinfo* info, byte* output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int glyph)
+		public static void stbtt_MakeGlyphBitmap(stbtt_fontinfo info, byte* output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int glyph)
 		{
 			stbtt_MakeGlyphBitmapSubpixel(info, output, (int)(out_w), (int)(out_h), (int)(out_stride), (float)(scale_x), (float)(scale_y), (float)(0.0f), (float)(0.0f), (int)(glyph));
 		}
 
-		public static byte* stbtt_GetCodepointBitmapSubpixel(stbtt_fontinfo* info, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint, int* width, int* height, int* xoff, int* yoff)
+		public static byte* stbtt_GetCodepointBitmapSubpixel(stbtt_fontinfo info, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint, int* width, int* height, int* xoff, int* yoff)
 		{
 			return stbtt_GetGlyphBitmapSubpixel(info, (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(stbtt_FindGlyphIndex(info, (int)(codepoint))), width, height, xoff, yoff);
 		}
 
-		public static void stbtt_MakeCodepointBitmapSubpixelPrefilter(stbtt_fontinfo* info, byte* output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int oversample_x, int oversample_y, float* sub_x, float* sub_y, int codepoint)
+		public static void stbtt_MakeCodepointBitmapSubpixelPrefilter(stbtt_fontinfo info, byte* output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int oversample_x, int oversample_y, float* sub_x, float* sub_y, int codepoint)
 		{
 			stbtt_MakeGlyphBitmapSubpixelPrefilter(info, output, (int)(out_w), (int)(out_h), (int)(out_stride), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(oversample_x), (int)(oversample_y), sub_x, sub_y, (int)(stbtt_FindGlyphIndex(info, (int)(codepoint))));
 		}
 
-		public static void stbtt_MakeCodepointBitmapSubpixel(stbtt_fontinfo* info, byte* output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint)
+		public static void stbtt_MakeCodepointBitmapSubpixel(stbtt_fontinfo info, byte* output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint)
 		{
 			stbtt_MakeGlyphBitmapSubpixel(info, output, (int)(out_w), (int)(out_h), (int)(out_stride), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(stbtt_FindGlyphIndex(info, (int)(codepoint))));
 		}
 
-		public static byte* stbtt_GetCodepointBitmap(stbtt_fontinfo* info, float scale_x, float scale_y, int codepoint, int* width, int* height, int* xoff, int* yoff)
+		public static byte* stbtt_GetCodepointBitmap(stbtt_fontinfo info, float scale_x, float scale_y, int codepoint, int* width, int* height, int* xoff, int* yoff)
 		{
 			return stbtt_GetCodepointBitmapSubpixel(info, (float)(scale_x), (float)(scale_y), (float)(0.0f), (float)(0.0f), (int)(codepoint), width, height, xoff, yoff);
 		}
 
-		public static void stbtt_MakeCodepointBitmap(stbtt_fontinfo* info, byte* output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int codepoint)
+		public static void stbtt_MakeCodepointBitmap(stbtt_fontinfo info, byte* output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int codepoint)
 		{
 			stbtt_MakeCodepointBitmapSubpixel(info, output, (int)(out_w), (int)(out_h), (int)(out_stride), (float)(scale_x), (float)(scale_y), (float)(0.0f), (float)(0.0f), (int)(codepoint));
 		}
 
 		public static int stbtt_BakeFontBitmap_internal(byte* data, int offset, float pixel_height, byte* pixels, int pw, int ph, int first_char, int num_chars, stbtt_bakedchar* chardata)
 		{
-			float scale;
-			int x;
-			int y;
-			int bottom_y;
-			int i;
+			float scale = 0;
+			int x = 0;
+			int y = 0;
+			int bottom_y = 0;
+			int i = 0;
 			stbtt_fontinfo f = new stbtt_fontinfo();
 			f.userdata = (null);
-			if (stbtt_InitFont(&f, data, (int)(offset)) == 0)
+			if (stbtt_InitFont(f, data, (int)(offset)) == 0)
 				return (int)(-1);
 			CRuntime.memset(pixels, (int)(0), (ulong)(pw * ph));
 			x = (int)(y = (int)(1));
 			bottom_y = (int)(1);
-			scale = (float)(stbtt_ScaleForPixelHeight(&f, (float)(pixel_height)));
+			scale = (float)(stbtt_ScaleForPixelHeight(f, (float)(pixel_height)));
 			for (i = (int)(0); (i) < (num_chars); ++i)
 			{
-				int advance;
-				int lsb;
-				int x0;
-				int y0;
-				int x1;
-				int y1;
-				int gw;
-				int gh;
-				int g = (int)(stbtt_FindGlyphIndex(&f, (int)(first_char + i)));
-				stbtt_GetGlyphHMetrics(&f, (int)(g), &advance, &lsb);
-				stbtt_GetGlyphBitmapBox(&f, (int)(g), (float)(scale), (float)(scale), &x0, &y0, &x1, &y1);
+				int advance = 0;
+				int lsb = 0;
+				int x0 = 0;
+				int y0 = 0;
+				int x1 = 0;
+				int y1 = 0;
+				int gw = 0;
+				int gh = 0;
+				int g = (int)(stbtt_FindGlyphIndex(f, (int)(first_char + i)));
+				stbtt_GetGlyphHMetrics(f, (int)(g), &advance, &lsb);
+				stbtt_GetGlyphBitmapBox(f, (int)(g), (float)(scale), (float)(scale), &x0, &y0, &x1, &y1);
 				gw = (int)(x1 - x0);
 				gh = (int)(y1 - y0);
 				if ((x + gw + 1) >= (pw))
@@ -2766,7 +2759,7 @@ namespace StbSharp
 				}
 				if ((y + gh + 1) >= (ph))
 					return (int)(-i);
-				stbtt_MakeGlyphBitmap(&f, pixels + x + y * pw, (int)(gw), (int)(gh), (int)(pw), (float)(scale), (float)(scale), (int)(g));
+				stbtt_MakeGlyphBitmap(f, pixels + x + y * pw, (int)(gw), (int)(gh), (int)(pw), (float)(scale), (float)(scale), (int)(g));
 				chardata[i].x0 = (ushort)((short)(x));
 				chardata[i].y0 = (ushort)((short)(y));
 				chardata[i].x1 = (ushort)((short)(x + gw));
@@ -2811,7 +2804,7 @@ namespace StbSharp
 
 		public static void stbrp_pack_rects(stbrp_context* con, stbrp_rect* rects, int num_rects)
 		{
-			int i;
+			int i = 0;
 			for (i = (int)(0); (i) < (num_rects); ++i)
 			{
 				if ((con->x + rects[i].w) > (con->width))
@@ -2834,7 +2827,7 @@ namespace StbSharp
 			}
 		}
 
-		public static int stbtt_PackBegin(stbtt_pack_context* spc, byte* pixels, int pw, int ph, int stride_in_bytes, int padding, void* alloc_context)
+		public static int stbtt_PackBegin(stbtt_pack_context spc, byte* pixels, int pw, int ph, int stride_in_bytes, int padding, void* alloc_context)
 		{
 			stbrp_context* context = (stbrp_context*)(CRuntime.malloc((ulong)(sizeof(stbrp_context))));
 			int num_nodes = (int)(pw - padding);
@@ -2848,46 +2841,52 @@ namespace StbSharp
 				return (int)(0);
 			}
 
-			spc->user_allocator_context = alloc_context;
-			spc->width = (int)(pw);
-			spc->height = (int)(ph);
-			spc->pixels = pixels;
-			spc->pack_info = context;
-			spc->nodes = nodes;
-			spc->padding = (int)(padding);
-			spc->stride_in_bytes = (int)(stride_in_bytes != 0 ? stride_in_bytes : pw);
-			spc->h_oversample = (uint)(1);
-			spc->v_oversample = (uint)(1);
+			spc.user_allocator_context = alloc_context;
+			spc.width = (int)(pw);
+			spc.height = (int)(ph);
+			spc.pixels = pixels;
+			spc.pack_info = context;
+			spc.nodes = nodes;
+			spc.padding = (int)(padding);
+			spc.stride_in_bytes = (int)(stride_in_bytes != 0 ? stride_in_bytes : pw);
+			spc.h_oversample = (uint)(1);
+			spc.v_oversample = (uint)(1);
+			spc.skip_missing = (int)(0);
 			stbrp_init_target(context, (int)(pw - padding), (int)(ph - padding), nodes, (int)(num_nodes));
 			if ((pixels) != null)
 				CRuntime.memset(pixels, (int)(0), (ulong)(pw * ph));
 			return (int)(1);
 		}
 
-		public static void stbtt_PackEnd(stbtt_pack_context* spc)
+		public static void stbtt_PackEnd(stbtt_pack_context spc)
 		{
-			CRuntime.free(spc->nodes);
-			CRuntime.free(spc->pack_info);
+			CRuntime.free(spc.nodes);
+			CRuntime.free(spc.pack_info);
 		}
 
-		public static void stbtt_PackSetOversampling(stbtt_pack_context* spc, uint h_oversample, uint v_oversample)
+		public static void stbtt_PackSetOversampling(stbtt_pack_context spc, uint h_oversample, uint v_oversample)
 		{
 			if (h_oversample <= 8)
-				spc->h_oversample = (uint)(h_oversample);
+				spc.h_oversample = (uint)(h_oversample);
 			if (v_oversample <= 8)
-				spc->v_oversample = (uint)(v_oversample);
+				spc.v_oversample = (uint)(v_oversample);
+		}
+
+		public static void stbtt_PackSetSkipMissingCodepoints(stbtt_pack_context spc, int skip)
+		{
+			spc.skip_missing = (int)(skip);
 		}
 
 		public static void stbtt__h_prefilter(byte* pixels, int w, int h, int stride_in_bytes, uint kernel_width)
 		{
 			byte* buffer = stackalloc byte[8];
 			int safe_w = (int)(w - kernel_width);
-			int j;
+			int j = 0;
 			CRuntime.memset(buffer, (int)(0), (ulong)(8));
 			for (j = (int)(0); (j) < (h); ++j)
 			{
-				int i;
-				uint total;
+				int i = 0;
+				uint total = 0;
 				CRuntime.memset(buffer, (int)(0), (ulong)(kernel_width));
 				total = (uint)(0);
 				switch (kernel_width)
@@ -2946,12 +2945,12 @@ namespace StbSharp
 		{
 			byte* buffer = stackalloc byte[8];
 			int safe_h = (int)(h - kernel_width);
-			int j;
+			int j = 0;
 			CRuntime.memset(buffer, (int)(0), (ulong)(8));
 			for (j = (int)(0); (j) < (w); ++j)
 			{
-				int i;
-				uint total;
+				int i = 0;
+				uint total = 0;
 				CRuntime.memset(buffer, (int)(0), (ulong)(kernel_width));
 				total = (uint)(0);
 				switch (kernel_width)
@@ -3013,36 +3012,43 @@ namespace StbSharp
 			return (float)((float)(-(oversample - 1)) / (2.0f * (float)(oversample)));
 		}
 
-		public static int stbtt_PackFontRangesGatherRects(stbtt_pack_context* spc, stbtt_fontinfo* info, stbtt_pack_range* ranges, int num_ranges, stbrp_rect* rects)
+		public static int stbtt_PackFontRangesGatherRects(stbtt_pack_context spc, stbtt_fontinfo info, stbtt_pack_range* ranges, int num_ranges, stbrp_rect* rects)
 		{
-			int i;
-			int j;
-			int k;
+			int i = 0;
+			int j = 0;
+			int k = 0;
 			k = (int)(0);
 			for (i = (int)(0); (i) < (num_ranges); ++i)
 			{
 				float fh = (float)(ranges[i].font_size);
 				float scale = (float)((fh) > (0) ? stbtt_ScaleForPixelHeight(info, (float)(fh)) : stbtt_ScaleForMappingEmToPixels(info, (float)(-fh)));
-				ranges[i].h_oversample = ((byte)(spc->h_oversample));
-				ranges[i].v_oversample = ((byte)(spc->v_oversample));
+				ranges[i].h_oversample = ((byte)(spc.h_oversample));
+				ranges[i].v_oversample = ((byte)(spc.v_oversample));
 				for (j = (int)(0); (j) < (ranges[i].num_chars); ++j)
 				{
-					int x0;
-					int y0;
-					int x1;
-					int y1;
+					int x0 = 0;
+					int y0 = 0;
+					int x1 = 0;
+					int y1 = 0;
 					int codepoint = (int)((ranges[i].array_of_unicode_codepoints) == (null) ? ranges[i].first_unicode_codepoint_in_range + j : ranges[i].array_of_unicode_codepoints[j]);
 					int glyph = (int)(stbtt_FindGlyphIndex(info, (int)(codepoint)));
-					stbtt_GetGlyphBitmapBoxSubpixel(info, (int)(glyph), (float)(scale * spc->h_oversample), (float)(scale * spc->v_oversample), (float)(0), (float)(0), &x0, &y0, &x1, &y1);
-					rects[k].w = ((int)(x1 - x0 + spc->padding + spc->h_oversample - 1));
-					rects[k].h = ((int)(y1 - y0 + spc->padding + spc->v_oversample - 1));
+					if (((glyph) == (0)) && ((spc.skip_missing) != 0))
+					{
+						rects[k].w = (int)(rects[k].h = (int)(0));
+					}
+					else
+					{
+						stbtt_GetGlyphBitmapBoxSubpixel(info, (int)(glyph), (float)(scale * spc.h_oversample), (float)(scale * spc.v_oversample), (float)(0), (float)(0), &x0, &y0, &x1, &y1);
+						rects[k].w = ((int)(x1 - x0 + spc.padding + spc.h_oversample - 1));
+						rects[k].h = ((int)(y1 - y0 + spc.padding + spc.v_oversample - 1));
+					}
 					++k;
 				}
 			}
 			return (int)(k);
 		}
 
-		public static void stbtt_MakeGlyphBitmapSubpixelPrefilter(stbtt_fontinfo* info, byte* output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int prefilter_x, int prefilter_y, float* sub_x, float* sub_y, int glyph)
+		public static void stbtt_MakeGlyphBitmapSubpixelPrefilter(stbtt_fontinfo info, byte* output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int prefilter_x, int prefilter_y, float* sub_x, float* sub_y, int glyph)
 		{
 			stbtt_MakeGlyphBitmapSubpixel(info, output, (int)(out_w - (prefilter_x - 1)), (int)(out_h - (prefilter_y - 1)), (int)(out_stride), (float)(scale_x), (float)(scale_y), (float)(shift_x), (float)(shift_y), (int)(glyph));
 			if ((prefilter_x) > (1))
@@ -3053,55 +3059,55 @@ namespace StbSharp
 			*sub_y = (float)(stbtt__oversample_shift((int)(prefilter_y)));
 		}
 
-		public static int stbtt_PackFontRangesRenderIntoRects(stbtt_pack_context* spc, stbtt_fontinfo* info, stbtt_pack_range* ranges, int num_ranges, stbrp_rect* rects)
+		public static int stbtt_PackFontRangesRenderIntoRects(stbtt_pack_context spc, stbtt_fontinfo info, stbtt_pack_range* ranges, int num_ranges, stbrp_rect* rects)
 		{
-			int i;
-			int j;
-			int k;
+			int i = 0;
+			int j = 0;
+			int k = 0;
 			int return_value = (int)(1);
-			int old_h_over = (int)(spc->h_oversample);
-			int old_v_over = (int)(spc->v_oversample);
+			int old_h_over = (int)(spc.h_oversample);
+			int old_v_over = (int)(spc.v_oversample);
 			k = (int)(0);
 			for (i = (int)(0); (i) < (num_ranges); ++i)
 			{
 				float fh = (float)(ranges[i].font_size);
 				float scale = (float)((fh) > (0) ? stbtt_ScaleForPixelHeight(info, (float)(fh)) : stbtt_ScaleForMappingEmToPixels(info, (float)(-fh)));
-				float recip_h;
-				float recip_v;
-				float sub_x;
-				float sub_y;
-				spc->h_oversample = (uint)(ranges[i].h_oversample);
-				spc->v_oversample = (uint)(ranges[i].v_oversample);
-				recip_h = (float)(1.0f / spc->h_oversample);
-				recip_v = (float)(1.0f / spc->v_oversample);
-				sub_x = (float)(stbtt__oversample_shift((int)(spc->h_oversample)));
-				sub_y = (float)(stbtt__oversample_shift((int)(spc->v_oversample)));
+				float recip_h = 0;
+				float recip_v = 0;
+				float sub_x = 0;
+				float sub_y = 0;
+				spc.h_oversample = (uint)(ranges[i].h_oversample);
+				spc.v_oversample = (uint)(ranges[i].v_oversample);
+				recip_h = (float)(1.0f / spc.h_oversample);
+				recip_v = (float)(1.0f / spc.v_oversample);
+				sub_x = (float)(stbtt__oversample_shift((int)(spc.h_oversample)));
+				sub_y = (float)(stbtt__oversample_shift((int)(spc.v_oversample)));
 				for (j = (int)(0); (j) < (ranges[i].num_chars); ++j)
 				{
 					stbrp_rect* r = &rects[k];
-					if ((r->was_packed) != 0)
+					if ((((r->was_packed) != 0) && (r->w != 0)) && (r->h != 0))
 					{
 						stbtt_packedchar* bc = &ranges[i].chardata_for_range[j];
-						int advance;
-						int lsb;
-						int x0;
-						int y0;
-						int x1;
-						int y1;
+						int advance = 0;
+						int lsb = 0;
+						int x0 = 0;
+						int y0 = 0;
+						int x1 = 0;
+						int y1 = 0;
 						int codepoint = (int)((ranges[i].array_of_unicode_codepoints) == (null) ? ranges[i].first_unicode_codepoint_in_range + j : ranges[i].array_of_unicode_codepoints[j]);
 						int glyph = (int)(stbtt_FindGlyphIndex(info, (int)(codepoint)));
-						int pad = (int)(spc->padding);
+						int pad = (int)(spc.padding);
 						r->x += (int)(pad);
 						r->y += (int)(pad);
 						r->w -= (int)(pad);
 						r->h -= (int)(pad);
 						stbtt_GetGlyphHMetrics(info, (int)(glyph), &advance, &lsb);
-						stbtt_GetGlyphBitmapBox(info, (int)(glyph), (float)(scale * spc->h_oversample), (float)(scale * spc->v_oversample), &x0, &y0, &x1, &y1);
-						stbtt_MakeGlyphBitmapSubpixel(info, spc->pixels + r->x + r->y * spc->stride_in_bytes, (int)(r->w - spc->h_oversample + 1), (int)(r->h - spc->v_oversample + 1), (int)(spc->stride_in_bytes), (float)(scale * spc->h_oversample), (float)(scale * spc->v_oversample), (float)(0), (float)(0), (int)(glyph));
-						if ((spc->h_oversample) > (1))
-							stbtt__h_prefilter(spc->pixels + r->x + r->y * spc->stride_in_bytes, (int)(r->w), (int)(r->h), (int)(spc->stride_in_bytes), (uint)(spc->h_oversample));
-						if ((spc->v_oversample) > (1))
-							stbtt__v_prefilter(spc->pixels + r->x + r->y * spc->stride_in_bytes, (int)(r->w), (int)(r->h), (int)(spc->stride_in_bytes), (uint)(spc->v_oversample));
+						stbtt_GetGlyphBitmapBox(info, (int)(glyph), (float)(scale * spc.h_oversample), (float)(scale * spc.v_oversample), &x0, &y0, &x1, &y1);
+						stbtt_MakeGlyphBitmapSubpixel(info, spc.pixels + r->x + r->y * spc.stride_in_bytes, (int)(r->w - spc.h_oversample + 1), (int)(r->h - spc.v_oversample + 1), (int)(spc.stride_in_bytes), (float)(scale * spc.h_oversample), (float)(scale * spc.v_oversample), (float)(0), (float)(0), (int)(glyph));
+						if ((spc.h_oversample) > (1))
+							stbtt__h_prefilter(spc.pixels + r->x + r->y * spc.stride_in_bytes, (int)(r->w), (int)(r->h), (int)(spc.stride_in_bytes), (uint)(spc.h_oversample));
+						if ((spc.v_oversample) > (1))
+							stbtt__v_prefilter(spc.pixels + r->x + r->y * spc.stride_in_bytes, (int)(r->w), (int)(r->h), (int)(spc.stride_in_bytes), (uint)(spc.v_oversample));
 						bc->x0 = (ushort)((short)(r->x));
 						bc->y0 = (ushort)((short)(r->y));
 						bc->x1 = (ushort)((short)(r->x + r->w));
@@ -3119,22 +3125,22 @@ namespace StbSharp
 					++k;
 				}
 			}
-			spc->h_oversample = (uint)(old_h_over);
-			spc->v_oversample = (uint)(old_v_over);
+			spc.h_oversample = (uint)(old_h_over);
+			spc.v_oversample = (uint)(old_v_over);
 			return (int)(return_value);
 		}
 
-		public static void stbtt_PackFontRangesPackRects(stbtt_pack_context* spc, stbrp_rect* rects, int num_rects)
+		public static void stbtt_PackFontRangesPackRects(stbtt_pack_context spc, stbrp_rect* rects, int num_rects)
 		{
-			stbrp_pack_rects((stbrp_context*)(spc->pack_info), rects, (int)(num_rects));
+			stbrp_pack_rects((stbrp_context*)(spc.pack_info), rects, (int)(num_rects));
 		}
 
-		public static int stbtt_PackFontRanges(stbtt_pack_context* spc, byte* fontdata, int font_index, stbtt_pack_range* ranges, int num_ranges)
+		public static int stbtt_PackFontRanges(stbtt_pack_context spc, byte* fontdata, int font_index, stbtt_pack_range* ranges, int num_ranges)
 		{
 			stbtt_fontinfo info = new stbtt_fontinfo();
-			int i;
-			int j;
-			int n;
+			int i = 0;
+			int j = 0;
+			int n = 0;
 			int return_value = (int)(1);
 			stbrp_rect* rects;
 			for (i = (int)(0); (i) < (num_ranges); ++i)
@@ -3152,16 +3158,16 @@ namespace StbSharp
 			rects = (stbrp_rect*)(CRuntime.malloc((ulong)(sizeof(stbrp_rect) * n)));
 			if ((rects) == (null))
 				return (int)(0);
-			info.userdata = spc->user_allocator_context;
-			stbtt_InitFont(&info, fontdata, (int)(stbtt_GetFontOffsetForIndex(fontdata, (int)(font_index))));
-			n = (int)(stbtt_PackFontRangesGatherRects(spc, &info, ranges, (int)(num_ranges), rects));
+			info.userdata = spc.user_allocator_context;
+			stbtt_InitFont(info, fontdata, (int)(stbtt_GetFontOffsetForIndex(fontdata, (int)(font_index))));
+			n = (int)(stbtt_PackFontRangesGatherRects(spc, info, ranges, (int)(num_ranges), rects));
 			stbtt_PackFontRangesPackRects(spc, rects, (int)(n));
-			return_value = (int)(stbtt_PackFontRangesRenderIntoRects(spc, &info, ranges, (int)(num_ranges), rects));
+			return_value = (int)(stbtt_PackFontRangesRenderIntoRects(spc, info, ranges, (int)(num_ranges), rects));
 			CRuntime.free(rects);
 			return (int)(return_value);
 		}
 
-		public static int stbtt_PackFontRange(stbtt_pack_context* spc, byte* fontdata, int font_index, float font_size, int first_unicode_codepoint_in_range, int num_chars_in_range, stbtt_packedchar* chardata_for_range)
+		public static int stbtt_PackFontRange(stbtt_pack_context spc, byte* fontdata, int font_index, float font_size, int first_unicode_codepoint_in_range, int num_chars_in_range, stbtt_packedchar* chardata_for_range)
 		{
 			stbtt_pack_range range = new stbtt_pack_range();
 			range.first_unicode_codepoint_in_range = (int)(first_unicode_codepoint_in_range);
@@ -3170,6 +3176,21 @@ namespace StbSharp
 			range.chardata_for_range = chardata_for_range;
 			range.font_size = (float)(font_size);
 			return (int)(stbtt_PackFontRanges(spc, fontdata, (int)(font_index), &range, (int)(1)));
+		}
+
+		public static void stbtt_GetScaledFontVMetrics(byte* fontdata, int index, float size, float* ascent, float* descent, float* lineGap)
+		{
+			int i_ascent = 0;
+			int i_descent = 0;
+			int i_lineGap = 0;
+			float scale = 0;
+			stbtt_fontinfo info = new stbtt_fontinfo();
+			stbtt_InitFont(info, fontdata, (int)(stbtt_GetFontOffsetForIndex(fontdata, (int)(index))));
+			scale = (float)((size) > (0) ? stbtt_ScaleForPixelHeight(info, (float)(size)) : stbtt_ScaleForMappingEmToPixels(info, (float)(-size)));
+			stbtt_GetFontVMetrics(info, &i_ascent, &i_descent, &i_lineGap);
+			*ascent = (float)((float)(i_ascent) * scale);
+			*descent = (float)((float)(i_descent) * scale);
+			*lineGap = (float)((float)(i_lineGap) * scale);
 		}
 
 		public static void stbtt_GetPackedQuad(stbtt_packedchar* chardata, int pw, int ph, int char_index, float* xpos, float* ypos, stbtt_aligned_quad* q, int align_to_integer)
@@ -3276,13 +3297,13 @@ namespace StbSharp
 
 		public static int stbtt__compute_crossings_x(float x, float y, int nverts, stbtt_vertex* verts)
 		{
-			int i;
+			int i = 0;
 			float* orig = stackalloc float[2];
 			float* ray = stackalloc float[2];
 			ray[0] = (float)(1);
 			ray[1] = (float)(0);
 
-			float y_frac;
+			float y_frac = 0;
 			int winding = (int)(0);
 			orig[0] = (float)(x);
 			orig[1] = (float)(y);
@@ -3398,16 +3419,16 @@ namespace StbSharp
 
 		}
 
-		public static byte* stbtt_GetGlyphSDF(stbtt_fontinfo* info, float scale, int glyph, int padding, byte onedge_value, float pixel_dist_scale, int* width, int* height, int* xoff, int* yoff)
+		public static byte* stbtt_GetGlyphSDF(stbtt_fontinfo info, float scale, int glyph, int padding, byte onedge_value, float pixel_dist_scale, int* width, int* height, int* xoff, int* yoff)
 		{
 			float scale_x = (float)(scale);
 			float scale_y = (float)(scale);
-			int ix0;
-			int iy0;
-			int ix1;
-			int iy1;
-			int w;
-			int h;
+			int ix0 = 0;
+			int iy0 = 0;
+			int ix1 = 0;
+			int iy1 = 0;
+			int w = 0;
+			int h = 0;
 			byte* data;
 			if ((scale_x) == (0))
 				scale_x = (float)(scale_y);
@@ -3437,10 +3458,10 @@ namespace StbSharp
 				*yoff = (int)(iy0);
 			scale_y = (float)(-scale_y);
 			{
-				int x;
-				int y;
-				int i;
-				int j;
+				int x = 0;
+				int y = 0;
+				int i = 0;
+				int j = 0;
 				float* precompute;
 				stbtt_vertex* verts;
 				int num_verts = (int)(stbtt_GetGlyphShape(info, (int)(glyph), &verts));
@@ -3480,7 +3501,7 @@ namespace StbSharp
 				{
 					for (x = (int)(ix0); (x) < (ix1); ++x)
 					{
-						float val;
+						float val = 0;
 						float min_dist = (float)(999999.0f);
 						float sx = (float)((float)(x) + 0.5f);
 						float sy = (float)((float)(y) + 0.5f);
@@ -3530,10 +3551,10 @@ namespace StbSharp
 									float mx = (float)(x0 - sx);
 									float my = (float)(y0 - sy);
 									float* res = stackalloc float[3];
-									float px;
-									float py;
-									float t;
-									float it;
+									float px = 0;
+									float py = 0;
+									float t = 0;
+									float it = 0;
 									float a_inv = (float)(precompute[i]);
 									if ((a_inv) == (0.0))
 									{
@@ -3618,7 +3639,7 @@ namespace StbSharp
 			return data;
 		}
 
-		public static byte* stbtt_GetCodepointSDF(stbtt_fontinfo* info, float scale, int codepoint, int padding, byte onedge_value, float pixel_dist_scale, int* width, int* height, int* xoff, int* yoff)
+		public static byte* stbtt_GetCodepointSDF(stbtt_fontinfo info, float scale, int codepoint, int padding, byte onedge_value, float pixel_dist_scale, int* width, int* height, int* xoff, int* yoff)
 		{
 			return stbtt_GetGlyphSDF(info, (float)(scale), (int)(stbtt_FindGlyphIndex(info, (int)(codepoint))), (int)(padding), (byte)(onedge_value), (float)(pixel_dist_scale), width, height, xoff, yoff);
 		}
@@ -3652,7 +3673,7 @@ namespace StbSharp
 				}
 				else if (((ch) >= (0xd800)) && ((ch) < (0xdc00)))
 				{
-					uint c;
+					uint c = 0;
 					ushort ch2 = (ushort)(s2[2] * 256 + s2[3]);
 					if ((i + 3) >= (len1))
 						return (int)(-1);
@@ -3694,13 +3715,13 @@ namespace StbSharp
 			return (int)((len1) == (stbtt__CompareUTF8toUTF16_bigendian_prefix((byte*)(s1), (int)(len1), (byte*)(s2), (int)(len2))) ? 1 : 0);
 		}
 
-		public static sbyte* stbtt_GetFontNameString(stbtt_fontinfo* font, int* length, int platformID, int encodingID, int languageID, int nameID)
+		public static sbyte* stbtt_GetFontNameString(stbtt_fontinfo font, int* length, int platformID, int encodingID, int languageID, int nameID)
 		{
-			int i;
-			int count;
-			int stringOffset;
-			byte* fc = font->data;
-			uint offset = (uint)(font->fontstart);
+			int i = 0;
+			int count = 0;
+			int stringOffset = 0;
+			byte* fc = font.data;
+			uint offset = (uint)(font.fontstart);
 			uint nm = (uint)(stbtt__find_table(fc, (uint)(offset), "name"));
 			if (nm == 0)
 				return (null);
@@ -3720,7 +3741,7 @@ namespace StbSharp
 
 		public static int stbtt__matchpair(byte* fc, uint nm, byte* name, int nlen, int target_id, int next_id)
 		{
-			int i;
+			int i = 0;
 			int count = (int)(ttUSHORT(fc + nm + 2));
 			int stringOffset = (int)(nm + ttUSHORT(fc + nm + 4));
 			for (i = (int)(0); (i) < (count); ++i)
@@ -3770,8 +3791,8 @@ namespace StbSharp
 		public static int stbtt__matches(byte* fc, uint offset, byte* name, int flags)
 		{
 			int nlen = (int)(CRuntime.strlen((sbyte*)(name)));
-			uint nm;
-			uint hd;
+			uint nm = 0;
+			uint hd = 0;
 			if (stbtt__isfont(fc + offset) == 0)
 				return (int)(0);
 			if ((flags) != 0)
@@ -3808,7 +3829,7 @@ namespace StbSharp
 
 		public static int stbtt_FindMatchingFont_internal(byte* font_collection, sbyte* name_utf8, int flags)
 		{
-			int i;
+			int i = 0;
 			for (i = (int)(0); ; ++i)
 			{
 				int off = (int)(stbtt_GetFontOffsetForIndex(font_collection, (int)(i)));
@@ -3834,7 +3855,7 @@ namespace StbSharp
 			return (int)(stbtt_GetNumberOfFonts_internal(data));
 		}
 
-		public static int stbtt_InitFont(stbtt_fontinfo* info, byte* data, int offset)
+		public static int stbtt_InitFont(stbtt_fontinfo info, byte* data, int offset)
 		{
 			return (int)(stbtt_InitFont_internal(info, data, (int)(offset)));
 		}

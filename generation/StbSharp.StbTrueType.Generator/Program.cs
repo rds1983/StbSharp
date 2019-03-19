@@ -6,52 +6,47 @@ namespace StbSharp.StbTrueType.Generator
 {
 	class Program
 	{
-		private const string SourceFile = @"..\..\..\..\..\StbSharp\StbTrueType.Generated.cs";
-
 		static void Process()
 		{
-			var data = string.Empty;
-			using (var output = new StringWriter())
+			var parameters = new ConversionParameters
 			{
-				var parameters = new ConversionParameters
+				InputPath = @"stb_truetype.h",
+				ConversionMode = ConversionMode.SingleString,
+				Defines = new[]
 				{
-					InputPath = @"stb_truetype.h",
-					Output = output,
-					Defines = new[]
-					{
 						"STB_TRUETYPE_IMPLEMENTATION",
 					},
-					Namespace = "StbSharp",
-					Class = "StbTrueType",
-					SkipStructs = new string[]
-					{
-					},
-					SkipGlobalVariables = new string[]
-					{
-					},
-					SkipFunctions = new string[]
-					{
+				Namespace = "StbTrueTypeSharp",
+				Class = "StbTrueType",
+				SkipStructs = new string[]
+				{
+				},
+				SkipGlobalVariables = new string[]
+				{
+				},
+				SkipFunctions = new string[]
+				{
 						"stbtt__find_table",
-					},
-					Classes = new string[]
-					{
-					},
-					GlobalArrays = new string[]
-					{
-					}
-				};
+				},
+				Classes = new string[]
+				{
+						"stbtt_pack_context",
+						"stbtt_fontinfo",
+				},
+				GlobalArrays = new string[]
+				{
+				},
+				GenerateSafeCode = false,
+			};
 
-				var cp = new ClangParser();
+			var cp = new ClangParser();
 
-				cp.Process(parameters);
-
-				data = output.ToString();
-			}
-
+			cp.Process(parameters);
 
 			// Post processing
 			Logger.Info("Post processing...");
 
+			var data = cp.StringResult;
 			data = Utility.ReplaceNativeCalls(data);
 
 			data = data.Replace("(void *)(0)", "null");
@@ -83,7 +78,7 @@ namespace StbSharp.StbTrueType.Generator
 			data = data.Replace("(int)(((a[0]) == (b[0])) && ((a[1]) == (b[1])));",
 				"(int)(((a[0] == b[0]) && (a[1] == b[1]))?1:0);");
 
-			File.WriteAllText(SourceFile, data);
+			File.WriteAllText(@"..\..\..\..\..\src\StbTrueTypeSharp\StbTrueType.Generated.cs", data);
 		}
 
 		static void Main(string[] args)

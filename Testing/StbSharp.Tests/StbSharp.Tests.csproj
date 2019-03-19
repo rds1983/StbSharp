@@ -49,10 +49,6 @@
       <Project>{ea7b8121-942a-437d-85d5-e4d55b94e88a}</Project>
       <Name>Stb.Native</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\StbSharp\StbSharp.csproj">
-      <Project>{5a331dad-b629-41e7-9131-70e538cf0b42}</Project>
-      <Name>StbSharp</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
