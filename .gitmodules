@@ -1,5 +1,5 @@
 [submodule "Generation/Sichem"]
-	path = generation/Sichem
+	path = Generation/Sichem
 	url = https://github.com/rds1983/Sichem.git
 [submodule "Testing/TestImages"]
 	path = Testing/TestImages
