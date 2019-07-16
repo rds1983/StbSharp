@@ -1,3 +1,6 @@
+This repo is archived and in process of being split into separate projects. (one repo for each stb library).
+For now the new project home is https://github.com/stbsharp2
+
 ### About
 StbSharp is C# port of the famous C framework: [https://github.com/nothings/stb](https://github.com/nothings/stb)
 
